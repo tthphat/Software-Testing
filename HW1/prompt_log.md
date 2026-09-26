@@ -7,12 +7,31 @@
 
 ---
 
-## [14:00 15/03/2026] - Khởi động: Sơ đồ tư duy ISTQB (G9.1)
-- **Công cụ AI sử dụng:** ChatGPT (GPT-4o)
+## [22:30 26/09/2026] - AI phân tích software defect để đánh giá mức độ hallucination, bias
+- **Công cụ AI sử dụng:** ChatGPT
 - **Prompt (Câu lệnh của tôi):**
-  > Hãy vẽ cho tôi một sơ đồ tư duy (mindmap) bằng định dạng Markdown minh họa quy trình kiểm thử theo chuẩn ISTQB Foundation Level, tập trung làm rõ các vai trò và nhiệm vụ của QA/QC trong bối cảnh phát triển phần mềm hiện đại (2026).
+  > 
+``` text
+Hãy phân tích lỗi phần mềm 7. CrowdStrike Falcon Agent Channel File 291 Crash (07/2024)
+trình bày theo cấu trúc sau:
+  - Source Link:
+  - Description:
+  - Severity:
+  - Consequences:
+  - Solution:
+```
 - **Phản hồi của AI (Tóm tắt hoặc toàn văn):**
-  > [Dán toàn bộ nội dung mindmap markdown mà AI trả về vào đây...]
+  >
+``` text
+- Source Link: CrowdStrike – Root Cause Analysis
+- Description: Ngày 19/07/2024, bản cập nhật Channel File 291 của CrowdStrike Falcon có dữ liệu lỗi. Falcon Sensor xử lý dữ liệu này gây out-of-bounds memory read, dẫn đến Windows BSOD.
+- Severity: Critical – ảnh hưởng diện rộng đến hệ thống Windows.
+- Consequences: Máy tính bị BSOD/reboot loop, nhiều hệ thống doanh nghiệp ngừng hoạt động, phải khôi phục thủ công.
+- Solution: CrowdStrike revert bản cập nhật. Với máy bị BSOD, cần vào Recovery/Safe Mode và xóa file Channel 291 lỗi trong:
+ C:\Windows\System32\drivers\CrowdStrike\
+ Sau đó khởi động lại và cập nhật Falcon.
+
+```
 
 ---
 
