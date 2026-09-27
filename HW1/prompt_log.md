@@ -73,12 +73,24 @@ Lưu ý quan trọng: Hãy tập trung vào các chức năng cơ bản như: n�
 
 ---
 
-## [16:30 15/03/2026] - 
-- **Công cụ AI sử dụng:**
+## [21:40 27/09/2026] - 
+- **Công cụ AI sử dụng:** Chat GPT
 - **Prompt (Câu lệnh của tôi):**
   > 
+```text
+Hãy đóng vai trò là một Chuyên gia Kiểm thử Phần mềm (Principal QA/QC Architect) có chứng chỉ ISTQB. Hãy giúp tôi thiết kế một sơ đồ tư duy (Mindmap) toàn diện về "Vai trò và Trách nhiệm của QA/QC trong ngành Công nghệ phần mềm hiện đại năm 2026".
+
+Yêu cầu định dạng đầu ra: ảnh png
+
+Nội dung sơ đồ cần bao phủ các nhánh chính sau:
+- Nhánh 1: Core Responsibilities (Trách nhiệm cốt lõi: Test Planning, Test Design, Execution, Bug Management).
+- Nhánh 2: Modern Automation & Technical Skills (Kỹ năng kỹ thuật & Tự động hóa: Playwright/Selenium, API Testing, CI/CD Integration, Performance/Security).
+- Nhánh 3: AI-Augmented QA & Quality Governance (Ứng dụng AI & Quản trị chất lượng: GenAI trong test generation, Risk-based testing, Shift-Left testing, Process Quality / ASPICE).
+- Nhánh 4: Collaboration & Soft Skills (Kỹ năng mềm & Phối hợp: Làm việc với PO/Dev/Client, Root-cause analysis, Release Risk Governance).
+```
+
 - **Phản hồi của AI (Tóm tắt hoặc toàn văn):**
-  > [Dán câu trả lời của AI vào đây...]
+  > ![QA/QC Mindmap](./images/QAQC-mindmap..png)
 
 ---
 
