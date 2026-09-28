@@ -15,11 +15,11 @@
 | Mục | Giá trị |
 | :---- | :---- |
 | **Môn học:** | CS423 / CSC13003 – Kiểm chứng Phần mềm |
-| **Mã bài tập:** | HW01 |
+| **Mã bài tập:** | HW\#01 |
 | **Tên bài tập:** | HW01 – QA/QC Jobs · 20 Defects · Test a Physical Product |
 | **Cấp độ AI (1–5):** | Cấp 4 |
 | **Ngày:** | 27/09/2026 |
-| **Họ tên sinh viên:** | Trương Thành Phát |
+| **Họ tên sinh viên:** | TRƯƠNG THÀNH PHÁT |
 | **MSSV:** | 23120319 |
 
 ## **2\. Câu hỏi Khai báo**
