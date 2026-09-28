@@ -74,15 +74,8 @@ Nội dung sơ đồ cần bao phủ các nhánh chính sau:
 ```
 ---
 
-## [16:30 15/03/2026] - 
-- **Công cụ AI sử dụng:**
+## [22:25 28/09/2026] - 
+- **Công cụ AI sử dụng:** Chat GPT
 - **Prompt (Câu lệnh của tôi):**
-> 
+> Hãy trình bày bảng test case này theo dạng danh sách.
 ---
-
-## [16:30 15/03/2026] - 
-- **Công cụ AI sử dụng:**
-- **Prompt (Câu lệnh của tôi):**
-> 
----
-
