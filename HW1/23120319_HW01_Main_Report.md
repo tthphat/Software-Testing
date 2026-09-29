@@ -877,7 +877,7 @@
 
    2. **Ảnh minh chứng:**
 
-![Fan piecture](images/fan.jpg)
+![Fan piecture](images/23120319_HW01_Device.jpg)
 
 3. **Thông tin thiết bị:**
 
