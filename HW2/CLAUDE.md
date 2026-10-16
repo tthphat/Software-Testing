@@ -35,10 +35,10 @@
 ## Layout
 ```
 .claude/skills/        skills (English)
-testcases/             FR-xx.json + config.json
-report/                Vietnamese reports, bugs.vi.md, appendix-A/B
-evidence/              screenshots (TC-ID.png)
-audit/                 audit-log.jsonl, raw session exports
+HW2/testcases/         FR-xx.json + config.json
+HW2/report/           Vietnamese reports, bugs.vi.md, appendix-A/B
+HW2/evidence/         screenshots (TC-ID.png)
+HW2/audit/            audit-log.jsonl, raw session exports
 skills-changelog.md    v1 -> v2 improvements from AI gap analysis
 git-commit-log.txt
 README.md              self-assessment table + test summary + demo video links
