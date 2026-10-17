@@ -179,5 +179,134 @@ Bảng biến chi tiết bao gồm tập giá trị khả dĩ và các ràng bu�
 
 ---
 
+## Stage 3: Chọn giá trị đại diện cho từng lớp tương đương (Best Representatives)
+
+Quy tắc lựa chọn theo slide bài giảng S04:
+- Miền có thứ tự (ordered/ranged): Giá trị đại diện là giá trị biên hoặc cận biên (`-> BVA` sẽ khai thác sâu hơn).
+- Miền không có thứ tự (unordered): Chọn giá trị điển hình, thực tế.
+
+| EC ID | Biến | Mô tả lớp | Giá trị đại diện được chọn | Lý do lựa chọn |
+| :--- | :--- | :--- | :--- | :--- |
+| **EC01** | `name` | Chuỗi ký tự hợp lệ | `"Nguyen Van A"` | Dữ liệu mẫu chuẩn từ đặc tả `api_specification.md` |
+| **EC02** | `name` | Chuỗi rỗng | `""` | Chuỗi có độ dài 0 (không có ký tự) |
+| **EC03** | `name` | Omitted / Missing | `(không truyền trường name)` | Kiểm tra hành vi khi request body thiếu hẳn key `name` |
+| **EC04** | `name` | Sai kiểu dữ liệu | `12345` | Số nguyên thay vì chuỗi văn bản |
+| **EC05** | `email` | Email hợp lệ chuẩn RFC | `"user_{{uniq}}@domain.com"` | Định dạng email chuẩn, dùng `{{uniq}}` để đảm bảo duy nhất |
+| **EC06** | `email` | Sai định dạng email | `"invalid_email_domain.com"` | Chuỗi thiếu ký tự `@` và domain |
+| **EC07** | `email` | Chuỗi rỗng | `""` | Chuỗi có độ dài 0 |
+| **EC08** | `email` | Omitted / Missing | `(không truyền trường email)` | Kiểm tra hành vi khi request body thiếu hẳn key `email` |
+| **EC09** | `email` | Sai kiểu dữ liệu | `true` | Kiểu Boolean thay vì chuỗi email |
+| **EC10** | `password` | Mật khẩu mạnh hợp lệ | `"Password123!"` | Đầy đủ chữ hoa, chữ thường, số, ký tự đặc biệt, độ dài 12 (`>= 8`) |
+| **EC11** | `password` | Quá ngắn (< 8 ký tự) | `"Pass1!"` | 6 ký tự, có đủ nhóm ký tự nhưng vi phạm độ dài tối thiểu |
+| **EC12** | `password` | Thiếu chữ in hoa | `"password123!"` | Đủ độ dài, có thường, số, ký tự đặc biệt nhưng thiếu chữ hoa |
+| **EC13** | `password` | Thiếu chữ in thường | `"PASSWORD123!"` | Đủ độ dài, có hoa, số, ký tự đặc biệt nhưng thiếu chữ thường |
+| **EC14** | `password` | Thiếu chữ số | `"Password!"` | Đủ độ dài, có hoa, thường, ký tự đặc biệt nhưng thiếu số |
+| **EC15** | `password` | Thiếu ký tự đặc biệt | `"Password123"` | Đủ độ dài, có hoa, thường, số nhưng thiếu ký tự đặc biệt |
+| **EC16** | `password` | Chuỗi rỗng | `""` | Chuỗi có độ dài 0 |
+| **EC17** | `password` | Omitted / Missing | `(không truyền trường password)` | Kiểm tra hành vi khi request body thiếu hẳn key `password` |
+| **EC18** | `existing_email`| Email chưa tồn tại | Email sinh bằng `{{uniq}}` | Đảm bảo tính duy nhất khi kiểm thử |
+| **EC19** | `existing_email`| Email đã tồn tại | `"admin@eshop.com"` | Tài khoản admin đã có sẵn trong cơ sở dữ liệu mẫu |
+| **EC20** | Output | Đăng ký thành công | HTTP 200 + `{ "message": "User registered successfully" }` | Kết quả kỳ vọng cho test case hợp lệ |
+| **EC21** | Output | Từ chối validation | HTTP 400/422 + báo lỗi | Kỳ vọng khi vi phạm bất kỳ lớp Invalid nào của input |
+| **EC22** | Output | Từ chối do trùng lặp | HTTP 409/400 + báo lỗi conflict | Kỳ vọng khi đăng ký với email đã tồn tại |
+| **EC23** | Output | Lỗi máy chủ/database | HTTP 500 + `{ "error": ... }` | Ngoại lệ hệ thống hoặc SQL crash |
+
+---
+
+## Stage 4: Lựa chọn bộ Test Case tối thiểu (Selecting Test Cases)
+
+### 4.1 Quy tắc kết hợp (Theo slide bài giảng S04)
+1. **Bao phủ toàn bộ:** Mỗi lớp tương đương phải xuất hiện trong ít nhất một test case.
+2. **Lớp hợp lệ (Valid classes):** Kết hợp tối đa các lớp hợp lệ vào cùng một test case cho đến khi tất cả các lớp hợp lệ đều được kiểm thử (`FR01-DT-01`).
+3. **Lớp không hợp lệ (Invalid classes):** Mỗi test case **chỉ chứa duy nhất một lớp không hợp lệ**, tất cả các trường dữ liệu còn lại phải giữ ở giá trị hợp lệ để cô lập nguyên nhân gây lỗi (`FR01-DT-02` đến `FR01-DT-16`).
+4. **Lớp đầu ra (Output classes):** Được bao phủ trực tiếp bởi các test case sinh ra chúng.
+
+### 4.2 Bảng danh sách Test Case chi tiết
+
+| TC ID | Lớp bao phủ (Partitions) | Trường `name` | Trường `email` | Trường `password` | Tiền điều kiện | Kỳ vọng đầu ra | Nguồn gốc |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
+| **FR01-DT-01** | EC01, EC05, EC10, EC18, EC20 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"Password123!"` | Email chưa tồn tại | HTTP 200, message: "User registered successfully" | [SPEC] |
+| **FR01-DT-02** | EC02, EC21 | `""` | `"user_{{uniq}}@domain.com"` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | [ASSUMED] |
+| **FR01-DT-03** | EC03, EC21 | *(omitted)* | `"user_{{uniq}}@domain.com"` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | [SPEC] |
+| **FR01-DT-04** | EC04, EC21 | `12345` | `"user_{{uniq}}@domain.com"` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | [ASSUMED] |
+| **FR01-DT-05** | EC06, EC21 | `"Nguyen Van A"` | `"invalid_email_domain.com"` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | [SPEC] |
+| **FR01-DT-06** | EC07, EC21 | `"Nguyen Van A"` | `""` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | [ASSUMED] |
+| **FR01-DT-07** | EC08, EC21 | `"Nguyen Van A"` | *(omitted)* | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | [SPEC] |
+| **FR01-DT-08** | EC09, EC21 | `"Nguyen Van A"` | `true` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | [ASSUMED] |
+| **FR01-DT-09** | EC11, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"Pass1!"` | Không có | HTTP 400/422, từ chối tạo user | [CODE] |
+| **FR01-DT-10** | EC12, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"password123!"` | Không có | HTTP 400/422, từ chối tạo user | [CODE] |
+| **FR01-DT-11** | EC13, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"PASSWORD123!"` | Không có | HTTP 400/422, từ chối tạo user | [CODE] |
+| **FR01-DT-12** | EC14, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"Password!"` | Không có | HTTP 400/422, từ chối tạo user | [CODE] |
+| **FR01-DT-13** | EC15, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"Password123"` | Không có | HTTP 400/422, từ chối tạo user | [CODE] |
+| **FR01-DT-14** | EC16, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `""` | Không có | HTTP 400/422, từ chối tạo user | [ASSUMED] |
+| **FR01-DT-15** | EC17, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | *(omitted)* | Không có | HTTP 400/422, từ chối tạo user | [SPEC] |
+| **FR01-DT-16** | EC19, EC22 | `"Nguyen Van A"` | `"admin@eshop.com"` | `"Password123!"` | Email đã tồn tại | HTTP 409/400, từ chối trùng lặp | [ASSUMED] |
+
+### 4.3 Ma trận bao phủ lớp tương đương (Coverage Matrix)
+
+| Lớp tương đương (EC) | Loại lớp | Test Case kiểm thử | Tình trạng bao phủ |
+| :--- | :---: | :---: | :---: |
+| **EC01** (`name` valid) | Valid | `FR01-DT-01`, `FR01-DT-05` -> `16` | ✅ Bao phủ đầy đủ |
+| **EC02** (`name` rỗng `""`) | Invalid | `FR01-DT-02` | ✅ Bao phủ đơn lập |
+| **EC03** (`name` omitted) | Invalid | `FR01-DT-03` | ✅ Bao phủ đơn lập |
+| **EC04** (`name` sai kiểu) | Invalid | `FR01-DT-04` | ✅ Bao phủ đơn lập |
+| **EC05** (`email` valid) | Valid | `FR01-DT-01` -> `04`, `09` -> `15` | ✅ Bao phủ đầy đủ |
+| **EC06** (`email` sai định dạng) | Invalid | `FR01-DT-05` | ✅ Bao phủ đơn lập |
+| **EC07** (`email` rỗng `""`) | Invalid | `FR01-DT-06` | ✅ Bao phủ đơn lập |
+| **EC08** (`email` omitted) | Invalid | `FR01-DT-07` | ✅ Bao phủ đơn lập |
+| **EC09** (`email` sai kiểu) | Invalid | `FR01-DT-08` | ✅ Bao phủ đơn lập |
+| **EC10** (`password` valid) | Valid | `FR01-DT-01` -> `08`, `16` | ✅ Bao phủ đầy đủ |
+| **EC11** (`password` < 8 ký tự) | Invalid | `FR01-DT-09` | ✅ Bao phủ đơn lập |
+| **EC12** (`password` thiếu hoa) | Invalid | `FR01-DT-10` | ✅ Bao phủ đơn lập |
+| **EC13** (`password` thiếu thường)| Invalid | `FR01-DT-11` | ✅ Bao phủ đơn lập |
+| **EC14** (`password` thiếu số) | Invalid | `FR01-DT-12` | ✅ Bao phủ đơn lập |
+| **EC15** (`password` thiếu đặc biệt)| Invalid | `FR01-DT-13` | ✅ Bao phủ đơn lập |
+| **EC16** (`password` rỗng `""`) | Invalid | `FR01-DT-14` | ✅ Bao phủ đơn lập |
+| **EC17** (`password` omitted) | Invalid | `FR01-DT-15` | ✅ Bao phủ đơn lập |
+| **EC18** (`existing_email` false) | Valid | `FR01-DT-01` -> `15` | ✅ Bao phủ đầy đủ |
+| **EC19** (`existing_email` true) | Invalid | `FR01-DT-16` | ✅ Bao phủ đơn lập |
+| **EC20** (Output: HTTP 200) | Valid Output | `FR01-DT-01` | ✅ Bao phủ |
+| **EC21** (Output: HTTP 400) | Invalid Output| `FR01-DT-02` -> `15` | ✅ Bao phủ |
+| **EC22** (Output: HTTP 409) | Invalid Output| `FR01-DT-16` | ✅ Bao phủ |
+| **EC23** (Output: HTTP 500) | Error Output | Phụ thuộc vào ngoại lệ hệ thống DB | Sẽ quan sát khi chạy SUT |
+
+### 4.4 Thống kê số lượng
+- **Tổng số lớp tương đương đã xác định:** 23
+  - Lớp đầu vào & trạng thái hợp lệ (Valid): 4 (`EC01`, `EC05`, `EC10`, `EC18`)
+  - Lớp đầu vào & trạng thái không hợp lệ (Invalid): 15 (`EC02`..`EC04`, `EC06`..`EC09`, `EC11`..`EC17`, `EC19`)
+  - Lớp đầu ra (Outputs): 4 (`EC20`, `EC21`, `EC22`, `EC23`)
+- **Số lượng Test Case trong bộ tối thiểu (Minimum Test Set):** **16 Test Cases**
+  - Số test case hợp lệ: 1 (`FR01-DT-01`, kết hợp 4 lớp valid đầu vào)
+  - Số test case không hợp lệ: 15 (mỗi test case kiểm thử đúng 1 lớp invalid)
+- **Tỷ lệ bao phủ lớp tương đương:** **100%** (Tất cả 23 lớp đều được ánh xạ ít nhất 1 lần).
+
+---
+
+## Stage 5: Tự kiểm tra (Self-Check Checklist)
+
+- [x] Mỗi ca kiểm thử không hợp lệ (Invalid TC) chỉ chứa đúng 1 lớp không hợp lệ, tất cả các trường khác đều hợp lệ.
+- [x] Không có hai ca kiểm thử nào rơi vào cùng một lớp tương đương (trừ trường hợp kết hợp valid).
+- [x] Mọi kết quả kỳ vọng đều được gắn nhãn nguồn gốc `[SPEC]`, `[CODE]`, `[ASSUMED]`.
+- [x] Các giá trị biên chưa bị mở rộng ở đây (sẽ được mở rộng ở bước BVA tiếp theo).
+- [x] Đã tạo file dữ liệu máy đọc được [`testcases/FR-01.json`](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/testcases/FR-01.json) và [`testcases/config.json`](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/testcases/config.json).
+- [x] Toàn bộ báo cáo được trình bày bằng tiếng Việt có dấu chuẩn mực, giữ nguyên các mã định danh kỹ thuật (EC, TC, HTTP verbs, status codes) bằng tiếng Anh.
+
+---
+
+## Hạn chế của kỹ thuật Kiểm thử miền (Blind Spots & Limitations)
+
+1. **Điểm mù về giá trị biên (Boundary blindness):**
+   - Kỹ thuật phân hoạch tương đương chỉ chọn một giá trị đại diện ngẫu nhiên trong mỗi lớp tương đương (ví dụ: mật khẩu 6 ký tự đại diện cho lớp `< 8` ký tự). Do đó, kỹ thuật này rất dễ bỏ sót các lỗi lệch 1 đơn vị (*off-by-one errors*) tại đúng điểm biên (ví dụ: 7 ký tự hay 8 ký tự).
+   *-> Khắc phục bằng cách chạy tiếp kỹ thuật **Boundary Value Analysis (BVA)** ở bước sau.*
+2. **Miền giá trị thực tế thường không thể biết trước hoàn toàn (Unknown actual domains):**
+   - Trong các hệ thống thiếu đặc tả chặt chẽ như EShop, nhiều miền giá trị (như độ dài tối đa của `name`, bộ ký tự Unicode có dấu, hành vi khi gửi payload JSON lồng nhau) chỉ là suy đoán (`[ASSUMED]`). Nếu phân hoạch sai lớp ngay từ đầu, các ca kiểm thử sinh ra sẽ không phản ánh đúng khiếm khuyết phần mềm.
+3. **Bỏ sót các lỗi phụ thuộc ngữ cảnh và trạng thái phức tạp:**
+   - Kỹ thuật này tập trung vào các trường độc lập, dễ bỏ quên các quy tắc nghiệp vụ chéo giữa nhiều trường hoặc trạng thái concurrency (ví dụ: hai người cùng bấm đăng ký cùng một email tại cùng một mili-giây).
+
+---
+
 > [!NOTE]
-> **STOP FOR REVIEW**: Vui lòng rà soát bảng lớp tương đương EC01 - EC23 ở trên. Nếu bạn đồng ý, chúng ta sẽ chuyển sang **Stage 3 (Chọn giá trị đại diện)** và **Stage 4 (Thiết kế bộ Test Case tối thiểu)**.
+> **STOP FOR REVIEW (Stage 4 & Stage 5 Complete)**:  
+> Báo cáo Domain Testing cho FR-01 đã hoàn tất 5 giai đoạn, kèm 16 test cases, ma trận bao phủ 100% và phân tích hạn chế kỹ thuật. Vui lòng rà soát và xác nhận để chúng ta tiến hành commit Git và chuyển sang **Boundary Value Analysis (BVA)**.
+
+

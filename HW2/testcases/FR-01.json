@@ -1,0 +1,567 @@
+{
+  "feature": "FR-01",
+  "cases": [
+    {
+      "id": "FR01-DT-01",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC05",
+        "EC10",
+        "EC18",
+        "EC20"
+      ],
+      "title": "Đăng ký thành công với tất cả dữ liệu hợp lệ",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại trong hệ thống",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-02",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC02",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi name là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-03",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC03",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi thiếu trường name",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-04",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC04",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi name sai kiểu dữ liệu (số nguyên)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": 12345,
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-05",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC06",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi email sai định dạng (thiếu @)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "invalid_email_domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-06",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC07",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi email là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-07",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC08",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi thiếu trường email",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-08",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC09",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi email sai kiểu dữ liệu (boolean)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": true,
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-09",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC11",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu quá ngắn (< 8 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Pass1!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-10",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC12",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu thiếu chữ in hoa",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-11",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC13",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu thiếu chữ in thường",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "PASSWORD123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-12",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC14",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu thiếu chữ số",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-13",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC15",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu thiếu ký tự đặc biệt",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-14",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC16",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-15",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC17",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi thiếu trường password",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR01-DT-16",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC19",
+        "EC22"
+      ],
+      "title": "Đăng ký không thành công khi email đã tồn tại trong hệ thống (Duplicate)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản admin@eshop.com đã tồn tại trong cơ sở dữ liệu",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "admin@eshop.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          409
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    }
+  ]
+}
