@@ -70,20 +70,20 @@ Tại `eshop-sut/backend/database.js:50-61`:
 
 ---
 
-## Stage 1: Input / Output / State Variables
+## Stage 1: Xác định biến Input, Output, State và Miền giá trị (Domains)
 
-### 1.6 Bảng biến
+Bảng biến chi tiết bao gồm tập giá trị khả dĩ và các ràng buộc đã phát hiện (độ dài, ký tự cho phép, định dạng, tính bắt buộc, enum/giá trị hợp lệ):
 
-| Biến | Loại | Kiểu | Nguồn | Ghi chú |
-|------|------|------|-------|---------|
-| name | Input | String | [SPEC] api_specification.md:14 | Tên người dùng |
-| email | Input | String | [SPEC] api_specification.md:15 | Email đăng nhập |
-| password | Input | String | [SPEC] api_specification.md:16 | Mật khẩu |
-| Response.status | Output | Number | [CODE] server.js:27, server.js:26 | 200 hoặc 500 |
-| Response.message | Output | String | [CODE] server.js:27 | Thông báo thành công |
-| Response.error | Output | String | [CODE] server.js:26 | Thông báo lỗi |
-| Response.id | Output | Number | [CODE] server.js:27 | ID user mới tạo |
-| existing_email | State | Boolean | [OBSERVED] | Email đã tồn tại trong DB hay chưa |
+| Biến | Loại (Kind) | Kiểu dữ liệu | Miền giá trị & Ràng buộc (Domain) | Nguồn (Source tag) |
+| :--- | :--- | :--- | :--- | :---: |
+| `name` | Input | String | - Chuỗi ký tự biểu diễn họ tên người dùng.<br>- Ràng buộc: Bắt buộc (không được rỗng `""`, không được `null`/`undefined`).<br>- Độ dài: Chưa có giới hạn trong spec (`unknown`), thường từ 1..100 ký tự.<br>- Ký tự: Chữ cái, khoảng trắng, có dấu tiếng Việt.<br>- *Thực tế code:* `server.js:20` không kiểm tra, chấp nhận mọi kiểu dữ liệu/rỗng. | `[SPEC]` api_spec:14<br>`[ASSUMED]` (độ dài)<br>`[CODE]` server.js:20 |
+| `email` | Input | String | - Chuỗi định dạng email chuẩn RFC 5322 (`<local-part>@<domain>`).<br>- Ràng buộc: Bắt buộc, định dạng hợp lệ, không chứa ký tự cấm/khoảng trắng, không được trùng với email đã có.<br>- Độ dài: Tối đa 254 ký tự (theo RFC 5321).<br>- *Thực tế code:* `server.js:20` không kiểm tra regex, DB schema không có ràng buộc `UNIQUE`. | `[SPEC]` api_spec:15<br>`[ASSUMED]` (RFC limits)<br>`[CODE]` server.js:20, database.js:55 |
+| `password` | Input | String | - Chuỗi mật khẩu xác thực người dùng.<br>- Ràng buộc độ dài: Tối thiểu 8 ký tự (`>= 8`), cận trên chưa xác định (`unknown`, thường <= 128).<br>- Ràng buộc độ phức tạp: Phải chứa ít nhất 1 chữ thường `[a-z]`, 1 chữ hoa `[A-Z]`, 1 số `\d`, và 1 ký tự đặc biệt `[^A-Za-z\d]`.<br>- *Dị biệt code:*<br>  + Web (`Register.jsx:15`): Dùng regex lỗi đòi hỏi khoảng trắng `\s` thay vì ký tự đặc biệt.<br>  + Mobile (`App.js:212`): Regex chuẩn đòi hỏi ký tự đặc biệt.<br>  + Backend (`server.js:20`): Không kiểm tra độ dài/độ phức tạp. | `[SPEC]` api_spec:16<br>`[CODE]` Register.jsx:15<br>`[CODE]` App.js:212<br>`[CODE]` server.js:20 |
+| `existing_email` | State | Boolean | - Trạng thái tồn tại của email trong cơ sở dữ liệu `users`.<br>- Miền giá trị: `{ false (chưa có trong DB), true (đã có trong DB) }`.<br>- Ràng buộc nghiệp vụ: Chỉ cho phép đăng ký khi `existing_email == false`. Nếu `true`, hệ thống phải từ chối (trùng lặp).<br>- *Thực tế code:* Backend không kiểm tra SELECT trước khi INSERT, SQLite không có `UNIQUE(email)`. | `[ASSUMED]` Business rule<br>`[CODE]` database.js:55 |
+| `Response.status` | Output | Number | - Mã trạng thái HTTP trả về từ API.<br>- Miền giá trị kỳ vọng: `{ 200 (Thành công), 400 (Dữ liệu validation không hợp lệ), 409 (Email bị trùng lặp), 500 (Lỗi máy chủ/database) }`.<br>- *Thực tế code:* Backend chỉ trả về `200` (khi insert thành công) hoặc `500` (khi SQLite ném lỗi). | `[SPEC]` api_spec:21<br>`[ASSUMED]` (400, 409)<br>`[CODE]` server.js:26-27 |
+| `Response.message` | Output | String | - Chuỗi thông báo thành công hoặc lỗi.<br>- Miền giá trị: `"User registered successfully"` (khi 200), hoặc các câu thông báo lỗi chi tiết tương ứng với trường vi phạm. | `[SPEC]` api_spec:21<br>`[CODE]` server.js:27 |
+| `Response.error` | Output | String | - Chuỗi thông báo lỗi khi có ngoại lệ hoặc thất bại.<br>- Miền giá trị: Thông báo lỗi từ SQLite `<err.message>` (500) hoặc `"Đăng ký thất bại."` (Client). | `[CODE]` server.js:26<br>`[CODE]` Register.jsx:26 |
+| `Response.id` | Output | Integer | - Định danh khóa chính ID của người dùng mới được tạo trong bảng `users`.<br>- Miền giá trị: Số nguyên dương tăng dần (`id >= 1`, auto-increment). | `[SPEC]` api_spec:21<br>`[CODE]` database.js:53, server.js:27 |
 
 ---
 
