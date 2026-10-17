@@ -42,14 +42,15 @@ validation rules actually found, state/preconditions, possible responses (status
 Anything unclear goes to **Open questions**. If the code is available, grep the validation
 logic: length checks, regexes, `if (!x)`, enums, role checks, `expired`, `max`, `min`.
 
-## Stage 1 - Identify Input and Output variables (slide: "Step 1")
-Table: `Variable | Kind (input/output/state) | Type | Source tag`.
+## Stage 1 - Identify Input and Output variables and their domains (slide: "Step 1")
+Table: `Variable | Kind (input/output/state) | Type | Domain (possible values and constraints) | Source tag`.
 - Inputs: each request field / UI field.
-- **State and context inputs count as inputs**: logged-in or not, role (guest/user/admin),
-  token state (missing/invalid/expired), cart state, existing-record state (email already
-  registered), time.
-- Outputs: success response, each error response (status code + message), side effects
-  (record created, email/OTP generated, order status).
+- **State and context inputs count as inputs**: ...
+- Outputs: ...
+- **Domain column**: write the full set of values the variable can take and every constraint
+  found (length range, allowed characters, format, enum values, nullable or not). Put the
+  constraint, not a guess: if unknown, write `unknown` and add it to Open questions.
+  Stage 2 may only create classes from what is written in this column.
 
 ## Stage 2 - Identify equivalence classes (slide: "Step 2")  -> STOP FOR REVIEW
 Number classes `EC1..ECn` continuously. Table:
@@ -71,6 +72,9 @@ result of that class differs from the others; otherwise merge it. Include output
 (like slide EC9/EC10: `SUM = A+B`, `Error message`).
 
 Show the **Complete Set of Partitions** table, then list Open questions, then STOP.
+
+Build classes from the Domain column of Stage 1. A class whose boundary or rule is not in
+that column must be tagged `[ASSUMED]`.
 
 ## Stage 3 - Best representative of each class (slide: "Step 3")
 For every class pick one representative value with a one-line reason.
