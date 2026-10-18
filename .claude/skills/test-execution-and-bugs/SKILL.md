@@ -63,7 +63,14 @@ Keep real credentials out of git if they are not demo accounts.
   cart then checkout). Add `setup` notes to the case instead of relying on luck.
 
 ## Stage 3 - Triage failures  -> STOP FOR REVIEW
+- **Zero-Trust SUT Principle (v2.0)**:
+  Before running tests and triaging failures, verify if the backend route/controller contains actual validation logic
+  (`if (!field)`, length checks, regex tests, DB constraints). Do not naively assume the SUT adheres to standard REST conventions
+  (returning 400 Bad Request). If the code lacks validation and inserts blindly, proactively flag that invalid test cases
+  are expected to FAIL with HTTP 200 due to backend omission, avoiding surprise mass failures.
+
 For every FAIL, decide one of:
+
 1. **Defect in SUT**: observed behaviour contradicts a `[SPEC]`/`[CODE]` expectation.
 2. **Wrong expectation**: the expected result was `[ASSUMED]` and the SUT behaviour is
    defensible. Fix the test case (record as AI-edited), do not report a bug.

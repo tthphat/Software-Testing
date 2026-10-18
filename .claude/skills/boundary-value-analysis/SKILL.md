@@ -67,9 +67,13 @@ Rules:
 
 ### Per-type recipes
 - **String length** (name, address, password): lengths `min-1, min, min+1, max-1, max, max+1`
-  using a safe character set. Extras: empty `""` (length 0), whitespace-only, and the
-  Vietnamese-diacritics case (`"Nguyen"` vs `"Nguyễn"`): characters versus bytes versus
-  UTF-16 units can shift the boundary. Mark these as extras, not core BVA.
+  using a safe character set. Extras: empty `""` (length 0), whitespace-only.
+- **Encoding Boundary Rule (v2.0)**:
+  For any text/string input (e.g. name, address, product description), at least one test case at the Upper Bound (UB)
+  MUST use Vietnamese diacritics (e.g. `"Nguyễn Văn..."`). Because Vietnamese UTF-8 characters occupy 2-3 bytes
+  per character, this explicitly verifies whether the server validates byte length (`Buffer.byteLength`) or
+  character length (`string.length`), preventing silent string truncation or buffer overflows.
+
 - **Money/quantity** (`total_amount`, `quantity`, `price`): `0`, `-1`, `1`, the minimum
   order amount, max, `max+1`, decimals just under/over the step, very large numbers.
 - **Time** (token or coupon expiry): `exp-1s`, `exp`, `exp+1s` with an injected clock, a

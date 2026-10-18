@@ -42,6 +42,16 @@ validation rules actually found, state/preconditions, possible responses (status
 Anything unclear goes to **Open questions**. If the code is available, grep the validation
 logic: length checks, regexes, `if (!x)`, enums, role checks, `expired`, `max`, `min`.
 
+- **Cross-platform Skew Checklist (v2.0)**:
+  When investigating features, do NOT read backend code alone. You MUST check all 3 tiers:
+  1. Backend API (`eshop-sut/backend/server.js`, controllers, DB schema in `database.js`).
+  2. Frontend Web (`eshop-sut/frontend-web/src/pages/*.jsx`, components).
+  3. Frontend Mobile (`eshop-sut/frontend-mobile/App.js` or components).
+  Explicitly check for regex mismatches, client-only constraints, missing server-side checks,
+  or flawed client validations (e.g. whitespace regexes vs special char regexes).
+  Record any skew in the fact collection table with line numbers.
+
+
 ## Stage 1 - Identify Input and Output variables and their domains (slide: "Step 1")
 Table: `Variable | Kind (input/output/state) | Type | Domain (possible values and constraints) | Source tag`.
 - Inputs: each request field / UI field.
