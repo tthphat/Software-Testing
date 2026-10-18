@@ -38,7 +38,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":3}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:31.734Z"
       }
     },
     {
@@ -73,7 +77,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":4}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.169Z"
       }
     },
     {
@@ -107,7 +118,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":5}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.178Z"
       }
     },
     {
@@ -142,7 +160,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":6}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.186Z"
       }
     },
     {
@@ -177,7 +202,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":7}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.193Z"
       }
     },
     {
@@ -212,7 +244,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":8}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.200Z"
       }
     },
     {
@@ -246,7 +285,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":9}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.207Z"
       }
     },
     {
@@ -281,7 +327,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":10}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.215Z"
       }
     },
     {
@@ -316,7 +369,14 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":11}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.224Z"
       }
     },
     {
@@ -351,7 +411,14 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":12}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.234Z"
       }
     },
     {
@@ -386,7 +453,14 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":13}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.241Z"
       }
     },
     {
@@ -421,7 +495,14 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":14}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.247Z"
       }
     },
     {
@@ -456,7 +537,14 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":15}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.253Z"
       }
     },
     {
@@ -491,7 +579,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":16}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.259Z"
       }
     },
     {
@@ -525,7 +620,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":17}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.267Z"
       }
     },
     {
@@ -560,7 +662,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":18}",
+        "fail_reasons": [
+          "status 200 not in [400,409]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.272Z"
       }
     },
     {
@@ -596,7 +705,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":19}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:32.277Z"
       }
     },
     {
@@ -632,7 +745,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":20}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:32.282Z"
       }
     },
     {
@@ -668,7 +785,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":21}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:32.288Z"
       }
     },
     {
@@ -704,7 +825,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":22}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:32.292Z"
       }
     },
     {
@@ -738,7 +863,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":23}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.298Z"
       }
     },
     {
@@ -773,7 +905,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":24}",
+        "fail_reasons": [
+          "status 200 not in [400,413,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.303Z"
       }
     },
     {
@@ -807,7 +946,14 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":25}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.308Z"
       }
     },
     {
@@ -843,7 +989,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":26}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:32.313Z"
       }
     },
     {
@@ -879,7 +1029,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":27}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:32.318Z"
       }
     },
     {
@@ -915,7 +1069,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":28}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:32.323Z"
       }
     },
     {
@@ -951,7 +1109,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":29}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:32.328Z"
       }
     },
     {
@@ -985,7 +1147,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":30}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.334Z"
       }
     },
     {
@@ -1020,7 +1189,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":31}",
+        "fail_reasons": [
+          "status 200 not in [400,413,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-18T13:32:32.338Z"
       }
     },
     {
@@ -1056,9 +1232,12 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":32}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-18T13:32:32.343Z"
       }
     }
   ]
 }
-

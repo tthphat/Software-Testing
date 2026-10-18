@@ -80,20 +80,27 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
   - **Stage 4 (Self-Check & Blind spots)**: ✅ Hoàn thành
   - **Testcases JSON**: ✅ Đã cập nhật `HW2/testcases/FR-01.json` (tổng cộng 30 test cases: 16 DT + 14 BVA)
   - **Audit Log**: ✅ Đã ghi A05, A06 trong `HW2/audit/audit-log.jsonl`
-- **Tình trạng**: Đang ở điểm dừng **STOP FOR REVIEW** sau Stage 4 BVA để sinh viên rà soát và phê duyệt.
+- **FR-01 Test Execution & Bugs**:
+  - **Stage 1 (Environment)**: ✅ SUT Backend chạy tại `http://localhost:3000`
+  - **Stage 2 (Execute)**: ✅ Thực thi 30/30 test cases qua `run_cases.mjs` (10 PASS, 20 FAIL, 0 BLOCKED)
+  - **Stage 3 (Triage)**: ✅ Phân loại 20 FAIL thành 5 lỗi gốc (BUG-FR01-01 đến BUG-FR01-05)
+  - **Stage 4 (Bug Reports)**: ✅ Báo cáo tổng hợp `HW2/report/bugs.vi.md` và 5 bản thảo GitHub issues tại `HW2/report/issues/`
+  - **Stage 5 (AI Gap Analysis)**: ✅ Phân tích 3 khoảng trống lớn (Cross-platform skew, Unicode byte vs char, Bias towards standard behavior) và nâng cấp kỹ năng v1 -> v2 tại `skills-changelog.md`
+  - **Stage 6 (Summary numbers)**: ✅ Cập nhật `HW2/report/FR-01/03-execution-and-gap-analysis.vi.md`
+  - **Audit Log**: ✅ Đã ghi A07 trong `HW2/audit/audit-log.jsonl`
+- **Tình trạng**: Đã hoàn thành 100% trọn vẹn toàn bộ chu trình 4 kỹ năng cho **FR-01**.
 
 ---
 
 ## Kế hoạch tiếp theo
 
-1. Sinh viên duyệt kết quả BVA của FR-01.
-2. Thực hiện Git commit theo quy chuẩn:
-   `git commit -m "HW2-test(FR-01): BVA 3-value test cases and report"`
-3. Chuyển sang kỹ thuật: **`test-execution-and-bugs`** cho FR-01:
-   - Chạy tự động script API runner `node .claude/skills/test-execution-and-bugs/scripts/run_cases.mjs --file HW2/testcases/FR-01.json --config HW2/testcases/config.json`.
-   - Phân loại các ca FAIL (Defect vs Wrong expectation vs Spec gap).
-   - Lập báo cáo lỗi chi tiết (Bug report) và dự thảo GitHub Issues.
-   - Thực hiện AI Gap Analysis và ghi nhận vào `skills-changelog.md`.
+1. Sinh viên duyệt kết quả và thực hiện Git commit:
+   `git add -A && git commit -m "HW2-docs(FR-01): test execution, bug reports and AI gap analysis"`
+2. **Xác định tính năng tiếp theo**:
+   - Lưu ý quan trọng: Quy định đồ án yêu cầu chọn 4 tính năng từ 4 Pool khác nhau (Pool A, Pool B, Pool C, Pool D - Mobile App).
+   - Trước đó dự kiến (FR-01 Pool A, FR-03 Pool A, FR-08 Pool B, FR-11 Pool C) bị trùng Pool A và thiếu Pool D (mất 15 điểm tính năng D).
+   - Cần chốt chọn 1 tính năng Pool D (Mobile App: Mobile Register, Mobile Search, Mobile Cart, hoặc Mobile Forgot Password).
+3. Bắt đầu áp dụng bộ skill v2 cho tính năng kế tiếp.
 
 ---
 
@@ -109,14 +116,17 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/FR-01/02-boundary-value-analysis.vi.md` | Tạo mới toàn bộ Stage 1 đến Stage 4 |
-| `HW2/testcases/FR-01.json` | Cập nhật thêm 14 ca kiểm thử BVA (tổng cộng 30 TCs) |
-| `HW2/audit/audit-log.jsonl` | Thêm entries A05, A06 |
-| `HW2/session-history.md` | Cập nhật tiến độ BVA |
+| `HW2/testcases/FR-01.json` | Cập nhật kết quả thực thi (10 PASS, 20 FAIL) |
+| `HW2/report/bugs.vi.md` | Báo cáo tổng hợp 5 lỗi phát hiện |
+| `HW2/report/issues/BUG-FR01-01.md` đến `BUG-FR01-05.md` | 5 bản thảo GitHub issues |
+| `HW2/report/FR-01/03-execution-and-gap-analysis.vi.md` | Báo cáo tổng kết thực thi và khoảng trống AI của FR-01 |
+| `skills-changelog.md` | Ghi nhận cải tiến kỹ năng v1 -> v2 từ AI Gap Analysis |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A07 |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Test Execution FR-01 |
 
 ---
 
 **Ngày cập nhật**: 18/10/2026  
-**Phiên tiếp theo**: Duyệt BVA, commit Git và chạy test execution (`test-execution-and-bugs`) cho FR-01.
+**Phiên tiếp theo**: Commit Git và triển khai tính năng kế tiếp với bộ skill v2.
 
 
