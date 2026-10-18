@@ -71,27 +71,34 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 ## Trạng thái hiện tại
 
 - **FR-01 Domain Testing**:
-  - **Stage 0 - 1**: ✅ Hoàn thành (đã cập nhật cột Domain theo skill mới)
-  - **Stage 2 (Equivalence Classes)**: ✅ Hoàn thành (23 ECs: EC01 - EC23)
-  - **Stage 3 (Best Representative)**: ✅ Hoàn thành (23 giá trị đại diện)
-  - **Stage 4 (Select Test Cases)**: ✅ Hoàn thành (16 test cases: FR01-DT-01 -> FR01-DT-16; Coverage matrix 100%; Xuất file `testcases/FR-01.json` và `testcases/config.json`)
-  - **Stage 5 (Self-Check)**: ✅ Hoàn thành
-  - **Audit Log**: ✅ Đã ghi A01, A02, A03, A04 trong `HW2/audit/audit-log.jsonl`
-- **Tình trạng**: Đang ở điểm dừng **STOP FOR REVIEW** sau Stage 4 để sinh viên duyệt bộ test case Domain Testing.
+  - **Stage 0 - 5**: ✅ Hoàn thành đầy đủ (16 test cases: FR01-DT-01 -> FR01-DT-16; Coverage matrix 100%)
+  - **Audit Log**: ✅ Đã ghi A01, A02, A03, A04
+- **FR-01 Boundary Value Analysis (BVA)**:
+  - **Stage 1 (Ordered Partitions)**: ✅ Hoàn thành (`name.length` [1, 100], `password.length` [8, 128]; giải thích rõ các trường không áp dụng BVA)
+  - **Stage 2 (3-value Variant)**: ✅ Hoàn thành (3-value BVA + Course 9-point model: 14 điểm kiểm thử)
+  - **Stage 3 (Test Case Generation)**: ✅ Hoàn thành (14 test cases: `FR01-BVA-01` -> `FR01-BVA-14` kèm "Fault it would catch")
+  - **Stage 4 (Self-Check & Blind spots)**: ✅ Hoàn thành
+  - **Testcases JSON**: ✅ Đã cập nhật `HW2/testcases/FR-01.json` (tổng cộng 30 test cases: 16 DT + 14 BVA)
+  - **Audit Log**: ✅ Đã ghi A05, A06 trong `HW2/audit/audit-log.jsonl`
+- **Tình trạng**: Đang ở điểm dừng **STOP FOR REVIEW** sau Stage 4 BVA để sinh viên rà soát và phê duyệt.
 
 ---
 
 ## Kế hoạch tiếp theo
 
-1. Sinh viên duyệt kết quả Stage 4 Domain Testing của FR-01.
+1. Sinh viên duyệt kết quả BVA của FR-01.
 2. Thực hiện Git commit theo quy chuẩn:
-   `git commit -m "HW2-test(FR-01): domain testing 16 test cases and coverage matrix"`
-3. Chuyển sang kỹ thuật tiếp theo: **Boundary Value Analysis (BVA)** cho FR-01 (biến thể 3-value: `LB-1, LB, LB+1, UB-1, UB, UB+1`).
+   `git commit -m "HW2-test(FR-01): BVA 3-value test cases and report"`
+3. Chuyển sang kỹ thuật: **`test-execution-and-bugs`** cho FR-01:
+   - Chạy tự động script API runner `node .claude/skills/test-execution-and-bugs/scripts/run_cases.mjs --file HW2/testcases/FR-01.json --config HW2/testcases/config.json`.
+   - Phân loại các ca FAIL (Defect vs Wrong expectation vs Spec gap).
+   - Lập báo cáo lỗi chi tiết (Bug report) và dự thảo GitHub Issues.
+   - Thực hiện AI Gap Analysis và ghi nhận vào `skills-changelog.md`.
 
 ---
 
 ## Ghi chú
-- Sử dụng skill `domain-testing` cho mỗi FR
+- Sử dụng skill `domain-testing` -> `boundary-value-analysis` -> `test-execution-and-bugs`
 - Sau mỗi artifact, chạy skill `ai-audit-log`
 - Commit sau mỗi stage được duyệt
 - Báo cáo bằng tiếng Việt có dấu
@@ -102,14 +109,14 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/FR-01/01-domain-testing.vi.md` | Cập nhật Stage 1 (Domain), Stage 2, Stage 3, Stage 4, Stage 5 |
-| `HW2/testcases/FR-01.json` | Tạo mới (16 ca kiểm thử máy đọc được) |
-| `HW2/testcases/config.json` | Tạo mới (cấu hình runner URL & credentials) |
-| `HW2/audit/audit-log.jsonl` | Thêm entries A02, A03, A04 |
-| `HW2/session-history.md` | Cập nhật tiến độ |
+| `HW2/report/FR-01/02-boundary-value-analysis.vi.md` | Tạo mới toàn bộ Stage 1 đến Stage 4 |
+| `HW2/testcases/FR-01.json` | Cập nhật thêm 14 ca kiểm thử BVA (tổng cộng 30 TCs) |
+| `HW2/audit/audit-log.jsonl` | Thêm entries A05, A06 |
+| `HW2/session-history.md` | Cập nhật tiến độ BVA |
 
 ---
 
-**Ngày cập nhật**: 17/10/2026  
-**Phiên tiếp theo**: Duyệt Stage 4, commit Git và tiến hành Boundary Value Analysis (BVA) cho FR-01.
+**Ngày cập nhật**: 18/10/2026  
+**Phiên tiếp theo**: Duyệt BVA, commit Git và chạy test execution (`test-execution-and-bugs`) cho FR-01.
+
 
