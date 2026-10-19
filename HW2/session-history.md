@@ -230,11 +230,32 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 ---
 
+## Phiên 15: Thiết kế ca kiểm thử giá trị biên và tự kiểm tra (Stage 3-4) cho FR-08 (Checkout)
+
+- **Tính năng**: **FR-08 — Checkout (Thanh toán & Đặt hàng — Pool B)**
+- **Kỹ thuật**: `boundary-value-analysis` (Stage 3 & Stage 4)
+- **Hoạt động thực hiện**:
+  - **Stage 3 (Test Case Generation)**:
+    - Thiết kế bộ **20 ca kiểm thử BVA (`FR08-BVA-01` đến `FR08-BVA-20`)** tuân thủ nguyên tắc đơn biến (Single-fault assumption):
+      - 8 ca cho `total_amount`: $-\alpha$ (-50k), $LB-1$ (0đ), $LB$ (1đ), $LB+1$ (2đ), $UB-1$ (2,147,483,646đ), $UB$ (2,147,483,647đ int32 max), $UB+1$ (2,147,483,648đ), $+\alpha$ (`MAX_SAFE_INT`).
+      - 9 ca cho `shipping_address`: $-\alpha$ (rỗng 0 ký tự), $LB-1$ (4 ký tự), $LB$ (5 ký tự), $LB+1$ (6 ký tự), $UB-1$ (254 ký tự), $UB$ (255 ký tự ASCII), $UB$ (255 ký tự tiếng Việt UTF-8 có dấu 330 bytes theo v2.0 rule), $UB+1$ (256 ký tự), $+\alpha$ (payload 10,000 ký tự DoS).
+      - 3 ca cho `cart_items_count`: $LB-1$ (0 món giỏ rỗng), $LB$ (1 món - Mobile không cắt), $LB+1$ (2 món - Mobile kích hoạt bug cắt bỏ sản phẩm cuối `cart.slice(0, -1)`).
+    - Bổ sung cột "Lỗi code sẽ bắt được (Fault it would catch)" giải trình chi tiết lỗi off-by-one, tràn số nguyên, tràn bộ nhớ, và đo sai byte/char.
+    - Cập nhật **20 ca BVA vào `HW2/testcases/FR-08.json`** (nâng tổng số test cases của FR-08 lên **42 ca: 22 DT + 20 BVA**).
+  - **Stage 4 (Self-Check & Blind spots)**:
+    - Rà soát 6 tiêu chí tự kiểm tra của kỹ năng BVA.
+    - Phân tích 4 điểm mù của BVA (Price tampering giỏ hàng vs total, SQLi/XSS trong address, Concurrency overselling tồn kho, và SUT Zero-Validation Defect).
+  - **Tài liệu hoàn thiện**: `HW2/report/FR-08/02-boundary-value-analysis.vi.md`.
+- **Audit Log**: Thêm entry `A19` vào `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: **DỪNG LẠI TẠI CHECKPOINT STAGE 3 & 4 CHỜ DUYỆT (STOP FOR REVIEW)**.
+
+---
+
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định bảng miền có thứ tự và lựa chọn biến thể BVA Stage 1-2 của FR-08.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 boundary value analysis stage 1-2`.
-3. Sau khi được duyệt, chuyển sang **Stage 3 (Sinh giá trị biên & thiết kế ca kiểm thử BVA)** và **Stage 4 (Tự kiểm tra Self-check & Bổ sung testcases JSON)** cho FR-08 -> DỪNG LẠI CHỜ DUYỆT.
+1. Sinh viên thẩm định bộ 20 ca kiểm thử BVA và báo cáo Stage 3-4 của FR-08.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 boundary value analysis stage 3-4`.
+3. Sau khi được duyệt, chuyển sang kỹ thuật **Thực thi kiểm thử và Báo cáo lỗi (Test Execution & Bugs)** cho FR-08 (`HW2/report/FR-08/03-execution-and-gap-analysis.vi.md`).
 
 ---
 
@@ -251,14 +272,15 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/FR-08/02-boundary-value-analysis.vi.md` | Tạo mới báo cáo BVA Stage 1 & 2 cho FR-08 |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A18 (FR-08 BVA Stage 1-2) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 1-2 cho FR-08 |
+| `HW2/testcases/FR-08.json` | Bổ sung 20 test cases BVA (tổng cộng 42 test cases) |
+| `HW2/report/FR-08/02-boundary-value-analysis.vi.md` | Hoàn thiện Stage 3 & Stage 4 BVA cho FR-08 |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A19 (FR-08 BVA Stage 3-4) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 3-4 cho FR-08 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành BVA Stage 1-2 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+**Phiên hiện tại**: Đã hoàn thành BVA Stage 3-4 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
 
 
 

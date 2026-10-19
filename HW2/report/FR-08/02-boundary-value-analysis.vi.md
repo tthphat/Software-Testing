@@ -126,8 +126,76 @@ Tuân thủ chuẩn mực học thuật của môn học CSC13003 và ISTQB Adva
 
 ---
 
-### DỪNG LẠI TẠI CHECKPOINT STAGE 1 & 2 CHỜ DUYỆT (STOP FOR REVIEW)
+## Stage 3: Bảng giá trị biên và Thiết kế Test Cases BVA (Test Case Generation)
 
-Theo thỏa thuận làm việc và quy định kiểm soát chất lượng của môn học:
-- **Stage 1 (Xác định miền có thứ tự)** và **Stage 2 (Lựa chọn biến thể BVA 3-value + Mô hình 9 điểm + UTF-8 Encoding v2.0)** đã hoàn tất.
-- Trình sinh viên thẩm định các miền có thứ tự, các lý do loại trừ biến không áp dụng, và danh sách các điểm biên trước khi tiến hành Stage 3 (Sinh dữ liệu kiểm thử, thiết kế bảng ca kiểm thử BVA chi tiết và cập nhật `HW2/testcases/FR-08.json`).
+Áp dụng nghiêm ngặt nguyên tắc **Đơn biến (Single-fault assumption)**:
+- Mỗi ca kiểm thử BVA chỉ thay đổi một biến duy nhất tại một thời điểm đến các điểm biên ($LB-1, LB, LB+1, UB-1, UB, UB+1, -\alpha, +\alpha$).
+- Toàn bộ các biến còn lại được giữ cố định ở **giá trị danh định hợp lệ (Nominal valid values)**:
+  - `auth_token`: Token JWT hợp lệ của người dùng `test@eshop.com`.
+  - `total_amount` (khi không kiểm thử biến này): `200,000` VNĐ (khớp với giá trị giỏ hàng).
+  - `shipping_address` (khi không kiểm thử biến này): `"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"` (độ dài 43 ký tự, hợp lệ).
+  - `cart_state` (khi không kiểm thử biến này): Giỏ hàng có 1 sản phẩm hợp lệ, đủ tồn kho.
+
+Tổng cộng thiết kế **20 ca kiểm thử BVA** (`FR08-BVA-01` đến `FR08-BVA-20`), bao phủ toàn diện 3 miền có thứ tự và các điểm dị biệt thực tế.
+
+### Bảng chi tiết 20 ca kiểm thử giá trị biên (BVA Test Suite)
+
+| Mã TC | Biến kiểm tra | Điểm biên | Giá trị kiểm thử cụ thể | Các biến khác (Nominal) | Kỳ vọng (Expected) | Lỗi code sẽ bắt được (Fault it would catch) | Nguồn |
+| :--- | :--- | :---: | :--- | :--- | :---: | :--- | :---: |
+| **FR08-BVA-01** | `total_amount` | $-\alpha$ (Extreme số âm) | `-50000` VNĐ | `token`: Valid<br>`address`: Valid<br>`cart`: 1 món | HTTP 400 | Lỗ hổng cho phép thanh toán số tiền âm, đảo chiều dòng tiền giao dịch (CWE-20) | `[SPEC]` api_spec:134 |
+| **FR08-BVA-02** | `total_amount` | $LB - 1$ (Cận dưới - 1) | `0` VNĐ | `token`: Valid<br>`address`: Valid<br>`cart`: 1 món | HTTP 400 | Lập trình viên viết nhầm điều kiện `if (amount < 0)` thay vì `<= 0`, cho phép đặt hàng miễn phí 0 đồng | `[SPEC]` api_spec:134 |
+| **FR08-BVA-03** | `total_amount` | $LB$ (Cận dưới tối thiểu) | `1` VNĐ | `token`: Valid<br>`address`: Valid<br>`cart`: 1 món (giá 1đ) | HTTP 200 | Lập trình viên viết nhầm điều kiện `if (amount > 1)` thay vì `>= 1`, từ chối đơn hàng hợp lệ nhỏ nhất | `[SPEC]` api_spec:134 |
+| **FR08-BVA-04** | `total_amount` | $LB + 1$ (Nội biên kề cận) | `2` VNĐ | `token`: Valid<br>`address`: Valid<br>`cart`: 1 món (giá 2đ) | HTTP 200 | Lỗi lệch biên cận dưới nội vùng | `[SPEC]` api_spec:134 |
+| **FR08-BVA-05** | `total_amount` | $UB - 1$ (Cận trên - 1) | `2,147,483,646` VNĐ | `token`: Valid<br>`address`: Valid | HTTP 200 | Lỗi lệch biên cận trên giá trị giao dịch lớn | `[ASSUMED]` int32 max |
+| **FR08-BVA-06** | `total_amount` | $UB$ (Cận trên int32 max) | `2,147,483,647` VNĐ | `token`: Valid<br>`address`: Valid | HTTP 200 | Lập trình viên viết nhầm `< 2147483647` thay vì `<= 2147483647` | `[ASSUMED]` int32 max |
+| **FR08-BVA-07** | `total_amount` | $UB + 1$ (Ngoài biên int32) | `2,147,483,648` VNĐ | `token`: Valid<br>`address`: Valid | HTTP 400 | Lỗi không giới hạn số tiền tối đa, gây tràn số nguyên (Integer Overflow) trong SQLite | `[ASSUMED]` int32 overflow |
+| **FR08-BVA-08** | `total_amount` | $+\alpha$ (Max Extreme) | `9,007,199,254,740,991` (`MAX_SAFE_INT`) | `token`: Valid<br>`address`: Valid | HTTP 400 | Lỗi mất độ chính xác số học IEEE 754 float / BigInt trong JavaScript | `[ASSUMED]` JS float limit |
+| **FR08-BVA-09** | `shipping_address` | $-\alpha$ (Min Extreme) | Độ dài = 0 (chuỗi rỗng `""`) | `token`: Valid<br>`total`: 200,000 | HTTP 400 | Chấp nhận đơn hàng không có địa chỉ giao, gây lỗi vận hành logistics | `[SPEC]` api_spec:135 |
+| **FR08-BVA-10** | `shipping_address` | $LB - 1$ (Thiếu 1 ký tự) | Độ dài = 4 ký tự (`"Q.1 "`) | `token`: Valid<br>`total`: 200,000 | HTTP 400 | Chấp nhận địa chỉ quá ngắn, không có giá trị giao nhận | `[ASSUMED]` Address form |
+| **FR08-BVA-11** | `shipping_address` | $LB$ (Cận dưới tối thiểu) | Độ dài = 5 ký tự (`"Quan1"`) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Lập trình viên viết nhầm `length > 5` thay vì `>= 5`, từ chối địa chỉ tối thiểu hợp lệ | `[ASSUMED]` Address form |
+| **FR08-BVA-12** | `shipping_address` | $LB + 1$ (Nội biên kề cận) | Độ dài = 6 ký tự (`"Quan 1"`) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Lỗi lệch biên cận dưới nội vùng | `[ASSUMED]` Address form |
+| **FR08-BVA-13** | `shipping_address` | $UB - 1$ (Nội biên cận trên) | Độ dài = 254 ký tự (ASCII hợp lệ) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Lỗi lệch biên cận trên nội vùng | `[ASSUMED]` 255 chars |
+| **FR08-BVA-14** | `shipping_address` | $UB$ (Cận trên tối đa ASCII) | Độ dài = 255 ký tự (ASCII hợp lệ) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Lập trình viên viết nhầm `< 255` thay vì `<= 255` | `[ASSUMED]` 255 chars |
+| **FR08-BVA-15** | `shipping_address` | $UB$ (UTF-8 Diacritics v2.0) | Độ dài = 255 ký tự (Tiếng Việt có dấu, 330 bytes) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Server kiểm tra sai theo số byte (`Buffer.byteLength`) thay vì số ký tự (`string.length`), làm lỗi địa chỉ tiếng Việt hợp lệ | `[ASSUMED]` UTF-8 Rule v2.0 |
+| **FR08-BVA-16** | `shipping_address` | $UB + 1$ (Vượt quá cận trên) | Độ dài = 256 ký tự (ASCII) | `token`: Valid<br>`total`: 200,000 | HTTP 400 | Không kiểm soát độ dài tối đa cột `VARCHAR(255)`, gây lỗi DB hoặc cắt cụt dữ liệu ngầm (Silent Truncation) | `[ASSUMED]` 255 chars |
+| **FR08-BVA-17** | `shipping_address` | $+\alpha$ (Extreme Payload DoS) | Độ dài = 10,000 ký tự | `token`: Valid<br>`total`: 200,000 | HTTP 400 / 413 | Lỗ hổng tràn bộ nhớ / DoS khi client gửi payload địa chỉ siêu lớn | `[ASSUMED]` DoS Payload |
+| **FR08-BVA-18** | `cart_items_count` | $LB - 1$ (Giỏ hàng rỗng) | $0$ sản phẩm trong giỏ hàng | `token`: Valid<br>`total`: 200,000<br>`address`: Valid | HTTP 400 | Backend không kiểm tra giỏ hàng, cho phép đặt "đơn hàng ma" khi không có sản phẩm nào | `[ASSUMED]` Business rule |
+| **FR08-BVA-19** | `cart_items_count` | $LB$ (Mobile Skew Boundary) | $1$ sản phẩm trong giỏ hàng | `token`: Valid<br>`total`: 200,000<br>`address`: Valid | HTTP 200 | Kiểm tra biên 1 sản phẩm: trên Mobile giỏ hàng không bị cắt bỏ (`cart.length > 1 ? cart.slice(0, -1) : cart`) | `[CODE]` App.js:391 |
+| **FR08-BVA-20** | `cart_items_count` | $LB + 1$ (Mobile Skew Boundary) | $2$ sản phẩm trong giỏ hàng | `token`: Valid<br>`total`: 400,000<br>`address`: Valid | HTTP 200 | Phát hiện lỗi dị biệt Mobile cố tình cắt bỏ sản phẩm cuối cùng của đơn hàng khi `cart.length = 2` | `[CODE]` App.js:391 |
+
+---
+
+## Stage 4: Tự kiểm tra (Self-Check)
+
+- [x] **Toàn bộ biên đều có nguồn xác thực:** Gắn thẻ `[SPEC]`, `[CODE]`, `[ASSUMED]` đầy đủ. Cách đọc khoảng giá trị (dạng mở và đóng) được ghi rõ ràng ($1 \le total\_amount \le 2,147,483,647$; $5 \le \text{length} \le 255$; $1 \le \text{items} \le 100$).
+- [x] **Nguyên tắc đơn biến (Single-fault assumption):** Mỗi test case chỉ biến thiên đúng 1 biến tại 1 điểm biên, giữ nguyên vẹn các biến còn lại ở giá trị danh định hợp lệ.
+- [x] **Không bịa biên cho biến không có thứ tự:** Đã lập luận và loại trừ rõ ràng `auth_token`, `user_id`, `status`, `coupon_id`, `items array`.
+- [x] **Nêu rõ biến thể và công thức số điểm:** Áp dụng biến thể 3-value BVA ($LB-1, LB, LB+1, UB-1, UB, UB+1$) kết hợp mô hình 9 điểm ($-\alpha, +\alpha, Nominal$) và quy tắc biên mã hóa Unicode tiếng Việt (v2.0).
+- [x] **Kỳ vọng phản hồi chuẩn mực:** Các ca không hợp lệ kỳ vọng HTTP 400 Bad Request kèm loại trừ `"Checkout successful"`; các ca hợp lệ kỳ vọng HTTP 200 OK kèm `orderId`.
+- [x] **Kiểm tra độ dài chuỗi bằng code:** Chuỗi 254, 255, 256, 10,000 ký tự và chuỗi 255 ký tự tiếng Việt (330 bytes UTF-8) đều được sinh và kiểm tra độ dài chính xác bằng lệnh thực thi Node.js.
+- [x] **Đồng bộ với test suite JSON:** Đã bổ sung đầy đủ 20 test cases (`FR08-BVA-01` đến `FR08-BVA-20`) vào tệp [`HW2/testcases/FR-08.json`](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/testcases/FR-08.json) với kỹ thuật `"BVA"` và trạng thái ban đầu `"NOT_EXECUTED"`.
+
+---
+
+## Hạn chế của kỹ thuật BVA trên tính năng FR-08 (Blind Spots Analysis)
+
+Mặc dù BVA rất mạnh trong việc tìm kiếm các lỗi off-by-one và tràn giới hạn, tính năng Checkout (FR-08) có những nhóm lỗi nghiêm trọng mà **BVA hoàn toàn bất lực không thể phát hiện**:
+
+1. **Lỗi thao túng giá (Price Tampering / Parameter Tampering):**
+   - Lỗi này nằm ở sự bất đồng bộ giữa giá trị `total_amount` gửi lên và tổng giá trị thực tế của các sản phẩm trong giỏ hàng.
+   - BVA chỉ kiểm tra xem `total_amount` có nằm trong khoảng hợp lệ hay không (ví dụ: `20,000` VNĐ là số tiền hoàn toàn hợp lệ về mặt biên số nguyên). Tuy nhiên, nếu giỏ hàng thực tế trị giá `2,000,000` VNĐ mà người dùng sửa thành `20,000` VNĐ, BVA không thể phát hiện nếu không có kiểm thử miền (Domain Testing: `EC08`).
+2. **Lỗ hổng tấn công bảo mật Injection (SQL Injection, Stored XSS):**
+   - Các payload độc hại như `' OR 1=1 --` hay `<script>alert(1)</script>` có độ dài chỉ từ 12 đến 30 ký tự, nằm hoàn toàn an toàn bên trong khoảng hợp lệ $[5, 255]$ của `shipping_address`. BVA hoàn toàn không có khả năng phát hiện lỗi bảo mật này.
+3. **Lỗi tương tranh tồn kho (Concurrency / Race Conditions):**
+   - Khi hai khách hàng cùng đặt sản phẩm cuối cùng trong kho tại cùng một mili-giây, giá trị đặt mua của mỗi người đều thỏa mãn cận biên ($quantity = 1 \le stock = 1$). BVA kiểm thử đơn lẻ không thể phát hiện lỗi bán vượt tồn kho (Overselling).
+4. **SUT hoàn toàn không có tầng kiểm tra tính hợp lệ (Zero Validation Defect):**
+   - Trong mã nguồn thực tế của SUT (`server.js:297-309`), backend không hề có bất kỳ câu lệnh `if` nào kiểm tra `total_amount <= 0` hay `shipping_address`. Do đó, trên thực tế, các ca kiểm thử biên không hợp lệ ($LB-1, -\alpha$) sẽ không bị chặn ở mã 400 mà sẽ đi thẳng vào DB và trả về HTTP 200 OK.
+
+---
+
+### DỪNG LẠI TẠI CHECKPOINT STAGE 3 & 4 CHỜ DUYỆT (STOP FOR REVIEW)
+
+Theo quy định kiểm soát chất lượng của môn học:
+- **Stage 3 (Bảng 20 ca kiểm thử BVA chi tiết)** và **Stage 4 (Self-Check, Hạn chế kỹ thuật & Cập nhật `HW2/testcases/FR-08.json`)** đã hoàn tất trọn vẹn.
+- Toàn bộ test suite của FR-08 hiện có **42 ca kiểm thử** (22 Domain Testing + 20 BVA) sẵn sàng cho test runner.
+- Trình sinh viên thẩm định trước khi chuyển sang kỹ thuật thực thi và báo cáo lỗi `test-execution-and-bugs`.

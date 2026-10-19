@@ -703,6 +703,674 @@
       "result": {
         "status": "NOT_EXECUTED"
       }
+    },
+    {
+      "id": "FR08-BVA-01",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "-alpha(total_amount=-50000)"
+      ],
+      "title": "BVA: total_amount = -50000 (-alpha Extreme số âm)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập, giỏ hàng có 1 sản phẩm 200,000 VNĐ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": -50000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_excludes": [
+          "Checkout successful"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-02",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB-1(total_amount=0)"
+      ],
+      "title": "BVA: total_amount = 0 (LB-1 cận dưới số tiền bằng 0)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập, giỏ hàng có 1 sản phẩm 200,000 VNĐ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 0,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_excludes": [
+          "Checkout successful"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-03",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB(total_amount=1)"
+      ],
+      "title": "BVA: total_amount = 1 VNĐ (LB cận dưới tối thiểu hợp lệ)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập, giỏ hàng có 1 sản phẩm 1 VNĐ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 1,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-04",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB+1(total_amount=2)"
+      ],
+      "title": "BVA: total_amount = 2 VNĐ (LB+1 nội biên kề cận)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập, giỏ hàng có 1 sản phẩm 2 VNĐ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 2,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-05",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB-1(total_amount=2147483646)"
+      ],
+      "title": "BVA: total_amount = 2,147,483,646 VNĐ (UB-1 nội biên cận trên)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 2147483646,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-06",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB(total_amount=2147483647)"
+      ],
+      "title": "BVA: total_amount = 2,147,483,647 VNĐ (UB cận trên số nguyên int32 max)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 2147483647,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-07",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB+1(total_amount=2147483648)"
+      ],
+      "title": "BVA: total_amount = 2,147,483,648 VNĐ (UB+1 tràn số nguyên int32)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 2147483648,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_excludes": [
+          "Checkout successful"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-08",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "+alpha(total_amount=9007199254740991)"
+      ],
+      "title": "BVA: total_amount = 9,007,199,254,740,991 (+alpha Extreme MAX_SAFE_INTEGER)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 9007199254740991,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_excludes": [
+          "Checkout successful"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-09",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "-alpha(address_len=0)"
+      ],
+      "title": "BVA: shipping_address length = 0 (chuỗi rỗng -alpha Min Extreme)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_excludes": [
+          "Checkout successful"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-10",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB-1(address_len=4)"
+      ],
+      "title": "BVA: shipping_address length = 4 (LB-1 thiếu 1 ký tự)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "Q.1 "
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_excludes": [
+          "Checkout successful"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-11",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB(address_len=5)"
+      ],
+      "title": "BVA: shipping_address length = 5 (LB tối thiểu hợp lệ)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "Quan1"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-12",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB+1(address_len=6)"
+      ],
+      "title": "BVA: shipping_address length = 6 (LB+1 nội biên cận dưới)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "Quan 1"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-13",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB-1(address_len=254)"
+      ],
+      "title": "BVA: shipping_address length = 254 (UB-1 nội biên cận trên)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-14",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB(address_len=255_ascii)"
+      ],
+      "title": "BVA: shipping_address length = 255 ASCII (UB cận trên tối đa)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-15",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB(address_len=255_utf8)"
+      ],
+      "title": "BVA: shipping_address length = 255 ký tự tiếng Việt UTF-8 có dấu (v2.0 Rule)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "Số 123 Đường Nguyễn Trãi, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh, Việt Nam. Số 123 Đường Nguyễn Trãi, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh, Việt Nam. Số 123 Đường Nguyễn Trãi, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh, Việt Nam. "
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-16",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB+1(address_len=256)"
+      ],
+      "title": "BVA: shipping_address length = 256 (UB+1 vượt quá độ dài chuẩn 255)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_excludes": [
+          "Checkout successful"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-17",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "+alpha(address_len=10000)"
+      ],
+      "title": "BVA: shipping_address length = 10,000 ký tự (+alpha Extreme Payload DoS)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          413
+        ],
+        "body_excludes": [
+          "Checkout successful"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-18",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB-1(cart_items=0)"
+      ],
+      "title": "BVA: cart_items_count = 0 (LB-1 giỏ hàng rỗng)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập, giỏ hàng rỗng 0 món",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_excludes": [
+          "Checkout successful"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-19",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB(cart_items=1_mobile_skew)"
+      ],
+      "title": "BVA: cart_items_count = 1 (LB giỏ hàng 1 món - Mobile không cắt bớt)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập, giỏ hàng có đúng 1 sản phẩm",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "items": [
+            {
+              "id": 1,
+              "quantity": 1
+            }
+          ],
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-BVA-20",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB+1(cart_items=2_mobile_skew)"
+      ],
+      "title": "BVA: cart_items_count = 2 (LB+1 Mobile kích hoạt lỗi cắt bỏ sản phẩm cuối cart.slice(0, -1))",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user đăng nhập, giỏ hàng có 2 sản phẩm khác nhau",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "items": [
+            {
+              "id": 1,
+              "quantity": 1
+            },
+            {
+              "id": 2,
+              "quantity": 1
+            }
+          ],
+          "total_amount": 400000,
+          "shipping_address": "123 Le Loi, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
     }
   ]
 }
