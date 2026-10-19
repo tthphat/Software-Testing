@@ -32,7 +32,7 @@ Hệ thống kiểm thử EShop là một nền tảng thương mại điện t�
 | Feature | Pool in assignment | Planned scope | Trạng thái hiện tại |
 | :--- | :---: | :--- | :---: |
 | **FR-01 — Account registration** | Pool A | Luồng đăng ký tài khoản, kiểm tra dữ liệu đầu vào (name, email, password), ràng buộc nghiệp vụ duplicate email, kiểm tra mâu thuẫn giữa Web, Mobile và Backend | **Đã hoàn thành 100%** |
-| **FR-03 — Forgot password and password reset** | Pool A | Quy trình 2 bước: yêu cầu đặt lại mật khẩu và gửi mã reset token/mật khẩu mới | Kế hoạch thực hiện |
+| **FR-03 — Forgot password and password reset** | Pool A | Quy trình 2 bước: yêu cầu đặt lại mật khẩu và gửi mã reset token/mật khẩu mới | **Đã hoàn thành 100%** |
 | **FR-08 — Checkout** | Pool B | Điều kiện tiên quyết giỏ hàng, thông tin thanh toán, đặt đơn hàng và kiểm tra tính toán tổng tiền | Kế hoạch thực hiện |
 | **FR-12 — Access control** | Pool C | Phân quyền vai trò Admin / Customer, kiểm soát truy cập các endpoint và giao diện quản trị | Kế hoạch thực hiện |
 
@@ -265,7 +265,180 @@ Quá trình đối chiếu giữa thiết kế ban đầu của AI và kết qu�
 
 ### **3.3 FR-03 — Forgot Password and Password Reset (Two Steps)**
 
-*(Phần này sẽ được thực hiện kế tiếp)*
+#### 3.3.1 Tìm hiểu tính năng và đặc tả thực tế
+- **Quy trình 2 bước phụ thuộc trạng thái (Stateful Flow):**
+  - **Bước 1 (Request OTP):** `POST /api/forgot-password` (Base URL: `http://localhost:3000`). Người dùng gửi email để nhận mã OTP khôi phục mật khẩu.
+  - **Bước 2 (Reset Password):** `POST /api/reset-password`. Người dùng gửi email, mã `resetToken` nhận được từ Bước 1, và `newPassword` để cập nhật mật khẩu mới.
+- **Nguồn đặc tả đã sử dụng:**
+  - `docs/api_specification.md` (mục 1.3 Quên mật khẩu và 1.4 Đặt lại mật khẩu) `[SPEC]`
+  - Mã nguồn Backend: `eshop-sut/backend/server.js:68-98` và `eshop-sut/backend/database.js:58` `[CODE]`
+  - Mã nguồn Frontend Web: `eshop-sut/frontend-web/src/pages/ForgotPassword.jsx:10-70` `[CODE]`
+  - Mã nguồn Frontend Mobile: `eshop-sut/frontend-mobile/App.js:250-280` `[CODE]`
+  - Quan sát thực thi qua HTTP API Runner: `[OBSERVED]`
+- **Phát hiện quan trọng từ mã nguồn SUT (Code Investigation):**
+  - **Lỗ hổng lộ OTP trong HTTP Response Body (`server.js:77`):** Khi người dùng gọi `POST /api/forgot-password`, server sinh mã ngẫu nhiên 4 chữ số `Math.floor(1000 + Math.random() * 9000).toString()` và **trả thẳng `resetToken` trong response body** (`res.json({ message: "...", resetToken })`). Điều này tạo ra lỗ hổng bảo mật nghiêm trọng (Information Disclosure / Account Takeover) cho phép bất kỳ ai biết email nạn nhân đều có thể lấy OTP và đổi mật khẩu mà không cần đọc email hay SMS!
+  - **Mã OTP không có thời hạn hết hạn (`database.js:58`):** Bảng `users` chỉ có cột `reset_token TEXT` mà không có cột lưu thời gian tạo (`created_at`) hay thời gian hết hạn (`expires_at`). Mã OTP có hiệu lực vô thời hạn cho tới khi được dùng hoặc bị ghi đè.
+  - **Cơ chế Token dùng một lần (Single-use Token):** Khi đổi mật khẩu thành công tại `server.js:90`, backend thực thi `UPDATE users SET password = ?, reset_token = NULL WHERE id = ?`. Sau khi đã reset, token cũ bị xóa về `NULL` và không thể tái sử dụng.
+  - **Backend hoàn toàn không kiểm tra `newPassword` (`server.js:84-97`):** Sau khi xác thực user khớp với `resetToken`, backend gọi thẳng `bcrypt.hash(newPassword)` mà không kiểm tra độ dài tối thiểu, độ phức tạp, hay chuỗi rỗng. Chấp nhận mật khẩu rỗng `""`, 1 ký tự, hoặc payload 10,000 ký tự.
+  - **Mâu thuẫn giữa Đặc tả và Mã nguồn thực tế:** Đặc tả `api_specification.md:42` ghi mẫu OTP 6 chữ số `"123456"`, nhưng backend thực tế sinh số 4 chữ số `1000..9999` (khớp với nhãn Web "Mã OTP (4 số)").
+  - **Lệch pha Regex Password giữa Web và Mobile:** Web (`ForgotPassword.jsx:26`) yêu cầu khoảng trắng `\s` và cấm ký tự đặc biệt; Mobile (`App.js:262`) yêu cầu ký tự đặc biệt `[^A-Za-z\d]`.
+
+---
+
+#### 3.3.2 Kiểm thử miền (Domain Testing)
+
+##### Bước 1: Xác định biến Input, Output, State và Miền giá trị (Domains)
+
+| Biến | Loại (Kind) | Kiểu dữ liệu | Miền giá trị & Ràng buộc kỹ thuật (Domain) | Nguồn (Source tag) |
+| :--- | :--- | :--- | :--- | :---: |
+| `step1_email` | Input | String | - Email yêu cầu cấp OTP tại Bước 1.<br>- Ràng buộc: Bắt buộc, đúng định dạng RFC 5322, phải tồn tại trong DB.<br>- *Code thực tế:* `server.js:68` không validate; truy vấn trực tiếp SQLite; nếu không thấy trả về 404. | `[SPEC]` api_spec:31<br>`[CODE]` server.js:68 |
+| `step2_email` | Input | String | - Email của tài khoản cần đổi mật khẩu tại Bước 2.<br>- Ràng buộc: Phải khớp với email đã được cấp OTP ở Bước 1.<br>- *Code thực tế:* So khớp đồng thời `WHERE email = ? AND reset_token = ?`. | `[SPEC]` api_spec:41<br>`[CODE]` server.js:84 |
+| `step2_resetToken` | Input | String | - Mã xác nhận OTP khôi phục mật khẩu.<br>- Ràng buộc: Chuỗi số 4 ký tự `[1000, 9999]`. Chỉ dùng 1 lần.<br>- *Dị biệt:* Spec ghi mẫu 6 số `"123456"`; code sinh 4 số `1000..9999`. | `[CODE]` server.js:72<br>`[SPEC]` (mẫu 6 số) |
+| `step2_newPassword` | Input | String | - Mật khẩu mới thiết lập cho tài khoản.<br>- Ràng buộc lý thuyết: Độ dài [8, 128], gồm chữ hoa, thường, số, ký tự đặc biệt.<br>- *Code thực tế:* Backend hoàn toàn không validate, nhận mọi giá trị/rỗng. | `[SPEC]` api_spec:43<br>`[CODE]` ForgotPassword.jsx:26<br>`[CODE]` server.js:84 |
+| `user_account_state` | State | Enum | - Trạng thái tài khoản trong DB.<br>- Miền giá trị: `{ NOT_EXIST, EXIST_NO_TOKEN, EXIST_WITH_VALID_TOKEN, EXIST_TOKEN_USED }`. | `[CODE]` server.js:69-90<br>`[ASSUMED]` State Model |
+| `token_validity_state` | State | Enum | - Trạng thái của mã resetToken trong DB.<br>- Miền giá trị: `{ NULL, ACTIVE_MATCH, ACTIVE_MISMATCH, EXPIRED (chưa hỗ trợ trong code) }`. | `[CODE]` database.js:58<br>`[CODE]` server.js:85 |
+| `system_output_response`| Output | Object | - Mã HTTP status (200, 400, 404) và thông điệp JSON tương ứng. | `[SPEC]` api_spec:34-48<br>`[CODE]` server.js:70-95 |
+
+---
+
+##### Bước 2: Phân hoạch các lớp tương đương (Equivalence Partitioning)
+Phân hoạch thành **31 lớp tương đương** (`EC01` đến `EC31`) bao quát 2 bước của quy trình:
+
+| Biến / Trạng thái | Lớp tương đương hợp lệ (Valid ECs) | Lớp tương đương không hợp lệ (Invalid ECs) |
+| :--- | :--- | :--- |
+| **`step1_email`** | **EC01:** Email hợp lệ và đã tồn tại trong DB | **EC02:** Email hợp lệ nhưng chưa từng đăng ký (404)<br>**EC03:** Email là chuỗi rỗng `""`<br>**EC04:** Thiếu trường `email` trong body `{}`<br>**EC05:** Email sai định dạng (thiếu `@`)<br>**EC06:** Email sai định dạng (thiếu domain)<br>**EC07:** Sai kiểu dữ liệu (Boolean/Number) |
+| **`step2_email`** | **EC08:** Email khớp chính xác với tài khoản đã cấp OTP | **EC09:** Email không khớp với tài khoản được cấp OTP<br>**EC10:** Email rỗng hoặc thiếu trường |
+| **`step2_resetToken`** | **EC11:** Mã OTP đúng 4 chữ số và khớp giá trị trong DB | **EC12:** Mã OTP sai giá trị (4 chữ số không khớp DB)<br>**EC13:** Mã OTP sai độ dài (3 số hoặc 6 số mẫu spec)<br>**EC14:** Mã OTP rỗng `""` hoặc thiếu trường<br>**EC15:** Token đã qua sử dụng một lần (đã bị xóa về NULL)<br>**EC16:** Mã OTP hợp lệ của User B đem dùng cho User A<br>**EC17:** Gửi token cho user chưa từng gọi Bước 1 |
+| **`step2_newPassword`** | **EC18:** Mật khẩu mạnh hợp lệ (8..128 ký tự, đủ hoa, thường, số, đặc biệt) | **EC19:** Mật khẩu quá ngắn (< 8 ký tự)<br>**EC20:** Thiếu chữ in hoa (`[A-Z]`)<br>**EC21:** Thiếu chữ in thường (`[a-z]`)<br>**EC22:** Thiếu chữ số (`\d`)<br>**EC23:** Có khoảng trắng, thiếu ký tự đặc biệt (Web regex skew)<br>**EC24:** Mật khẩu rỗng `""` hoặc thiếu trường<br>**EC25:** Mật khẩu quá dài (> 128 ký tự) |
+| **Trạng thái & Output** | **EC26:** Cấp mã thành công (Step 1 HTTP 200)<br>**EC28:** Đổi mật khẩu thành công (Step 2 HTTP 200) | **EC27:** Step 1 từ chối (HTTP 404/400)<br>**EC29:** Step 2 từ chối do lỗi xác thực token/email (HTTP 400)<br>**EC30:** Step 2 từ chối do mật khẩu không hợp lệ (HTTP 400)<br>**EC31:** Mã OTP hết hạn theo thời gian (Code chưa hỗ trợ) |
+
+---
+
+##### Bước 3 & 4: Thiết kế bộ test case tối thiểu và Ma trận bao phủ 100%
+Thiết kế **22 ca kiểm thử tối thiểu** (`FR03-DT-01` đến `FR03-DT-22`), gồm 1 ca kiểm thử Valid kết hợp toàn bộ quy trình và 21 ca kiểm thử Invalid đơn lập để cô lập lỗi.
+
+- **Ma trận bao phủ Equivalence Class (Coverage Matrix):**
+
+| Mã Test Case | Loại TC | Tóm tắt mục tiêu kiểm thử | Các lớp EC được bao phủ | Kết quả mong đợi |
+| :--- | :---: | :--- | :--- | :---: |
+| `FR03-DT-01` | Valid | Quy trình khôi phục hoàn chỉnh (Step 1 + Step 2) | **EC01, EC08, EC11, EC18, EC26, EC28** | HTTP 200 Success |
+| `FR03-DT-02` | Invalid | Bước 1: Email chưa từng đăng ký trong DB | **EC02, EC27** | HTTP 404 User not found |
+| `FR03-DT-03` | Invalid | Bước 1: Email là chuỗi rỗng `""` | **EC03, EC27** | HTTP 400 Bad Request |
+| `FR03-DT-04` | Invalid | Bước 1: Thiếu hoàn toàn field `email` trong body | **EC04, EC27** | HTTP 400 Bad Request |
+| `FR03-DT-05` | Invalid | Bước 1: Email sai cú pháp (thiếu `@`) | **EC05, EC27** | HTTP 400 Bad Request |
+| `FR03-DT-06` | Invalid | Bước 1: Email thiếu tên miền domain sau `@` | **EC06, EC27** | HTTP 400 Bad Request |
+| `FR03-DT-07` | Invalid | Bước 1: Email sai kiểu dữ liệu (Boolean `true`) | **EC07, EC27** | HTTP 400 Bad Request |
+| `FR03-DT-08` | Invalid | Bước 2: Email không khớp tài khoản được cấp OTP | **EC09, EC29** | HTTP 400 Invalid token/email |
+| `FR03-DT-09` | Invalid | Bước 2: Email chuỗi rỗng | **EC10, EC29** | HTTP 400 Invalid token/email |
+| `FR03-DT-10` | Invalid | Bước 2: Mã OTP sai giá trị 4 chữ số | **EC12, EC29** | HTTP 400 Invalid token/email |
+| `FR03-DT-11` | Invalid | Bước 2: Mã OTP sai độ dài (6 chữ số theo mẫu spec) | **EC13, EC29** | HTTP 400 Invalid token/email |
+| `FR03-DT-12` | Invalid | Bước 2: Mã OTP là chuỗi rỗng `""` | **EC14, EC29** | HTTP 400 Invalid token/email |
+| `FR03-DT-13` | Invalid | Bước 2: Tái sử dụng token đã dùng (Single-use test) | **EC15, EC29** | HTTP 400 Invalid token/email |
+| `FR03-DT-14` | Invalid | Bước 2: Dùng OTP User B đổi mật khẩu User A | **EC16, EC29** | HTTP 400 Invalid token/email |
+| `FR03-DT-15` | Invalid | Bước 2: Gửi token cho user chưa từng gọi Bước 1 | **EC17, EC29** | HTTP 400 Invalid token/email |
+| `FR03-DT-16` | Invalid | Bước 2: Mật khẩu mới quá ngắn (< 8 ký tự, `Pass1!`) | **EC19, EC30** | HTTP 400 Bad Request |
+| `FR03-DT-17` | Invalid | Bước 2: Mật khẩu mới thiếu chữ in hoa | **EC20, EC30** | HTTP 400 Bad Request |
+| `FR03-DT-18` | Invalid | Bước 2: Mật khẩu mới thiếu chữ in thường | **EC21, EC30** | HTTP 400 Bad Request |
+| `FR03-DT-19` | Invalid | Bước 2: Mật khẩu mới thiếu chữ số | **EC22, EC30** | HTTP 400 Bad Request |
+| `FR03-DT-20` | Invalid | Bước 2: Mật khẩu mới có khoảng trắng, thiếu ký tự đặc biệt | **EC23, EC30** | HTTP 400 Bad Request |
+| `FR03-DT-21` | Invalid | Bước 2: Mật khẩu mới là chuỗi rỗng `""` | **EC24, EC30** | HTTP 400 Bad Request |
+| `FR03-DT-22` | Invalid | Bước 2: Mật khẩu mới vượt quá độ dài tối đa (> 128 ký tự) | **EC25, EC30** | HTTP 400 Bad Request |
+
+*Độ bao phủ: 30/30 lớp EC khả thi (100%). Lớp EC31 (hết hạn token) là phát hiện kiến trúc thiếu trường thời gian trong DB.*
+
+---
+
+#### 3.3.3 Phân tích giá trị biên (Boundary Value Analysis - BVA)
+
+##### Bước 1: Xác định biến có miền thứ tự
+- **Biến có thứ tự áp dụng BVA:**
+  1. `newPassword.length`: Miền số nguyên độ dài ký tự $[8, 128]$.
+  2. `resetToken`: Miền giá trị số nguyên 4 chữ số $[1000, 9999]$ và độ dài chuỗi ký tự.
+- **Biến không áp dụng BVA:**
+  - `email`: Miền phi thứ tự (Unordered Domain), kiểm tra theo cấu trúc cú pháp (Domain Testing).
+  - `boolean / status`: Kiểu rời rạc (Discrete Enum), không có khái niệm lân cận biên.
+
+##### Bước 2: Xác định điểm biên (3-value BVA + Mô hình 9 điểm + Biên mã hóa UTF-8)
+- **`newPassword.length` [8, 128]:**
+  - Cận dưới: $LB-1 = 7$, $LB = 8$, $LB+1 = 9$.
+  - Cận trên: $UB-1 = 127$, $UB = 128$, $UB+1 = 129$.
+  - Điểm danh định: $Nominal = 16$.
+  - Cực trị vật lý (Physical Extremes): $Min = 0$ (chuỗi rỗng), $Max = 10,000$ (phòng chống DoS payload).
+  - **Quy tắc biên mã hóa (v2.0 Encoding Rule):** Bổ sung test case độ dài 128 ký tự tiếng Việt có dấu (`"KhởiTạoMậtKhẩuMới123!..."`) để kiểm chứng kích thước byte UTF-8 so với ký tự.
+- **`resetToken` [1000, 9999]:**
+  - Độ dài: $LB-1 = 3$ số, $LB = 4$ số, $UB+1 = 5$ số, Spec Sample = 6 số (`123456`).
+  - Giá trị số: $LB = 1000$, $UB = 9999$.
+
+##### Bước 3: Danh sách 15 ca kiểm thử BVA
+
+| Mã Test Case | Biến kiểm thử | Giá trị biên cụ thể | Ý nghĩa kỹ thuật | Lỗi code sẽ bắt được | Kết quả mong đợi |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| `FR03-BVA-01` | `newPassword.length` | `length = 0` (`""`) | Min Extreme | Bỏ sót kiểm tra chuỗi rỗng | HTTP 400 |
+| `FR03-BVA-02` | `newPassword.length` | `length = 7` (`Pass12!`) | $LB-1$ | Lỗi dùng nhầm toán tử `>` thay vì `>=` | HTTP 400 |
+| `FR03-BVA-03` | `newPassword.length` | `length = 8` (`Pass123!`) | $LB$ | Từ chối nhầm mật khẩu hợp lệ tối thiểu | HTTP 200 |
+| `FR03-BVA-04` | `newPassword.length` | `length = 9` (`Pass1234!`) | $LB+1$ | Lỗi lệch 1 đơn vị cận dưới | HTTP 200 |
+| `FR03-BVA-05` | `newPassword.length` | `length = 127` | $UB-1$ | Lỗi lệch 1 đơn vị cận trên | HTTP 200 |
+| `FR03-BVA-06` | `newPassword.length` | `length = 128` (ASCII) | $UB$ | Từ chối nhầm mật khẩu hợp lệ tối đa | HTTP 200 |
+| `FR03-BVA-07` | `newPassword.length` | `length = 128` (Unicode UTF-8) | $UB$ Encoding | Đếm byte UTF-8 làm tràn bộ đệm sớm | HTTP 200 |
+| `FR03-BVA-08` | `newPassword.length` | `length = 129` | $UB+1$ | Lỗi dùng nhầm toán tử `<` thay vì `<=` | HTTP 400 |
+| `FR03-BVA-09` | `newPassword.length` | `length = 10,000` | Max Extreme | Tấn công cạn kiệt CPU (DoS payload) | HTTP 400 |
+| `FR03-BVA-10` | `resetToken.length` | `length = 0` (`""`) | Extreme | Chấp nhận token rỗng | HTTP 400 |
+| `FR03-BVA-11` | `resetToken.length` | `length = 3` (`"999"`) | $LB-1$ | Bỏ qua kiểm tra độ dài token ngắn | HTTP 400 |
+| `FR03-BVA-12` | `resetToken.value` | `value = 1000` | $LB$ giá trị | Sai lệch biên dưới dải OTP 4 số | HTTP 400 / 200 |
+| `FR03-BVA-13` | `resetToken.value` | `value = 9999` | $UB$ giá trị | Sai lệch biên trên dải OTP 4 số | HTTP 400 / 200 |
+| `FR03-BVA-14` | `resetToken.length` | `length = 5` (`"10000"`) | $UB+1$ độ dài | Chấp nhận token dài hơn 4 số | HTTP 400 |
+| `FR03-BVA-15` | `resetToken.length` | `length = 6` (`"123456"`) | Spec boundary | Không phát hiện sai lệch mẫu đặc tả | HTTP 400 |
+
+---
+
+#### 3.3.4 Kết quả thực thi kiểm thử chi tiết
+
+Toàn bộ 37 ca kiểm thử (22 DT + 15 BVA) đã được thực thi tự động qua test runner `run_cases.mjs` tích hợp hook cấp token động:
+- **Tổng số thiết kế (Designed):** 37
+- **Đã thực thi (Executed):** 37 (100%)
+- **Thành công (PASS):** 21
+- **Thất bại (FAIL):** 16
+- **Bị chặn (BLOCKED):** 0
+
+*Tóm tắt kết quả thực thi 16 ca FAIL:*
+- **11 ca FAIL do Backend thiếu validation `newPassword`:** `FR03-DT-16` đến `FR03-DT-22`, `FR03-BVA-01`, `FR03-BVA-02`, `FR03-BVA-08`, `FR03-BVA-09`. Tất cả đều trả về `HTTP 200 OK {"message":"Password reset successfully"}` thay vì từ chối bằng HTTP 400 Bad Request.
+- **5 ca FAIL do Backend thiếu validation email đầu vào:** `FR03-DT-03` đến `FR03-DT-07`. Tất cả đều trả về `HTTP 404 Not Found {"error":"User not found"}` thay vì HTTP 400 Bad Request.
+
+Minh chứng thực thi được lưu tại: [HW2/evidence/FR-03/test-execution.log](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-03/test-execution.log).
+
+---
+
+#### 3.3.5 Báo cáo lỗi phần mềm (Defect Triage)
+
+16 ca kiểm thử thất bại và các khảo sát mã nguồn được quy về **4 khiếm khuyết phần mềm**:
+
+| Mã lỗi (Bug ID) | Tiêu đề lỗi | Test Cases phát hiện | Mức độ (Severity) | Độ ưu tiên |
+| :--- | :--- | :--- | :---: | :---: |
+| **BUG-FR03-01** | Lộ mã OTP (`resetToken`) trong HTTP response body của `POST /api/forgot-password` | `FR03-DT-01` | **Critical** | Immediate |
+| **BUG-FR03-02** | Backend hoàn toàn không kiểm tra tính hợp lệ và độ phức tạp của `newPassword` | 11 TCs (`FR03-DT-16..22`, `FR03-BVA-01, 02, 08, 09`) | **Critical** | High |
+| **BUG-FR03-03** | Mã đặt lại mật khẩu không có thời hạn hết hạn (Token Never Expires do DB thiếu timestamp) | Khảo sát `database.js:58` | **Major** | Medium |
+| **BUG-FR03-04** | Endpoint `POST /api/forgot-password` trả về HTTP 404 thay vì HTTP 400 khi email sai quy cách | 5 TCs (`FR03-DT-03..07`) | **Minor** | Low |
+
+Chi tiết báo cáo lỗi: [bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md) và các dự thảo GitHub Issues tại `HW2/report/issues/BUG-FR03-*.md`.
+
+---
+
+#### 3.3.6 Phân tích khoảng trống của AI (AI Gap Analysis & Nâng cấp v2.1)
+
+Quá trình kiểm thử FR-03 đã làm bộc lộ 4 khoảng trống AI quan trọng, dẫn đến việc tiếp tục nâng cấp bộ kỹ năng lên **phiên bản v2.1**:
+
+| Mục bị bỏ sót / Thách thức thực tế | Cách phát hiện | Vì sao AI bỏ sót ban đầu | Phân loại nguyên nhân (Category) | Hành động cải tiến Skill (v2.0 → v2.1) |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Phụ thuộc Token động trong quy trình stateful** | Runner gửi `"VALID_TOKEN"` tĩnh bị backend chặn ở bước xác thực token, che giấu lỗi password | AI coi các test case API là độc lập và phi trạng thái (stateless) | `Inherent feature complexity` | Nâng cấp runner với quy tắc **Stateful Flow Dynamic Setup Hook**: tự động gọi endpoint tiền đề lấy token động thời gian thực. |
+| **2. Thiên kiến chức năng che mờ lỗ hổng bảo mật rò rỉ OTP** | Đọc mã nguồn `server.js:77` thấy `res.json({ message, resetToken })` | AI bị thiên kiến chức năng (Functional Bias): coi việc trả về token là "thành công" để assert | `Tool limitation` & `Inherent feature complexity` | Bổ sung quy tắc **Sensitive Field In Response Anti-Pattern Check** (CWE-200) vào Stage 0 và Stage 3. |
+| **3. Bỏ sót biến thời gian ẩn (Token Expiration)** | Kiểm tra bảng `users` (`database.js:58`) thấy không có cột lưu thời gian tạo/hết hạn OTP | Spec không nhắc đến thời hạn token; biến thời gian là biến ẩn không nằm trong request payload | `Prompt/input quality` & `Inherent feature complexity` | Bổ sung **Temporal/Expiration State Variable Checklist** vào Stage 1 để luôn rà soát thời hạn hiệu lực của token. |
+| **4. Mâu thuẫn định dạng OTP giữa Đặc tả và Mã nguồn thực tế** | Đối chiếu `api_specification.md` (6 số) với `server.js:72` (sinh 4 số) và Web JSX | AI ban đầu nếu chỉ đọc spec sẽ sinh toàn bộ test case cho OTP 6 số | `Inherent feature complexity` | Áp dụng quy tắc **Multi-Source Discrepancy Resolution** trong Stage 0: luôn ưu tiên mã nguồn thực tế kèm ghi chú sai lệch. |
+
+---
+
+#### 3.3.7 Hạn chế của kỹ thuật
+1. **Khó khăn với quy trình phụ thuộc trạng thái (Stateful Multi-step Process):** Kỹ thuật phân hoạch tương đương và BVA giả định các biến đầu vào có thể kiểm thử độc lập. Khi áp dụng cho một quy trình 2 bước phụ thuộc token sinh ngẫu nhiên ở runtime, các ca kiểm thử Bước 2 không thể thực thi nếu không có cơ chế thiết lập trạng thái tiền đề (Dynamic Setup Hook).
+2. **Lỗ hổng bảo mật nằm ngoài tầm quét của BVA:** Hai khiếm khuyết nguy hiểm nhất (`BUG-FR03-01` trả OTP qua HTTP và `BUG-FR03-03` token vô thời hạn) hoàn toàn không xuất phát từ việc vi phạm giá trị biên của dữ liệu, mà xuất phát từ lỗi thiết kế kiến trúc bảo mật.
 
 ---
 
@@ -283,13 +456,35 @@ Quá trình đối chiếu giữa thiết kế ban đầu của AI và kết qu�
 
 ### **3.6 Consolidated Bug Reports**
 
-Hiện tại đã ghi nhận và phân loại tổng cộng **5 lỗi phần mềm** từ tính năng FR-01. Bảng tổng hợp toàn bộ lỗi của hệ thống sẽ được hoàn thiện sau khi hoàn thành toàn bộ 4 tính năng. Xem chi tiết tại [HW2/report/bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md).
+Hiện tại đã ghi nhận và phân loại tổng cộng **9 lỗi phần mềm** (5 lỗi từ tính năng FR-01 và 4 lỗi từ tính năng FR-03). Toàn bộ lỗi đều được xác thực trực tiếp qua code và HTTP runner:
+
+| Mã lỗi (Bug ID) | Tiêu đề lỗi | Tính năng | Các TC phát hiện | Mức độ (Severity) | Độ ưu tiên | Trạng thái |
+| :--- | :--- | :---: | :--- | :---: | :---: | :---: |
+| **BUG-FR01-01** | Backend thiếu kiểm tra các trường bắt buộc (`name`, `email`, `password` rỗng vẫn tạo user) | FR-01 | FR01-DT-02, 03, 06, 07, 14, 15 | **Major** | **High** | Confirmed |
+| **BUG-FR01-02** | Backend không kiểm tra định dạng email và kiểu dữ liệu (nhận boolean/số vẫn trả 200) | FR-01 | FR01-DT-04, 05, 08 | **Major** | **High** | Confirmed |
+| **BUG-FR01-03** | Cho phép đăng ký tài khoản trùng lặp email do thiếu ràng buộc UNIQUE trong DB | FR-01 | FR01-DT-16 | **Critical** | **Immediate** | Confirmed |
+| **BUG-FR01-04** | Backend không kiểm tra độ dài tối thiểu và tiêu chí độ phức tạp của mật khẩu | FR-01 | FR01-DT-09..13, FR01-BVA-07 | **Major** | **High** | Confirmed |
+| **BUG-FR01-05** | Không có giới hạn cận trên cho độ dài họ tên và mật khẩu (nguy cơ DoS payload lớn) | FR-01 | FR01-BVA-05, 06, 12, 13 | **Minor** | **Medium** | Confirmed |
+| **BUG-FR03-01** | Lộ mã OTP (`resetToken`) trong HTTP response body của `POST /api/forgot-password` | FR-03 | FR03-DT-01 | **Critical** | **Immediate** | Confirmed |
+| **BUG-FR03-02** | Backend hoàn toàn không kiểm tra tính hợp lệ và độ phức tạp của `newPassword` | FR-03 | FR03-DT-16..22, FR03-BVA-01, 02, 08, 09 | **Critical** | **High** | Confirmed |
+| **BUG-FR03-03** | Mã đặt lại mật khẩu không có thời hạn hết hạn (Token Never Expires do DB thiếu timestamp) | FR-03 | Khảo sát `database.js:58` | **Major** | **Medium** | Confirmed |
+| **BUG-FR03-04** | Endpoint `POST /api/forgot-password` trả về HTTP 404 thay vì HTTP 400 khi email sai quy cách | FR-03 | FR03-DT-03..07 | **Minor** | **Low** | Confirmed |
+
+Xem chi tiết đầy đủ tại tài liệu tổng hợp [HW2/report/bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md) và các tệp dự thảo GitHub Issues tại [HW2/report/issues/](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/).
 
 ---
 
 ## 4. **Test Summary Report**
 
-*(Sẽ được tổng hợp tự động từ script `summary.mjs` sau khi hoàn thành cả 4 tính năng)*
+Bảng tổng hợp số liệu kiểm thử được kết xuất tự động từ công cụ `node .claude/skills/test-execution-and-bugs/scripts/summary.mjs HW2/testcases`:
+
+| Feature | Designed | Executed | Passed | Failed | Blocked | Not executed |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **FR-01 (Account registration)** | 30 | 30 | 10 | 20 | 0 | 0 |
+| **FR-03 (Forgot & Reset password)** | 37 | 37 | 21 | 16 | 0 | 0 |
+| **Tổng cộng (Total)** | **67** | **67** | **31** | **36** | **0** | **0** |
+
+*Ghi chú: Toàn bộ 67 ca kiểm thử đã được thực thi 100% trên môi trường SUT thực tế. Không có ca kiểm thử nào bị chặn (Blocked = 0).*
 
 ---
 

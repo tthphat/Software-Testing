@@ -141,13 +141,28 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 ---
 
+## Phiên 10: Hoàn thành Stage 6 (Tổng hợp số liệu, Cập nhật Main Report & README cho FR-03)
+
+- **Kỹ thuật**: `test-execution-and-bugs` (Stage 6 — Final Stage of Feature FR-03)
+- **Hoạt động thực hiện**:
+  - Cập nhật toàn diện Mục 3.3 trong `HW2/23120319_HW02_Main_Report.md` với đầy đủ 7 tiểu mục phân tích chuyên sâu cho FR-03 (Tìm hiểu đặc tả SUT, Domain Testing với 31 ECs và 22 TCs, BVA 3-value với 15 TCs, Kết quả thực thi, Phân loại 4 lỗi, AI Gap Analysis v2.1, và Hạn chế kỹ thuật).
+  - Cập nhật Mục 3.6 (Consolidated Bug Reports) trong Main Report với bảng tổng hợp 9 lỗi phần mềm đã xác thực của hệ thống (5 từ FR-01, 4 từ FR-03).
+  - Cập nhật Mục 4 (Test Summary Report) trong Main Report và Mục 2 trong `HW2/README.md` với bảng số liệu đồng bộ 100% từ công cụ `summary.mjs`:
+    - FR-01: 30 Designed, 30 Executed, 10 PASS, 20 FAIL, 5 Bugs.
+    - FR-03: 37 Designed, 37 Executed, 21 PASS, 16 FAIL, 4 Bugs.
+    - Tổng cộng: **67 Designed, 67 Executed, 31 PASS, 36 FAIL, 0 BLOCKED, 9 Bugs**.
+  - Đánh dấu hoàn thành các mục kiểm tra trong Checklist của `HW2/README.md`.
+- **Audit Log**: Thêm entry `A14` vào `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: Đã **HOÀN THÀNH 100% TÍNH NĂNG FR-03** trên toàn bộ 4 kỹ năng (`domain-testing`, `boundary-value-analysis`, `test-execution-and-bugs`, `ai-audit-log`). Sẵn sàng chuyển sang tính năng tiếp theo: **FR-08 — Checkout (Pool B)**.
+
+---
+
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định báo cáo lỗi Stage 4 và phân tích khoảng trống AI Stage 5 của FR-03.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 bug reports and AI gap analysis stage 4-5`.
-3. Sau khi được duyệt, chuyển sang **Stage 6 (Tổng hợp số liệu & Cập nhật Main Report)**:
-   - Cập nhật phần FR-03 trong `HW2/23120319_HW02_Main_Report.md`.
-   - Cập nhật bảng tổng hợp số liệu trong `HW2/README.md`.
+1. Sinh viên thẩm định toàn bộ kết quả cập nhật của FR-03 và thực hiện Git commit:
+   `feat(HW2): complete FR-03 test execution, main report and readme update`
+2. Bắt đầu tính năng tiếp theo: **FR-08 — Checkout (Pool B)**:
+   - Kỹ thuật 1: `domain-testing` cho FR-08 (Bắt đầu với Stage 0 và Stage 1 -> DỪNG LẠI CHỜ DUYỆT).
 
 ---
 
@@ -156,7 +171,7 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 - Sau mỗi artifact, chạy skill `ai-audit-log`
 - Commit sau mỗi stage được duyệt theo format `feat(HW2): ...`
 - Báo cáo bằng tiếng Việt có dấu
-- **QUY TẮC BẮT BUỘC**: Dừng lại duyệt tại từng stage checkpoint (Stage 3 Triage và Stage 5 Gap Analysis).
+- **QUY TẮC BẮT BUỘC**: Dừng lại duyệt tại từng stage checkpoint (Stage 0+1, Stage 2, Stage 3+5 của Domain Testing; Stage 1+2, Stage 3+4 của BVA; Stage 3, Stage 5 của Execution).
 
 ---
 
@@ -164,20 +179,16 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/bugs.vi.md` | Bổ sung 4 lỗi của FR-03 vào bảng tổng hợp và chi tiết lỗi |
-| `HW2/report/issues/BUG-FR03-01.md` | Dự thảo GitHub Issue: Lộ mã OTP trong response |
-| `HW2/report/issues/BUG-FR03-02.md` | Dự thảo GitHub Issue: Backend thiếu validation newPassword |
-| `HW2/report/issues/BUG-FR03-03.md` | Dự thảo GitHub Issue: OTP không có thời hạn hết hạn |
-| `HW2/report/issues/BUG-FR03-04.md` | Dự thảo GitHub Issue: Trả 404 thay vì 400 khi email sai |
-| `HW2/report/FR-03/03-execution-and-gap-analysis.vi.md` | Tạo báo cáo thực thi và phân tích khoảng trống AI cho FR-03 |
-| `skills-changelog.md` | Bổ sung mục 2.3 nâng cấp kỹ năng v2.1 từ bài học FR-03 |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A13 (FR-03 Stage 4-5) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 4-5 cho FR-03 |
+| `HW2/23120319_HW02_Main_Report.md` | Hoàn thiện mục 3.3 (FR-03), cập nhật mục 3.6 và mục 4 |
+| `HW2/README.md` | Cập nhật bảng tổng kết số liệu 67 TCs và checklist kiểm thử |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A14 (FR-03 Stage 6) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành 100% tính năng FR-03 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành Stage 4 & Stage 5 cho FR-03. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+**Phiên hiện tại**: Đã hoàn tất 100% FR-01 và FR-03. Sẵn sàng cho FR-08 (Checkout).
+
 
 
 
