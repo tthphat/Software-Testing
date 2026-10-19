@@ -299,11 +299,37 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 ---
 
+## Phiên 18: Hoàn tất Stage 6 tính năng FR-08 (Checkout) & Đồng bộ Main Report
+
+- **Tính năng**: **FR-08 — Checkout (Thanh toán & Đặt hàng — Pool B)**
+- **Kỹ thuật**: `test-execution-and-bugs` (Stage 6) & Main Report Synchronization
+- **Hoạt động thực hiện**:
+  - **Đồng bộ Main Report (`HW2/23120319_HW02_Main_Report.md`)**:
+    - *Mục 2 (Feature selection and scope)*: Đánh dấu hoàn thành 100% cho tính năng **FR-08 — Checkout (Pool B)**.
+    - *Mục 3.4 (FR-08 — Checkout)*: Bổ sung toàn diện nội dung kiểm thử chuyên sâu gồm 7 tiểu mục:
+      - 3.4.1: Khảo sát thực tế mã nguồn SUT, bóc tách các lỗ hổng Parameter Tampering (`server.js:299`), Web input `editableTotal` (`Checkout.jsx:93`), Mobile skew tự ý cắt xén giỏ hàng (`App.js:391`), thiếu trường `shipping_address`, cho phép đặt hàng khi giỏ rỗng, và CSDL thiếu bảng `order_items`.
+      - 3.4.2: Kiểm thử miền (Domain Testing) với 6 biến, 31 lớp tương đương (`EC01`–`EC31`), 22 ca kiểm thử tối thiểu (`FR08-DT-01`–`FR08-DT-22`), ma trận bao phủ 100%.
+      - 3.4.3: Phân tích giá trị biên (BVA) trên 3 miền thứ tự (`total_amount`, `shipping_address.length`, `cart.item_count`), biến thể 3-value BVA, mô hình 9 điểm và quy tắc Encoding Boundary Rule UTF-8 tiếng Việt (v2.0), bộ 20 test cases BVA (`FR08-BVA-01`–`FR08-BVA-20`).
+      - 3.4.4: Bảng kết quả thực thi 42 test cases đầy đủ (16 PASS, 26 FAIL, 0 BLOCKED).
+      - 3.4.5: Phân loại 26 ca FAIL về 7 lỗi phần mềm độc lập (`BUG-FR08-01` đến `BUG-FR08-07`) kèm bảng tổng hợp mức độ nghiêm trọng và liên kết issue drafts.
+      - 3.4.6: Phân tích khoảng trống AI Gap Analysis theo 3 nhóm nguyên nhân của đề bài và các quy tắc cải tiến bộ kỹ năng v2.2.
+      - 3.4.7: Đánh giá các hạn chế kỹ thuật của phương pháp kiểm thử hộp đen.
+    - *Mục 3.6 (Consolidated Bug Reports)*: Cập nhật danh mục lên **16 lỗi phần mềm toàn hệ thống** (5 lỗi FR-01, 4 lỗi FR-03, 7 lỗi FR-08).
+    - *Mục 4 (Test Summary Report)*: Cập nhật bảng tổng hợp số liệu kết xuất từ `summary.mjs`:
+      - FR-01: 30 Designed, 30 Executed, 10 PASS, 20 FAIL.
+      - FR-03: 37 Designed, 37 Executed, 21 PASS, 16 FAIL.
+      - FR-08: 42 Designed, 42 Executed, 16 PASS, 26 FAIL.
+      - Tổng cộng: **109 Designed, 109 Executed, 47 PASS, 62 FAIL, 0 BLOCKED, 0 NOT EXECUTED**.
+  - **Audit Log**: Thêm entry `A22` vào `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: Đã **HOÀN THÀNH 100% TÍNH NĂNG FR-08 (Pool B)** trên toàn bộ 4 kỹ năng (`domain-testing`, `boundary-value-analysis`, `test-execution-and-bugs`, `ai-audit-log`).
+
+---
+
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định bộ 7 báo cáo lỗi GitHub Issues và bảng AI Gap Analysis Stage 4-5 của FR-08.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 bug reports and AI gap analysis stage 4-5`.
-3. Sau khi được duyệt, chuyển sang **Stage 6 (Thực thi script summary.mjs, cập nhật bảng số liệu tổng kết vào README.md và cập nhật báo cáo chính 23120319_HW02_Main_Report.md)**.
+1. Học viên thẩm định kết quả hoàn tất tính năng FR-08 và việc đồng bộ Main Report.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 finalize stage 6 and update main report`.
+3. Chuyển sang tính năng tiếp theo: **FR-12 — Access Control (Phân quyền vai trò Admin / Customer — Pool C)**, bắt đầu bằng kỹ năng `domain-testing` (Stage 0 & 1).
 
 ---
 
@@ -320,17 +346,14 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/issues/BUG-FR08-01.md` đến `BUG-FR08-07.md` | Tạo mới 7 bản thảo GitHub Issues cho FR-08 |
-| `HW2/report/bugs.vi.md` | Bổ sung 7 lỗi phần mềm của FR-08 vào báo cáo tổng hợp |
-| `skills-changelog.md` | Nâng cấp bộ kỹ năng lên v2.2 (Financial Integrity & DB Checklist) |
-| `HW2/report/FR-08/03-execution-and-gap-analysis.vi.md` | Bổ sung Stage 4 & Stage 5 hoàn chỉnh |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A21 (FR-08 Stage 4-5) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 4-5 cho FR-08 |
+| `HW2/23120319_HW02_Main_Report.md` | Tích hợp hoàn tất FR-08 (Section 3.4), 16 bugs (Section 3.6), 109 TCs (Section 4) |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A22 (FR-08 Main Report Update) |
+| `HW2/session-history.md` | Cập nhật Phiên 18 hoàn tất Stage 6 và tính năng FR-08 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành Stage 4-5 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+**Phiên hiện tại**: Đã hoàn thành 100% tính năng FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW) trước khi sang FR-12.
 
 
 

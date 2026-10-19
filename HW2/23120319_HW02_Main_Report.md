@@ -33,7 +33,7 @@ Hệ thống kiểm thử EShop là một nền tảng thương mại điện t�
 | :--- | :---: | :--- | :---: |
 | **FR-01 — Account registration** | Pool A | Luồng đăng ký tài khoản, kiểm tra dữ liệu đầu vào (name, email, password), ràng buộc nghiệp vụ duplicate email, kiểm tra mâu thuẫn giữa Web, Mobile và Backend | **Đã hoàn thành 100%** |
 | **FR-03 — Forgot password and password reset** | Pool A | Quy trình 2 bước: yêu cầu đặt lại mật khẩu và gửi mã reset token/mật khẩu mới | **Đã hoàn thành 100%** |
-| **FR-08 — Checkout** | Pool B | Điều kiện tiên quyết giỏ hàng, thông tin thanh toán, đặt đơn hàng và kiểm tra tính toán tổng tiền | Kế hoạch thực hiện |
+| **FR-08 — Checkout** | Pool B | Điều kiện tiên quyết giỏ hàng, thông tin thanh toán, đặt đơn hàng và kiểm tra tính toán tổng tiền | **Đã hoàn thành 100%** |
 | **FR-12 — Access control** | Pool C | Phân quyền vai trò Admin / Customer, kiểm soát truy cập các endpoint và giao diện quản trị | Kế hoạch thực hiện |
 
 > [!NOTE]
@@ -444,7 +444,214 @@ Quá trình kiểm thử FR-03 đã làm bộc lộ 4 khoảng trống AI quan t
 
 ### **3.4 FR-08 — Checkout**
 
-*(Phần này sẽ được thực hiện kế tiếp)*
+#### 3.4.1 Tìm hiểu tính năng và đặc tả thực tế (Fact Collection & Code Investigation)
+- **Endpoint chính:** `POST /api/checkout` (Base URL: `http://localhost:3000`) `[SPEC: api_specification.md:130]` `[CODE: server.js:297]`
+- **Yêu cầu xác thực:** Bắt buộc token JWT thông qua middleware `authenticateToken` trong header `Authorization: Bearer <token>` `[CODE: server.js:297, 100-110]`.
+- **Nguồn đặc tả đã sử dụng:**
+  - `docs/api_specification.md` (mục 4.3 và 5.1) `[SPEC]`
+  - Mã nguồn Backend: `eshop-sut/backend/server.js:297-309` và `eshop-sut/backend/database.js:74-81` `[CODE]`
+  - Mã nguồn Frontend Web: `eshop-sut/frontend-web/src/pages/Checkout.jsx` `[CODE]`
+  - Mã nguồn Frontend Mobile: `eshop-sut/frontend-mobile/App.js:384-395` `[CODE]`
+  - Minh chứng log thực thi: `HW2/evidence/FR-08/test-execution.log` `[OBSERVED]`
+- **Phát hiện quan trọng từ mã nguồn SUT (Code Investigation):**
+  - **Backend hoàn toàn không có validation (`server.js:297-309`):** Handler nhận trực tiếp `total_amount` và `shipping_address` từ `req.body` rồi thực thi câu lệnh SQL INSERT mà không có bất kỳ lệnh kiểm tra nào:
+    ```javascript
+    const { total_amount, shipping_address } = req.body;
+    db.run(
+      "INSERT INTO orders (user_id, total_amount, status, shipping_address) VALUES (?, ?, ?, ?)",
+      [userId, total_amount, "pending", shipping_address],
+      function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Checkout successful", orderId: this.lastID });
+      }
+    );
+    ```
+    Hệ thống chấp nhận số tiền âm (`-50,000`), số 0đ, chuỗi ký tự (`"free"`), kiểu boolean, số thực, giá trị `null`, hoặc tràn số nguyên int32 (`2,147,483,648`).
+  - **Lỗ hổng Parameter Tampering nghiêm trọng (`server.js:299` & `Checkout.jsx:93-102`):** Backend hoàn toàn không tính toán lại tổng tiền từ giỏ hàng `userCarts[userId]` hay bảng giá sản phẩm mà tin tưởng tuyệt đối vào giá trị client gửi lên. Đặc biệt, Frontend Web cung cấp hẳn một ô `<input type="number">` gán với state `editableTotal` cho phép người dùng tự do nhập số tiền cần thanh toán tùy thích!
+  - **Bỏ quên địa chỉ giao hàng (`server.js:299`, Web & Mobile):** Backend không bắt buộc `shipping_address`, cho phép `null` hoặc chuỗi rỗng. Đáng chú ý, cả giao diện Web (`Checkout.jsx`) và Mobile (`App.js`) đều **hoàn toàn không có trường nhập địa chỉ giao hàng** và không gửi trường này trong payload JSON.
+  - **Cho phép đặt đơn hàng khi giỏ hàng rỗng (`cart = []`):** Backend không kiểm tra xem giỏ hàng của người dùng có sản phẩm nào hay không, và sau khi checkout thành công cũng không xóa giỏ hàng.
+  - **Dị biệt logic cố ý cắt bớt sản phẩm trên Mobile (`App.js:391`):** Frontend Mobile tự ý thực thi: `items: cart.length > 1 ? cart.slice(0, -1) : cart`. Nếu giỏ hàng có từ 2 sản phẩm trở lên, ứng dụng di động sẽ cố ý loại bỏ sản phẩm cuối cùng khỏi đơn hàng mà người dùng không hề hay biết!
+  - **Không kiểm tra tồn kho (Overselling) & Cơ sở dữ liệu thiếu bảng `order_items` (`database.js:74-81`):** Backend không kiểm tra và giảm trừ cột `stock` trong bảng `products`. Hệ thống CSDL SQLite chỉ có bảng `orders` mà không hề có bảng `order_items`, đồng nghĩa với việc đơn hàng được tạo ra nhưng không lưu lại khách đã mua sản phẩm nào!
+  - **Thiếu kiểm tra mã giảm giá (`coupon_id`):** Endpoint checkout không kiểm tra tính hợp lệ hay thời hạn của coupon.
+
+---
+
+#### 3.4.2 Kiểm thử miền (Domain Testing)
+
+##### Bước 1: Xác định biến Input, Output, State và Miền giá trị (Domains)
+
+| Biến | Loại (Kind) | Kiểu dữ liệu | Miền giá trị & Ràng buộc kỹ thuật (Domain) | Nguồn (Source tag) |
+| :--- | :--- | :--- | :--- | :---: |
+| `total_amount` | Input | Number | - Tổng tiền thanh toán của đơn hàng (VNĐ).<br>- Ràng buộc lý thuyết: Số nguyên dương (`total_amount > 0`).<br>- *Code thực tế:* `server.js:299` không validate, nhận mọi giá trị số âm, chuỗi, boolean, null. | `[SPEC]` api_spec:131<br>`[CODE]` server.js:299 |
+| `shipping_address` | Input | String | - Địa chỉ giao nhận hàng của người mua.<br>- Ràng buộc: Bắt buộc, chuỗi không rỗng, độ dài hợp lý [5, 255] ký tự.<br>- *Code thực tế:* `server.js:299` không validate; Web và Mobile không có UI nhập địa chỉ. | `[SPEC]` api_spec:131<br>`[CODE]` server.js:299 |
+| `cart_state` | State | Array | - Trạng thái danh sách sản phẩm trong giỏ hàng `userCarts[userId]`.<br>- Miền giá trị: `{ EMPTY, NON_EMPTY_VALID, NON_EMPTY_OUT_OF_STOCK }`.<br>- Ràng buộc: Giỏ hàng phải có ít nhất 1 sản phẩm còn tồn kho. | `[CODE]` server.js:284-295<br>`[ASSUMED]` Business rule |
+| `coupon_id` | Input | String / Null | - Mã coupon giảm giá áp dụng cho đơn hàng.<br>- Miền giá trị: `{ NULL, VALID_COUPON, INVALID_OR_EXPIRED_COUPON }`. | `[CODE]` server.js:363-442<br>`[CODE]` Checkout.jsx:48 |
+| `auth_token` | State/Header | String | - Token JWT xác thực phiên người dùng.<br>- Miền giá trị: `{ VALID_USER_TOKEN, MISSING_TOKEN, INVALID_OR_EXPIRED_TOKEN }`. | `[CODE]` server.js:100-110 |
+| `system_output_response` | Output | Object | - Mã HTTP status (200, 400, 401, 403, 500) và JSON response (`orderId`, `message`, `error`). | `[SPEC]` api_spec:135<br>`[CODE]` server.js:305 |
+
+---
+
+##### Bước 2: Phân hoạch tương đương (Equivalence Partitioning)
+Phân hoạch thành **31 lớp tương đương** (`EC01` đến `EC31`) bao quát toàn diện các yếu tố:
+
+| Biến / Trạng thái | Lớp tương đương hợp lệ (Valid ECs) | Lớp tương đương không hợp lệ (Invalid ECs) |
+| :--- | :--- | :--- |
+| **`auth_token`** | **EC01:** Token JWT hợp lệ của Customer | **EC02:** Thiếu header Authorization (401)<br>**EC03:** Token sai chữ ký/hết hạn (403)<br>**EC04:** Token rỗng `"Bearer "` (401) |
+| **`total_amount`** | **EC05:** Số nguyên dương khớp tổng tiền giỏ hàng (`> 0`) | **EC06:** Số tiền bằng 0 (`total_amount = 0`)<br>**EC07:** Số tiền âm (`total_amount < 0`)<br>**EC08:** Số tiền bị sửa lệch giá giỏ hàng (Parameter Tampering)<br>**EC09:** Sai kiểu dữ liệu: String (`"free"`)<br>**EC10:** Sai kiểu dữ liệu: Boolean (`true`)<br>**EC11:** Sai kiểu dữ liệu: Số thực float (`199999.5`)<br>**EC12:** Thiếu trường `total_amount` trong body<br>**EC13:** Giá trị `null` |
+| **`shipping_address`** | **EC14:** Địa chỉ hợp lệ (5..255 ký tự chữ/số/dấu) | **EC15:** Chuỗi rỗng `""`<br>**EC16:** Chuỗi chỉ chứa khoảng trắng `"   "`<br>**EC17:** Thiếu hoàn toàn trường `shipping_address` (Web/Mobile skew)<br>**EC18:** Sai kiểu dữ liệu (Number `12345`)<br>**EC19:** Độ dài vượt quá giới hạn (> 1,000 ký tự) |
+| **`cart_state`** | **EC20:** Giỏ hàng có sản phẩm, đủ tồn kho | **EC21:** Giỏ hàng rỗng (`cart = []`)<br>**EC22:** Sản phẩm trong giỏ vượt số lượng tồn kho (Overselling)<br>**EC23:** Frontend Mobile tự ý cắt bớt sản phẩm (`cart.slice(0, -1)`) |
+| **`coupon_id`** | **EC24:** Không áp dụng coupon (`null`)<br>**EC25:** Coupon hợp lệ còn hạn | **EC26:** Coupon không tồn tại hoặc đã hết hạn |
+| **Trạng thái & Output** | **EC27:** Checkout thành công (HTTP 200, trả `orderId`) | **EC28:** Từ chối do xác thực thất bại (HTTP 401/403)<br>**EC29:** Từ chối do vi phạm dữ liệu/tiền (HTTP 400 Bad Request)<br>**EC30:** Từ chối do giỏ hàng không hợp lệ (HTTP 400 Bad Request)<br>**EC31:** Lỗi máy chủ cơ sở dữ liệu (HTTP 500) |
+
+---
+
+##### Bước 3 & 4: Thiết kế bộ test case tối thiểu và Ma trận bao phủ 100%
+Thiết kế **22 ca kiểm thử miền tối thiểu** (`FR08-DT-01` đến `FR08-DT-22`), bao gồm 2 ca kiểm thử Valid kết hợp các điều kiện và 20 ca kiểm thử Invalid đơn lập để cô lập lỗi:
+
+| Mã Test Case | Loại TC | Tóm tắt mục tiêu kiểm thử | Các lớp EC được bao phủ | Kết quả mong đợi |
+| :--- | :---: | :--- | :--- | :---: |
+| `FR08-DT-01` | Valid | Checkout hợp lệ chuẩn không dùng coupon | **EC01, EC05, EC14, EC20, EC24, EC27** | HTTP 200, orderId |
+| `FR08-DT-02` | Valid | Checkout hợp lệ có mã giảm giá (-10%) | **EC01, EC05, EC14, EC20, EC25, EC27** | HTTP 200, orderId |
+| `FR08-DT-03` | Invalid | Thiếu header Authorization | **EC02, EC28** | HTTP 401 Unauthorized |
+| `FR08-DT-04` | Invalid | Token sai chữ ký / tampered | **EC03, EC28** | HTTP 403 Forbidden |
+| `FR08-DT-05` | Invalid | Token rỗng (`Bearer `) | **EC04, EC28** | HTTP 401 Unauthorized |
+| `FR08-DT-06` | Invalid | `total_amount = 0` (mua 0 đồng) | **EC06, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-07` | Invalid | `total_amount < 0` (số âm `-50,000`) | **EC07, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-08` | Invalid | `total_amount` bị sửa sai giá giỏ hàng (Parameter Tampering) | **EC08, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-09` | Invalid | `total_amount` là chuỗi (`"free"`) | **EC09, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-10` | Invalid | `total_amount` là boolean (`true`) | **EC10, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-11` | Invalid | `total_amount` là số thực (`199999.5`) | **EC11, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-12` | Invalid | Thiếu trường `total_amount` trong body | **EC12, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-13` | Invalid | `total_amount` là `null` | **EC13, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-14` | Invalid | `shipping_address` là chuỗi rỗng `""` | **EC15, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-15` | Invalid | `shipping_address` chỉ chứa khoảng trắng `"   "` | **EC16, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-16` | Invalid | Thiếu `shipping_address` (Web & Mobile skew) | **EC17, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-17` | Invalid | `shipping_address` sai kiểu (Number `12345`) | **EC18, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-18` | Invalid | `shipping_address` payload lớn > 1,000 ký tự | **EC19, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-19` | Invalid | Giỏ hàng rỗng (`cart = []`) | **EC21, EC30** | HTTP 400 Bad Request |
+| `FR08-DT-20` | Invalid | Đặt hàng vượt tồn kho (Overselling) | **EC22, EC30** | HTTP 400 Bad Request |
+| `FR08-DT-21` | Invalid | Áp dụng mã coupon không tồn tại/hết hạn | **EC26, EC29** | HTTP 400 Bad Request |
+| `FR08-DT-22` | Invalid | Kiểm tra dị biệt Mobile tự cắt sản phẩm (`cart.slice(0, -1)`) | **EC23, EC30** | HTTP 400 Bad Request |
+
+*Độ bao phủ: 30/30 lớp EC nghiệp vụ khả thi (100%). Lớp EC31 (lỗi SQLite 500) là nhánh ngoại lệ CSDL.*
+
+---
+
+#### 3.4.3 Phân tích giá trị biên (Boundary Value Analysis - BVA)
+
+##### Bước 1: Xác định biến có miền thứ tự
+- **Biến có thứ tự áp dụng BVA:**
+  1. `total_amount`: Miền số nguyên giá trị tiền $[1, 2,147,483,647]$ VNĐ (cận trên theo giới hạn signed int32 thông dụng của CSDL).
+  2. `shipping_address.length`: Miền số nguyên độ dài chuỗi $[5, 255]$ ký tự.
+  3. `cart.item_count`: Miền số lượng mặt hàng trong giỏ $[1, 50]$ sản phẩm (đặc biệt nhạy cảm với cận dưới $1$ và $2$ do code Mobile).
+- **Biến không áp dụng BVA:**
+  - `auth_token`: Chuỗi token JWT mã hóa Base64 không có quan hệ thứ tự độ lớn tự nhiên.
+  - `coupon_id`: Mã định danh chuỗi rời rạc.
+
+##### Bước 2: Điểm biên (3-value BVA + Mô hình 9 điểm + Biên mã hóa UTF-8)
+- **`total_amount`:** $LB-1 = 0$, $LB = 1$, $LB+1 = 2$, $UB-1 = 2,147,483,646$, $UB = 2,147,483,647$, $UB+1 = 2,147,483,648$, cực trị âm $-\alpha = -50,000$, cực trị dương $+\alpha = 9,007,199,254,740,991$ (`Number.MAX_SAFE_INTEGER`).
+- **`shipping_address.length`:** $LB-1 = 4$, $LB = 5$, $LB+1 = 6$, $UB-1 = 254$, $UB = 255$, $UB+1 = 256$, cực trị $0$ và $10,000$. Bổ sung test case **255 ký tự tiếng Việt có dấu (UTF-8 encoding)** theo quy tắc v2.0 Rule.
+- **`cart.item_count`:** $LB-1 = 0$ (giỏ rỗng), $LB = 1$ (giỏ 1 món - Mobile không cắt), $LB+1 = 2$ (giỏ 2 món - Mobile kích hoạt cắt món).
+
+##### Bước 3: Danh sách 20 ca kiểm thử BVA
+Gồm `FR08-BVA-01` đến `FR08-BVA-20` bao phủ toàn diện các điểm biên toán học, điểm biên vật lý và điểm biên mã hóa ký tự.
+
+---
+
+#### 3.4.4 Kết quả thực thi kiểm thử chi tiết
+
+Toàn bộ **42 ca kiểm thử** của FR-08 đã được thực thi tự động qua test runner đối chiếu trực tiếp với SUT Backend đang chạy tại `http://localhost:3000`:
+- **Tổng số thiết kế (Designed):** 42
+- **Đã thực thi (Executed):** 42 (100%)
+- **Thành công (PASS):** 16 (38.1%)
+- **Thất bại (FAIL):** 26 (61.9%)
+- **Bị chặn (BLOCKED):** 0 (0%)
+
+##### Bảng kết quả thực thi chi tiết 42 test cases
+
+| Mã TC | Kỹ thuật | Mô tả ca kiểm thử | Kỳ vọng (Expected) | Thực tế (Actual) | Trạng thái |
+| :--- | :---: | :--- | :---: | :---: | :---: |
+| `FR08-DT-01` | DT | Checkout hợp lệ chuẩn không dùng coupon | HTTP 200, orderId | HTTP 200, orderId: 1 | **PASS** |
+| `FR08-DT-02` | DT | Checkout hợp lệ có mã giảm giá (-10%) | HTTP 200, orderId | HTTP 200, orderId: 2 | **PASS** |
+| `FR08-DT-03` | DT | Từ chối khi thiếu header Authorization | HTTP 401 Unauthorized | HTTP 401 Unauthorized | **PASS** |
+| `FR08-DT-04` | DT | Từ chối khi token sai chữ ký / tampered | HTTP 403 Forbidden | HTTP 403 Forbidden | **PASS** |
+| `FR08-DT-05` | DT | Từ chối khi token rỗng (`Bearer `) | HTTP 401 Unauthorized | HTTP 401 Unauthorized | **PASS** |
+| `FR08-DT-06` | DT | Từ chối khi `total_amount = 0` (mua 0 đồng) | HTTP 400 Bad Request | HTTP 200, orderId: 3 | **FAIL** |
+| `FR08-DT-07` | DT | Từ chối khi `total_amount < 0` (số âm `-50,000`) | HTTP 400 Bad Request | HTTP 200, orderId: 4 | **FAIL** |
+| `FR08-DT-08` | DT | Từ chối khi `total_amount` bị sửa sai giá giỏ hàng (Web skew) | HTTP 400 Bad Request | HTTP 200, orderId: 5 | **FAIL** |
+| `FR08-DT-09` | DT | Từ chối khi `total_amount` là chuỗi (`"free"`) | HTTP 400 Bad Request | HTTP 200, orderId: 6 | **FAIL** |
+| `FR08-DT-10` | DT | Từ chối khi `total_amount` là boolean (`true`) | HTTP 400 Bad Request | HTTP 200, orderId: 7 | **FAIL** |
+| `FR08-DT-11` | DT | Từ chối khi `total_amount` là số thực (`199999.5`) | HTTP 400 Bad Request | HTTP 200, orderId: 8 | **FAIL** |
+| `FR08-DT-12` | DT | Từ chối khi thiếu trường `total_amount` trong body | HTTP 400 Bad Request | HTTP 200, orderId: 9 | **FAIL** |
+| `FR08-DT-13` | DT | Từ chối khi `total_amount` là `null` | HTTP 400 Bad Request | HTTP 200, orderId: 10 | **FAIL** |
+| `FR08-DT-14` | DT | Từ chối khi `shipping_address` là chuỗi rỗng `""` | HTTP 400 Bad Request | HTTP 200, orderId: 11 | **FAIL** |
+| `FR08-DT-15` | DT | Từ chối khi `shipping_address` chỉ chứa khoảng trắng `"   "` | HTTP 400 Bad Request | HTTP 200, orderId: 12 | **FAIL** |
+| `FR08-DT-16` | DT | Từ chối khi thiếu `shipping_address` (Web & Mobile skew) | HTTP 400 Bad Request | HTTP 200, orderId: 13 | **FAIL** |
+| `FR08-DT-17` | DT | Từ chối khi `shipping_address` sai kiểu (Number `12345`) | HTTP 400 Bad Request | HTTP 200, orderId: 14 | **FAIL** |
+| `FR08-DT-18` | DT | Từ chối khi `shipping_address` payload lớn > 1,000 ký tự | HTTP 400 Bad Request | HTTP 200, orderId: 15 | **FAIL** |
+| `FR08-DT-19` | DT | Từ chối khi giỏ hàng rỗng (`cart = []`) | HTTP 400 Bad Request | HTTP 200, orderId: 16 | **FAIL** |
+| `FR08-DT-20` | DT | Từ chối khi đặt hàng vượt tồn kho (Overselling) | HTTP 400 Bad Request | HTTP 200, orderId: 17 | **FAIL** |
+| `FR08-DT-21` | DT | Từ chối khi áp dụng mã coupon không tồn tại/hết hạn | HTTP 400 Bad Request | HTTP 200, orderId: 18 | **FAIL** |
+| `FR08-DT-22` | DT | Kiểm tra dị biệt Mobile tự cắt sản phẩm (`cart.slice(0, -1)`) | HTTP 400 Bad Request | HTTP 200, orderId: 19 | **FAIL** |
+| `FR08-BVA-01` | BVA | `total_amount = -50000` ($-\alpha$ Extreme số âm) | HTTP 400 Bad Request | HTTP 200, orderId: 20 | **FAIL** |
+| `FR08-BVA-02` | BVA | `total_amount = 0` ($LB - 1$ cận dưới) | HTTP 400 Bad Request | HTTP 200, orderId: 21 | **FAIL** |
+| `FR08-BVA-03` | BVA | `total_amount = 1` VNĐ ($LB$ tối thiểu) | HTTP 200 OK | HTTP 200, orderId: 22 | **PASS** |
+| `FR08-BVA-04` | BVA | `total_amount = 2` VNĐ ($LB + 1$ nội biên) | HTTP 200 OK | HTTP 200, orderId: 23 | **PASS** |
+| `FR08-BVA-05` | BVA | `total_amount = 2,147,483,646` VNĐ ($UB - 1$) | HTTP 200 OK | HTTP 200, orderId: 24 | **PASS** |
+| `FR08-BVA-06` | BVA | `total_amount = 2,147,483,647` VNĐ ($UB$ int32 max) | HTTP 200 OK | HTTP 200, orderId: 25 | **PASS** |
+| `FR08-BVA-07` | BVA | `total_amount = 2,147,483,648` VNĐ ($UB + 1$ tràn int32) | HTTP 400 Bad Request | HTTP 200, orderId: 26 | **FAIL** |
+| `FR08-BVA-08` | BVA | `total_amount = 9,007,199,254,740,991` ($+\alpha$ `MAX_SAFE_INT`) | HTTP 400 Bad Request | HTTP 200, orderId: 27 | **FAIL** |
+| `FR08-BVA-09` | BVA | `shipping_address` length = 0 (chuỗi rỗng $-\alpha$) | HTTP 400 Bad Request | HTTP 200, orderId: 28 | **FAIL** |
+| `FR08-BVA-10` | BVA | `shipping_address` length = 4 ($LB - 1$ thiếu 1 ký tự) | HTTP 400 Bad Request | HTTP 200, orderId: 29 | **FAIL** |
+| `FR08-BVA-11` | BVA | `shipping_address` length = 5 ($LB$ tối thiểu hợp lệ) | HTTP 200 OK | HTTP 200, orderId: 30 | **PASS** |
+| `FR08-BVA-12` | BVA | `shipping_address` length = 6 ($LB + 1$ nội biên) | HTTP 200 OK | HTTP 200, orderId: 31 | **PASS** |
+| `FR08-BVA-13` | BVA | `shipping_address` length = 254 ($UB - 1$ nội biên) | HTTP 200 OK | HTTP 200, orderId: 32 | **PASS** |
+| `FR08-BVA-14` | BVA | `shipping_address` length = 255 ASCII ($UB$ cận trên) | HTTP 200 OK | HTTP 200, orderId: 33 | **PASS** |
+| `FR08-BVA-15` | BVA | `shipping_address` length = 255 UTF-8 tiếng Việt có dấu (v2.0) | HTTP 200 OK | HTTP 200, orderId: 34 | **PASS** |
+| `FR08-BVA-16` | BVA | `shipping_address` length = 256 ($UB + 1$ vượt chuẩn 255) | HTTP 400 Bad Request | HTTP 200, orderId: 35 | **FAIL** |
+| `FR08-BVA-17` | BVA | `shipping_address` length = 10,000 ($+\alpha$ Payload DoS) | HTTP 400 / 413 | HTTP 200, orderId: 36 | **FAIL** |
+| `FR08-BVA-18` | BVA | `cart_items_count = 0` ($LB - 1$ giỏ rỗng) | HTTP 400 Bad Request | HTTP 200, orderId: 37 | **FAIL** |
+| `FR08-BVA-19` | BVA | `cart_items_count = 1` ($LB$ giỏ 1 món - Mobile không cắt) | HTTP 200 OK | HTTP 200, orderId: 38 | **PASS** |
+| `FR08-BVA-20` | BVA | `cart_items_count = 2` ($LB + 1$ Mobile kích hoạt cắt món) | HTTP 200 OK | HTTP 200, orderId: 39 | **PASS** |
+
+*Minh chứng thực thi được lưu tại:* [HW2/evidence/FR-08/test-execution.log](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-08/test-execution.log).
+
+---
+
+#### 3.4.5 Lỗi phần mềm phát hiện (Defects Discovered)
+
+26 ca kiểm thử thất bại được tổng hợp và quy nạp về **7 lỗi phần mềm độc lập (Bugs)**:
+
+| Mã lỗi (Bug ID) | Tóm tắt khiếm khuyết | Các TC phát hiện | Mức độ nghiêm trọng (Severity) | Độ ưu tiên (Priority) | Liên kết tài liệu |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **BUG-FR08-01** | Backend hoàn toàn thiếu validation cho trường `total_amount` (chấp nhận tiền âm, 0đ, chuỗi, boolean, float, null, tràn số int32) | `FR08-DT-06` – `13`, `FR08-BVA-01`, `02`, `07`, `08` (11 TCs) | **Critical** | **Immediate** | [BUG-FR08-01.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-01.md) |
+| **BUG-FR08-02** | Lỗ hổng Parameter Tampering: Backend không tính lại tổng tiền từ giỏ hàng; Frontend Web cung cấp ô input tự sửa tiền | `FR08-DT-08` (1 TC) | **Critical** | **Immediate** | [BUG-FR08-02.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-02.md) |
+| **BUG-FR08-03** | Backend hoàn toàn thiếu validation cho `shipping_address`; Frontend Web và Mobile không có ô nhập địa chỉ giao hàng | `FR08-DT-14` – `18`, `FR08-BVA-09`, `10`, `16`, `17` (9 TCs) | **Major** | **High** | [BUG-FR08-03.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-03.md) |
+| **BUG-FR08-04** | Backend không kiểm tra trạng thái giỏ hàng khi checkout (Cho phép đặt đơn hàng ma khi giỏ hàng rỗng) | `FR08-DT-19`, `FR08-BVA-18` (2 TCs) | **Major** | **High** | [BUG-FR08-04.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-04.md) |
+| **BUG-FR08-05** | Dị biệt logic nghiêm trọng trên Mobile: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng khi checkout | `FR08-DT-22`, `FR08-BVA-20` (2 TCs) | **Critical** | **Immediate** | [BUG-FR08-05.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-05.md) |
+| **BUG-FR08-06** | Backend không kiểm tra tồn kho (Overselling Defect) và không lưu chi tiết các mặt hàng trong đơn hàng (`order_items`) | `FR08-DT-20` (1 TC) | **Major** | **High** | [BUG-FR08-06.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-06.md) |
+| **BUG-FR08-07** | Endpoint checkout không kiểm tra tính hợp lệ của mã giảm giá `coupon_id` | `FR08-DT-21` (1 TC) | **Minor** | **Medium** | [BUG-FR08-07.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-07.md) |
+
+*(Toàn bộ báo cáo phân tích lỗi chi tiết kèm request/response mẫu được lưu tại [HW2/report/bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md)).*
+
+---
+
+#### 3.4.6 Phân tích khoảng trống của AI (AI Gap Analysis & Nâng cấp v2.2)
+
+Quá trình kiểm thử FR-08 đã làm bộc lộ 4 khoảng trống AI quan trọng, dẫn đến việc tiếp tục nâng cấp bộ kỹ năng lên **phiên bản v2.2**:
+
+| Mục bị bỏ sót / Thách thức thực tế | Cách phát hiện | Vì sao AI bỏ sót ban đầu | Phân loại nguyên nhân (Category) | Hành động cải tiến Skill (v2.1 → v2.2) |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Thiên kiến tin tưởng tham số tài chính client (Client-trusted Financial Parameter Bias)** | Đọc `server.js:299` thấy backend nhận thẳng `total_amount` từ body mà không tính lại từ giỏ | AI theo quán tính coi tham số trong body là độc lập, không tự động kích hoạt nguyên tắc "Toàn vẹn giao dịch tài chính" (server phải tự tính lại tiền) | `Inherent feature complexity` & `Tool limitation` | Bổ sung **Financial Transaction Integrity Rule** vào `domain-testing` và `test-execution-and-bugs`: Mọi tham số tiền bạc gửi từ client đều phải coi là Untrusted Input. |
+| **2. Lỗ hổng giao diện cho phép sửa dữ liệu chỉ đọc (Frontend UI Input Defect)** | Đọc `Checkout.jsx:93-102` thấy ô input `type="number"` gán với `setEditableTotal` | AI khi chỉ tập trung kiểm thử API sẽ có "điểm mù" về UI: không kiểm tra các thuộc tính `readOnly`, `disabled` trên client | `Tool limitation` | Mở rộng quy tắc **Cross-Platform Inspection**: Luôn kiểm tra các thuộc tính form (`readOnly`, `disabled`, `type`) trên cả Web và Mobile UI. |
+| **3. Bỏ sót thực thể cốt lõi trong DB (`order_items`) & Bán vượt tồn kho (Overselling)** | Khảo sát `database.js:74-81` và `server.js:301` thấy bảng `orders` không nối với sản phẩm và không trừ `stock` | Spec không mô tả cấu trúc database; AI nếu chỉ bám theo spec API sẽ bỏ qua kiểm tra tính toàn vẹn của giỏ hàng và kho | `Prompt/input quality` & `Inherent feature complexity` | Bổ sung **Database Schema & Inventory Lifecycle Checklist**: Luôn đối chiếu cấu trúc bảng DB để xác nhận đơn hàng có lưu chi tiết món hàng (`order_items`) và có trừ tồn kho hay không. |
+| **4. Dị biệt mã nguồn cố ý làm sai lệch dữ liệu (`cart.slice(0, -1)`)** | Khảo sát `App.js:391` trên Mobile phát hiện lệnh cắt bỏ sản phẩm cuối cùng của giỏ hàng | Lỗi cố tình can thiệp biến dạng dữ liệu trên client thay vì vô tình lập trình sai; AI thông thường chỉ tìm lỗi off-by-one hoặc thiếu check null | `Inherent feature complexity` | Tích hợp **Client-Side Data Mutation Inspection**: Rà soát các thao tác biến đổi mảng/object (`slice`, `pop`, `filter`) trên client trước khi gửi payload. |
+
+---
+
+#### 3.4.7 Hạn chế của kỹ thuật
+1. **Ràng buộc nghiệp vụ và tính toàn vẹn giao dịch nằm ngoài tầm kiểm soát của BVA:** Khiếm khuyết nghiêm trọng nhất của FR-08 (`BUG-FR08-02` Parameter Tampering) hoàn toàn không nằm ở các giá trị biên của số tiền (1đ hay 2 tỷ), mà nằm ở quy tắc nghiệp vụ: *client không bao giờ được phép tự quyết định số tiền phải trả*. BVA chỉ kiểm tra xem số tiền có nằm trong khoảng cho phép hay không, chứ không thể phát hiện việc số tiền đó có khớp với giỏ hàng hay không.
+2. **Khiếm khuyết kiến trúc dữ liệu và logic dị biệt client:** Việc cơ sở dữ liệu thiếu bảng `order_items` (`BUG-FR08-06`) và Frontend Mobile tự cắt sản phẩm (`BUG-FR08-05`) là các khiếm khuyết thuộc về kiến trúc hệ thống và mã client, không thể phát hiện được nếu chỉ áp dụng kỹ thuật kiểm thử biên trên endpoint API đơn lẻ.
 
 ---
 
@@ -456,7 +663,7 @@ Quá trình kiểm thử FR-03 đã làm bộc lộ 4 khoảng trống AI quan t
 
 ### **3.6 Consolidated Bug Reports**
 
-Hiện tại đã ghi nhận và phân loại tổng cộng **9 lỗi phần mềm** (5 lỗi từ tính năng FR-01 và 4 lỗi từ tính năng FR-03). Toàn bộ lỗi đều được xác thực trực tiếp qua code và HTTP runner:
+Hiện tại đã ghi nhận và phân loại tổng cộng **16 lỗi phần mềm** (5 lỗi từ FR-01, 4 lỗi từ FR-03, và 7 lỗi từ FR-08). Toàn bộ lỗi đều được xác thực trực tiếp qua phân tích mã nguồn SUT và thực thi test runner tự động:
 
 | Mã lỗi (Bug ID) | Tiêu đề lỗi | Tính năng | Các TC phát hiện | Mức độ (Severity) | Độ ưu tiên | Trạng thái |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |
@@ -469,6 +676,13 @@ Hiện tại đã ghi nhận và phân loại tổng cộng **9 lỗi phần m�
 | **BUG-FR03-02** | Backend hoàn toàn không kiểm tra tính hợp lệ và độ phức tạp của `newPassword` | FR-03 | FR03-DT-16..22, FR03-BVA-01, 02, 08, 09 | **Critical** | **High** | Confirmed |
 | **BUG-FR03-03** | Mã đặt lại mật khẩu không có thời hạn hết hạn (Token Never Expires do DB thiếu timestamp) | FR-03 | Khảo sát `database.js:58` | **Major** | **Medium** | Confirmed |
 | **BUG-FR03-04** | Endpoint `POST /api/forgot-password` trả về HTTP 404 thay vì HTTP 400 khi email sai quy cách | FR-03 | FR03-DT-03..07 | **Minor** | **Low** | Confirmed |
+| **BUG-FR08-01** | Backend hoàn toàn thiếu validation cho trường `total_amount` (chấp nhận tiền âm, 0đ, chuỗi, boolean, float, null, tràn số int32) | FR-08 | FR08-DT-06..13, FR08-BVA-01, 02, 07, 08 | **Critical** | **Immediate** | Confirmed |
+| **BUG-FR08-02** | Lỗ hổng Parameter Tampering: Backend không tính lại tổng tiền từ giỏ hàng; Frontend Web cung cấp ô input tự sửa tiền | FR-08 | FR08-DT-08 | **Critical** | **Immediate** | Confirmed |
+| **BUG-FR08-03** | Backend thiếu validation `shipping_address`; Frontend Web và Mobile không có ô nhập địa chỉ giao hàng | FR-08 | FR08-DT-14..18, FR08-BVA-09, 10, 16, 17 | **Major** | **High** | Confirmed |
+| **BUG-FR08-04** | Backend không kiểm tra trạng thái giỏ hàng khi checkout (Cho phép đặt đơn hàng ma khi giỏ rỗng `cart = []`) | FR-08 | FR08-DT-19, FR08-BVA-18 | **Major** | **High** | Confirmed |
+| **BUG-FR08-05** | Dị biệt logic nghiêm trọng trên Mobile: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng khi checkout (`cart.slice(0, -1)`) | FR-08 | FR08-DT-22, FR08-BVA-20 | **Critical** | **Immediate** | Confirmed |
+| **BUG-FR08-06** | Backend không kiểm tra tồn kho (Overselling Defect) và không lưu chi tiết các mặt hàng trong đơn hàng (`order_items`) | FR-08 | FR08-DT-20 | **Major** | **High** | Confirmed |
+| **BUG-FR08-07** | Endpoint checkout không kiểm tra tính hợp lệ của mã giảm giá `coupon_id` | FR-08 | FR08-DT-21 | **Minor** | **Medium** | Confirmed |
 
 Xem chi tiết đầy đủ tại tài liệu tổng hợp [HW2/report/bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md) và các tệp dự thảo GitHub Issues tại [HW2/report/issues/](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/).
 
@@ -482,9 +696,10 @@ Bảng tổng hợp số liệu kiểm thử được kết xuất tự động 
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **FR-01 (Account registration)** | 30 | 30 | 10 | 20 | 0 | 0 |
 | **FR-03 (Forgot & Reset password)** | 37 | 37 | 21 | 16 | 0 | 0 |
-| **Tổng cộng (Total)** | **67** | **67** | **31** | **36** | **0** | **0** |
+| **FR-08 (Checkout)** | 42 | 42 | 16 | 26 | 0 | 0 |
+| **Tổng cộng (Total)** | **109** | **109** | **47** | **62** | **0** | **0** |
 
-*Ghi chú: Toàn bộ 67 ca kiểm thử đã được thực thi 100% trên môi trường SUT thực tế. Không có ca kiểm thử nào bị chặn (Blocked = 0).*
+*Ghi chú: Toàn bộ 109 ca kiểm thử đã được thực thi 100% trên môi trường SUT thực tế. Không có ca kiểm thử nào bị chặn (Blocked = 0).*
 
 ---
 
