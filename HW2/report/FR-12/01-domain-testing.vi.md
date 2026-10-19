@@ -2,7 +2,7 @@
 
 > **Tính năng:** FR-12 — Kiểm soát truy cập  
 > **Kỹ thuật:** Phân hoạch tương đương (Domain Testing / Equivalence Partitioning)  
-> **Phiên bản:** Stage 0 + Stage 1 + Stage 2 — Chờ duyệt Stage 2
+> **Phiên bản:** Hoàn chỉnh Stage 0 đến Stage 5 (Báo cáo & Bộ Test Case tối thiểu)
 
 ---
 
@@ -260,5 +260,129 @@ Duyệt **toàn bộ** route handler của các endpoint thuộc phạm vi FR-12
 
 ---
 
-> **⏸️ DỪNG TẠI ĐÂY — Chờ sinh viên duyệt Stage 2 (Bảng phân hoạch tương đương EC01 - EC23 và 4 câu hỏi mở) trước khi tiếp tục Stage 3 (Chọn giá trị đại diện) và Stage 4 (Thiết kế bộ Test Case tối thiểu).**
+## Stage 3: Chọn giá trị đại diện cho từng lớp tương đương (Best Representatives)
+
+Áp dụng nguyên tắc lựa chọn giá trị đại diện theo bài giảng môn học **S04 - Domain Testing (Step 3: Selecting representative values)**:
+- **Miền có thứ tự (Ordered/Ranged):** Giá trị đại diện là giá trị biên hoặc cận biên. Đánh dấu `-> BVA` để kỹ năng Boundary Value Analysis khai thác sâu hơn ở bước tiếp theo.
+- **Miền không có thứ tự (Unordered):** Chọn giá trị điển hình, thực tế, phản ánh chính xác cấu trúc dữ liệu môi trường thực thi của SUT.
+
+| Mã EC | Biến kiểm thử | Mô tả lớp tương đương | Giá trị đại diện được chọn | Lý do lựa chọn đại diện |
+| :---: | :--- | :--- | :--- | :--- |
+| **EC01** | `Authorization` | Header hợp lệ, JWT đúng chữ ký `SECRET_KEY` | `"Bearer <admin_jwt>"` (sinh từ đăng nhập `admin@eshop.com`) | Token JWT hợp pháp của tài khoản quản trị hệ thống |
+| **EC02** | `Authorization` | Vắng mặt hoàn toàn header `Authorization` | *(Omitted - không gửi header)* | Kiểm tra nhánh `authHeader === undefined` tại `server.js:103` |
+| **EC03** | `Authorization` | Header rỗng hoặc chỉ có `"Bearer "` không kèm token | `"Bearer "` *(chuỗi có tiền tố nhưng token rỗng)* | Kiểm tra nhánh `token == null` tại `server.js:103` |
+| **EC04** | `Authorization` | Header sai tiền tố xác thực (e.g. Basic) | `"Basic dXNlcjpwYXNz"` | Kiểm tra logic tách chuỗi `authHeader.split(" ")[1]` khi dùng scheme sai |
+| **EC05** | `Authorization` | Token JWT có chữ ký bị thay đổi (Tampered) | `"Bearer <admin_jwt_tampered_sig>"` *(sửa ký tự cuối chữ ký)* | Payload hợp lệ nhưng chữ ký không khớp -> `jwt.verify` ném lỗi chữ ký |
+| **EC06** | `Authorization` | Token JWT bị sai cấu trúc (Malformed) | `"Bearer not_a_valid_jwt_string"` | Chuỗi không theo định dạng 3 phần `header.payload.sig` -> JsonWebTokenError |
+| **EC07** | `token_role` | Payload Token chứa `role === 'admin'` | Token chứa `{ id: 1, role: "admin" }` | Vai trò quản trị hợp chuẩn theo đặc tả FR-12 |
+| **EC08** | `token_role` | Payload Token chứa `role === 'user'` | Token sinh từ đăng nhập `user@domain.com` (`{ id: 2, role: "user" }`) | Người dùng thường hợp pháp; theo SPEC phải bị từ chối 403, theo CODE hiện trả 200 |
+| **EC09** | `token_role` | Payload Token chứa role ngoài tập / không xác định | Token craft `{ id: 99, role: "guest" }` ký bởi `SECRET_KEY` | Kiểm tra hành vi hệ thống khi nhận role không hợp lệ ngoài `user` và `admin` |
+| **EC10** | `target_endpoint` | Nhóm 7 API Admin (`/api/admin/*`) | `GET /api/admin/users` | Endpoint quản trị nhạy cảm tra cứu danh sách toàn bộ người dùng |
+| **EC11** | `target_endpoint` | Nhóm 3 API Category write | `POST /api/categories` body `{"name": "Category_{{uniq}}"}` | API ghi danh mục có middleware `authenticateToken` nhưng thiếu kiểm tra role |
+| **EC12** | `target_endpoint` | Nhóm 3 API Product write | `POST /api/products` body `{"name": "Product_{{uniq}}", "price": 99000, "category_id": 1, "description": "test", "stock": 10}` | API ghi sản phẩm hoàn toàn thiếu `authenticateToken` (Lỗ hổng nghiêm trọng) |
+| **EC13** | `target_endpoint` | API tra cứu mã giảm giá quản trị | `GET /api/coupons` | API tra cứu coupon quản trị có auth nhưng thiếu role check |
+| **EC14** | `token_exp` (State) | Token còn trong thời hạn sử dụng | Token hiện tại của SUT (không có exp) hoặc token có `exp > now` | `-> BVA` cho các biên thời gian; đại diện cho token đang còn hiệu lực |
+| **EC15** | `token_exp` (State) | Token đã quá hạn sử dụng | Token craft với `exp: Math.floor(Date.now() / 1000) - 3600` ký bằng `SECRET_KEY` | `-> BVA` cho biên hết hạn; kích hoạt `TokenExpiredError` của `jwt.verify` -> 403 |
+| **EC16** | `user_status` (State) | Tài khoản người dùng đang hoạt động trong DB | User ID 1 (`admin@eshop.com`) hoặc User ID 2 (`user@domain.com`) | Tài khoản tồn tại bình thường trong cơ sở dữ liệu SQLite |
+| **EC17** | `user_status` (State) | Tài khoản đã bị xóa khỏi DB nhưng token còn giữ | Tạo user tạm thời, lấy token, xóa user qua `DELETE /api/admin/users/:id`, dùng lại token | Kiểm tra lỗ hổng thiếu kiểm tra trạng thái DB của Stateless JWT |
+| **EC18** | `privilege_escalation` (State) | Tài khoản giữ nguyên quyền hạn ban đầu | Giữ nguyên role `'user'` khi gọi API | Trạng thái bình thường, không thực hiện can thiệp dữ liệu |
+| **EC19** | `privilege_escalation` (State) | Người dùng tự đổi role qua `PUT /api/users/me` | Gửi `PUT /api/users/me` với payload `{"role": "admin"}` | Lỗ hổng Mass Assignment tại `server.js:124`, biến user thường thành admin |
+| **EC20** | HTTP Response (Output) | Truy cập thành công: HTTP 200/201 | HTTP 200 OK kèm JSON danh sách tài nguyên | Kỳ vọng cho trường hợp hợp lệ của quản trị viên |
+| **EC21** | HTTP Response (Output) | Từ chối xác thực: HTTP 401 Unauthorized | HTTP 401 `{"error": "Unauthorized"}` | Kỳ vọng khi không gửi token hoặc token rỗng |
+| **EC22** | HTTP Response (Output) | Từ chối phân quyền / Token lỗi: HTTP 403 Forbidden | HTTP 403 `{"error": "Forbidden"}` | Kỳ vọng theo SPEC khi role không phải admin hoặc khi token sai chữ ký/hết hạn |
+| **EC23** | HTTP Response (Output) | Lỗ hổng kiểm soát truy cập (Defect Output) | HTTP 200 OK (thực tế code trả về thay vì 403) | Hành vi dị biệt của SUT khi thiếu role check hoặc thiếu middleware |
+
+---
+
+## Stage 4: Lựa chọn bộ Test Case tối thiểu (Selecting Test Cases)
+
+### 4.1 Quy tắc kết hợp (Theo slide bài giảng S04)
+1. **Bao phủ toàn bộ:** Mỗi lớp tương đương phải xuất hiện trong ít nhất một ca kiểm thử.
+2. **Lớp hợp lệ (Valid classes):** Kết hợp tối đa các lớp hợp lệ vào một test case duy nhất (`FR12-DT-01`) cho đến khi tất cả các lớp hợp lệ đều được kiểm thử.
+3. **Lớp không hợp lệ (Invalid classes):** Mỗi test case **chỉ kiểm thử duy nhất một lớp không hợp lệ**, tất cả các yếu tố còn lại phải giữ ở giá trị hợp lệ để cô lập chính xác nguyên nhân gây lỗi (`FR12-DT-02` đến `FR12-DT-11`).
+4. **Kiểm tra chéo các nhóm Endpoint (Cross-check Endpoint Groups):** Để chứng minh khiếm khuyết mang tính hệ thống trên toàn bộ 14 endpoint thuộc phạm vi FR-12, các ca kiểm thử từ `FR12-DT-12` đến `FR12-DT-18` được thiết kế nhằm quét qua cả 4 nhóm endpoint đích (Admin APIs, Category write, Product write, Coupons read) đối với các vai trò Admin, User thường và Khách vãng lai (Guest).
+5. **Lớp đầu ra (Output classes):** Được bao phủ trực tiếp bởi các ca kiểm thử sinh ra chúng.
+
+---
+
+### 4.2 Bảng danh sách 18 Test Case chi tiết (FR12-DT-01 đến FR12-DT-18)
+
+| TC ID | Lớp bao phủ (Partitions) | Header Authorization | Token Role | Target Endpoint & Method | Tiền điều kiện | Kỳ vọng đầu ra | Nguồn gốc |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
+| **FR12-DT-01** | EC01, EC07, EC10, EC14, EC16, EC18, EC20 | `Bearer <admin_jwt>` | `admin` | `GET /api/admin/users` | Tài khoản admin đang hoạt động trong DB | HTTP 200 OK, body chứa danh sách users | `[SPEC]` FR-12<br>`[CODE]` server.js:494 |
+| **FR12-DT-02** | EC02, EC21 | *(Omitted - không gửi)* | *(None)* | `GET /api/admin/users` | Không có | HTTP 401 Unauthorized `{"error": "Unauthorized"}` | `[CODE]` server.js:103 |
+| **FR12-DT-03** | EC03, EC21 | `"Bearer "` | *(None)* | `GET /api/admin/users` | Không có | HTTP 401 Unauthorized `{"error": "Unauthorized"}` | `[CODE]` server.js:103 |
+| **FR12-DT-04** | EC04, EC21 | `"Basic dXNlcjpwYXNz"` | *(None)* | `GET /api/admin/users` | Không có | HTTP 401/403 (Từ chối định dạng scheme sai) | `[CODE]` server.js:103 |
+| **FR12-DT-05** | EC05, EC22 | `Bearer <tampered_token>` | `admin` | `GET /api/admin/users` | Không có | HTTP 403 Forbidden `{"error": "Forbidden"}` | `[CODE]` server.js:106 |
+| **FR12-DT-06** | EC06, EC22 | `Bearer not_a_valid_jwt` | *(None)* | `GET /api/admin/users` | Không có | HTTP 403 Forbidden `{"error": "Forbidden"}` | `[CODE]` server.js:106 |
+| **FR12-DT-07** | EC08, EC22, EC23 | `Bearer <user_jwt>` | `user` | `GET /api/admin/users` | Tài khoản user thường đăng nhập hợp lệ | `[SPEC]` HTTP 403 Forbidden<br>*(Thực tế SUT: HTTP 200 -> Bug SEC-03)* | `[SPEC]` README:176<br>`[CODE]` server.js:100 |
+| **FR12-DT-08** | EC09, EC22 | `Bearer <guest_jwt>` | `guest` | `GET /api/admin/users` | Token craft ký bằng SECRET_KEY | `[SPEC]` HTTP 403 Forbidden | `[SPEC]` FR-12 |
+| **FR12-DT-09** | EC15, EC22 | `Bearer <expired_jwt>` | `admin` | `GET /api/admin/users` | Token craft có `exp < now` | HTTP 403 Forbidden `{"error": "Forbidden"}` | `[CODE]` server.js:106 |
+| **FR12-DT-10** | EC17, EC22, EC23 | `Bearer <token_deleted_user>` | `user` | `GET /api/admin/users` | User được tạo, cấp token, sau đó bị xóa khỏi DB | `[SPEC]` HTTP 401/403 (Token bị thu hồi)<br>*(Thực tế SUT: HTTP 200 do Stateless JWT)* | `[ASSUMED]` Security Standard |
+| **FR12-DT-11** | EC19, EC22, EC23 | `Bearer <user_jwt>` | `user` | `PUT /api/users/me` body: `{"role": "admin"}` | User thường đăng nhập hợp lệ | `[SPEC]` HTTP 400/403 (Cấm người dùng tự đổi role)<br>*(Thực tế SUT: HTTP 200 đổi role thành công)* | `[SPEC]` FR-04, SEC-06<br>`[CODE]` server.js:124 |
+| **FR12-DT-12** | EC11, EC20 | `Bearer <admin_jwt>` | `admin` | `POST /api/categories` body: `{"name": "Cat_{{uniq}}"}` | Tài khoản admin hợp lệ | HTTP 200 OK, message: "Category added successfully" | `[SPEC]` §3.4<br>`[CODE]` server.js:249 |
+| **FR12-DT-13** | EC11, EC08, EC22, EC23 | `Bearer <user_jwt>` | `user` | `POST /api/categories` body: `{"name": "Hacked_{{uniq}}"}` | Tài khoản user thường hợp lệ | `[SPEC]` HTTP 403 Forbidden<br>*(Thực tế SUT: HTTP 200 do thiếu role check)* | `[SPEC]` FR-12 |
+| **FR12-DT-14** | EC12, EC20 | `Bearer <admin_jwt>` | `admin` | `POST /api/products` body: `{"name": "P_{{uniq}}", ...}` | Tài khoản admin hợp lệ | HTTP 200 OK, message: "Product added successfully" | `[SPEC]` §3.3<br>`[CODE]` server.js:167 |
+| **FR12-DT-15** | EC12, EC08, EC22, EC23 | `Bearer <user_jwt>` | `user` | `POST /api/products` body: `{"name": "P_{{uniq}}", ...}` | Tài khoản user thường hợp lệ | `[SPEC]` HTTP 403 Forbidden<br>*(Thực tế SUT: HTTP 200 do thiếu role check)* | `[SPEC]` FR-12 |
+| **FR12-DT-16** | EC12, EC02, EC21, EC23 | *(Omitted - không gửi)* | *(None)* | `POST /api/products` body: `{"name": "P_{{uniq}}", ...}` | Khách vãng lai (Guest) không token | `[SPEC]` HTTP 401 Unauthorized<br>*(Thực tế SUT: HTTP 200 - Lỗ hổng Critical)* | `[SPEC]` FR-12<br>`[CODE]` server.js:167 |
+| **FR12-DT-17** | EC13, EC20 | `Bearer <admin_jwt>` | `admin` | `GET /api/coupons` | Tài khoản admin hợp lệ | HTTP 200 OK, body chứa coupons | `[SPEC]` §5.2<br>`[CODE]` server.js:356 |
+| **FR12-DT-18** | EC13, EC08, EC22, EC23 | `Bearer <user_jwt>` | `user` | `GET /api/coupons` | Tài khoản user thường hợp lệ | `[SPEC]` HTTP 403 Forbidden<br>*(Thực tế SUT: HTTP 200 do thiếu role check)* | `[SPEC]` FR-12 |
+
+---
+
+### 4.3 Ma trận bao phủ lớp tương đương (Coverage Matrix)
+
+| Lớp tương đương (EC) | Loại lớp | Ca kiểm thử kiểm tra (Test Cases) | Tình trạng bao phủ |
+| :--- | :---: | :--- | :---: |
+| **EC01** (`Authorization` hợp lệ) | **Valid** | `FR12-DT-01`, `FR12-DT-07`, `FR12-DT-12`, `FR12-DT-14`, `FR12-DT-17` | ✅ Bao phủ đầy đủ |
+| **EC02** (`Authorization` vắng mặt) | Invalid | `FR12-DT-02`, `FR12-DT-16` | ✅ Bao phủ đơn lập |
+| **EC03** (`Authorization` rỗng / `"Bearer "`) | Invalid | `FR12-DT-03` | ✅ Bao phủ đơn lập |
+| **EC04** (`Authorization` sai scheme prefix) | Invalid | `FR12-DT-04` | ✅ Bao phủ đơn lập |
+| **EC05** (`Authorization` sai chữ ký / tampered) | Invalid | `FR12-DT-05` | ✅ Bao phủ đơn lập |
+| **EC06** (`Authorization` sai cấu trúc / malformed) | Invalid | `FR12-DT-06` | ✅ Bao phủ đơn lập |
+| **EC07** (`role === 'admin'`) | **Valid** | `FR12-DT-01`, `FR12-DT-12`, `FR12-DT-14`, `FR12-DT-17` | ✅ Bao phủ đầy đủ |
+| **EC08** (`role === 'user'`) | Invalid | `FR12-DT-07`, `FR12-DT-13`, `FR12-DT-15`, `FR12-DT-18` | ✅ Bao phủ đơn lập & đa endpoint |
+| **EC09** (`role` ngoài tập / guest) | Invalid | `FR12-DT-08` | ✅ Bao phủ đơn lập |
+| **EC10** (Target: Admin APIs `/api/admin/*`) | **Valid Target** | `FR12-DT-01` đến `FR12-DT-11` | ✅ Bao phủ đầy đủ |
+| **EC11** (Target: Category write APIs) | **Valid Target** | `FR12-DT-12`, `FR12-DT-13` | ✅ Bao phủ đầy đủ |
+| **EC12** (Target: Product write APIs - No Auth) | **Valid Target** *(Spec)* | `FR12-DT-14`, `FR12-DT-15`, `FR12-DT-16` | ✅ Bao phủ đầy đủ |
+| **EC13** (Target: Coupons read API) | **Valid Target** | `FR12-DT-17`, `FR12-DT-18` | ✅ Bao phủ đầy đủ |
+| **EC14** (`token_exp` còn hạn) | **Valid State** | `FR12-DT-01`, `FR12-DT-07` đến `FR12-DT-18` | ✅ Bao phủ đầy đủ |
+| **EC15** (`token_exp` đã hết hạn) | Invalid State | `FR12-DT-09` | ✅ Bao phủ đơn lập |
+| **EC16** (`user_status` đang hoạt động) | **Valid State** | `FR12-DT-01` đến `FR12-DT-09`, `FR12-DT-11` đến `FR12-DT-18` | ✅ Bao phủ đầy đủ |
+| **EC17** (`user_status` đã bị xóa khỏi DB) | Invalid State | `FR12-DT-10` | ✅ Bao phủ đơn lập |
+| **EC18** (`privilege_escalation` giữ nguyên role) | **Valid State** | `FR12-DT-01` đến `FR12-DT-10`, `FR12-DT-12` đến `FR12-DT-18` | ✅ Bao phủ đầy đủ |
+| **EC19** (`privilege_escalation` tự sửa role) | Invalid State | `FR12-DT-11` | ✅ Bao phủ đơn lập |
+| **EC20** (Output: HTTP 200/201 Thành công) | **Valid Output** | `FR12-DT-01`, `FR12-DT-12`, `FR12-DT-14`, `FR12-DT-17` | ✅ Bao phủ trực tiếp |
+| **EC21** (Output: HTTP 401 Unauthorized) | Invalid Output | `FR12-DT-02`, `FR12-DT-03`, `FR12-DT-04`, `FR12-DT-16` | ✅ Bao phủ trực tiếp |
+| **EC22** (Output: HTTP 403 Forbidden) | Invalid Output | `FR12-DT-05`, `FR12-DT-06`, `FR12-DT-07`, `FR12-DT-08`, `FR12-DT-09`, `FR12-DT-10`, `FR12-DT-11`, `FR12-DT-13`, `FR12-DT-15`, `FR12-DT-18` | ✅ Bao phủ trực tiếp |
+| **EC23** (Output: HTTP 200 Lỗ hổng SUT) | **Defect Output** | `FR12-DT-07`, `FR12-DT-10`, `FR12-DT-11`, `FR12-DT-13`, `FR12-DT-15`, `FR12-DT-16`, `FR12-DT-18` | ✅ Bao phủ trực tiếp |
+
+#### Thống kê chỉ số bao phủ:
+- **Tổng số lớp tương đương đã phân hoạch:** 23 lớp (8 Valid, 15 Invalid / Defect).
+- **Tổng số ca kiểm thử thiết kế:** 18 ca kiểm thử (`FR12-DT-01` đến `FR12-DT-18`).
+- **Kích thước bộ kiểm thử tối thiểu (Minimum Test Set):** 11 ca kiểm thử (`FR12-DT-01` đến `FR12-DT-11` bao phủ trọn vẹn toàn bộ 23 lớp EC).
+- **Số ca kiểm thử bổ sung kiểm tra chéo (Cross-check Endpoint Groups):** 7 ca kiểm thử (`FR12-DT-12` đến `FR12-DT-18`).
+- **Tỷ lệ bao phủ lớp tương đương:** **100% (23/23 EC)**. Không có lớp tương đương nào bị bỏ sót.
+
+---
+
+## Stage 5: Tự kiểm tra & Đánh giá hạn chế kỹ thuật (Self-check & Blind spots)
+
+### 5.1 Bảng tự kiểm tra chất lượng (Self-check checklist)
+- [x] **Nguyên tắc cô lập lỗi:** Mỗi test case không hợp lệ (`FR12-DT-02` đến `FR12-DT-11`) chỉ chứa **duy nhất một lớp không hợp lệ**, tất cả các yếu tố khác đều hợp lệ.
+- [x] **Tính tối ưu:** Không có 2 test case nào trùng lặp mục tiêu kiểm thử; các test case từ DT-12 đến DT-18 đều có lý do nghiệp vụ rõ ràng (kiểm tra chéo 3 nhóm endpoint còn lại).
+- [x] **Tính minh bạch:** Mọi kỳ vọng đầu ra đều được gắn nhãn nguồn rõ ràng (`[SPEC]`, `[CODE]`, `[ASSUMED]`); các trường hợp mâu thuẫn giữa SPEC và CODE đều được phân tích cụ thể.
+- [x] **Phạm vi kỹ thuật:** Chưa thêm các giá trị biên nhân tạo (để dành trọn vẹn cho kỹ thuật tiếp theo `boundary-value-analysis`).
+- [x] **Ngôn ngữ báo cáo:** Toàn bộ nội dung báo cáo được trình bày bằng tiếng Việt có dấu chuẩn xác; giữ nguyên các thuật ngữ kỹ thuật, mã endpoint, mã lỗi bằng tiếng Anh.
+
+### 5.2 Hạn chế của kỹ thuật Domain Testing đối với Kiểm soát truy cập (Blind spots)
+1. **Giả định đồng nhất (Uniformity Assumption):** Phân hoạch tương đương giả định rằng tất cả các giá trị trong cùng một lớp sẽ được xử lý giống nhau. Tuy nhiên, trong bài toán phân quyền, nếu lập trình viên quên gắn middleware trên một endpoint cụ thể (như `POST /api/products`), kỹ thuật phân hoạch tổng quát sẽ bị mù (*blind*) nếu không áp dụng Quy tắc 4 của S04 để tách endpoint thành các nhóm riêng biệt.
+2. **Trạng thái bên trong của Token Stateless (Stateless JWT Blind spot):** Domain testing kiểm tra đầu vào request nhưng không thể phát hiện lỗi kiến trúc của Stateless JWT: server không duy trì danh sách token bị thu hồi (Blacklist/Revocation list) trong cơ sở dữ liệu, dẫn đến việc token của tài khoản đã xóa vẫn có giá trị sử dụng.
+3. **Lỗ hổng liên tính năng (Cross-feature logic flaws):** Việc leo quyền thông qua `PUT /api/users/me` nằm ở ranh giới giữa Quản lý hồ sơ người dùng (FR-04) và Kiểm soát truy cập (FR-12). Domain testing trên từng tính năng đơn lẻ dễ bỏ sót các kịch bản tấn công chuỗi kết hợp nhiều API.
+
+---
+
+> **⏸️ DỪNG TẠI ĐÂY — Chờ sinh viên duyệt Stage 4 (Bộ test case tối thiểu FR12-DT-01 đến FR12-DT-18 & Ma trận bao phủ 100%) trước khi tiếp tục kỹ thuật tiếp theo (Boundary Value Analysis).**
+
 

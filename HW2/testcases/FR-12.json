@@ -1,0 +1,577 @@
+{
+  "feature": "FR-12",
+  "base_url": "http://localhost:3000",
+  "cases": [
+    {
+      "id": "FR12-DT-01",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC07",
+        "EC10",
+        "EC14",
+        "EC16",
+        "EC18",
+        "EC20"
+      ],
+      "title": "Admin truy cập API quản trị danh sách người dùng thành công (GET /api/admin/users)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin đang hoạt động trong DB",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users"
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-02",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC02",
+        "EC21"
+      ],
+      "title": "Từ chối truy cập API admin khi vắng mặt header Authorization (GET /api/admin/users)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users"
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Unauthorized"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-03",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC03",
+        "EC21"
+      ],
+      "title": "Từ chối truy cập API admin khi header Authorization chỉ có tiền tố Bearer không có token",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer "
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Unauthorized"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-04",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC04",
+        "EC21"
+      ],
+      "title": "Từ chối truy cập API admin khi header Authorization dùng sai tiền tố xác thực (Basic)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Basic dXNlcjpwYXNz"
+        }
+      },
+      "expected": {
+        "status": [
+          401,
+          403
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-05",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC05",
+        "EC22"
+      ],
+      "title": "Từ chối truy cập API admin khi Token JWT bị sai chữ ký (Tampered Signature)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIn0.TAMPERED_SIGNATURE_INVALID_123456789"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ],
+        "body_includes": [
+          "Forbidden"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-06",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC06",
+        "EC22"
+      ],
+      "title": "Từ chối truy cập API admin khi Token JWT bị sai cấu trúc định dạng (Malformed Token)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer not_a_valid_jwt_string"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ],
+        "body_includes": [
+          "Forbidden"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-07",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC08",
+        "EC22",
+        "EC23"
+      ],
+      "title": "Từ chối truy cập API admin khi người dùng có vai trò user thông thường (GET /api/admin/users)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user thường đăng nhập hợp lệ",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users"
+      },
+      "expected": {
+        "status": [
+          403
+        ],
+        "body_includes": [
+          "Forbidden"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-08",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC09",
+        "EC22"
+      ],
+      "title": "Từ chối truy cập API admin khi Token chứa vai trò không nhận diện (role guest)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token craft ký bằng SECRET_KEY",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTksInJvbGUiOiJndWVzdCIsImlhdCI6MTc5MjQyNDM2MX0.ki_VLtr-5cgVoM67NSSN_cVYD2HpZcCdNqo8Qr59upQ"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-09",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC15",
+        "EC22"
+      ],
+      "title": "Từ chối truy cập API admin khi Token JWT đã hết hạn sử dụng (Expired Token)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token craft có exp < now",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzkyNDIwNzYxLCJpYXQiOjE3OTI0MjQzNjF9.eE9lLHVw-n0TiS4873hgbn5ezm-hWNYbbdDjJEP7Yz0"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ],
+        "body_includes": [
+          "Forbidden"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-10",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC17",
+        "EC22",
+        "EC23"
+      ],
+      "title": "Kiểm tra thu hồi quyền truy cập khi tài khoản người dùng đã bị xóa khỏi cơ sở dữ liệu",
+      "type": "api",
+      "auth": "none",
+      "precondition": "User được cấp token sau đó bị xóa khỏi DB",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OTk5OTksInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzkyNDI0MzYxfQ.p8m2jU7Jg8N18X4_z3s_invalid_deleted_user"
+        }
+      },
+      "expected": {
+        "status": [
+          401,
+          403
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-11",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC19",
+        "EC22",
+        "EC23"
+      ],
+      "title": "Kiểm tra ngăn chặn người dùng tự thay đổi vai trò (role) qua endpoint PUT /api/users/me",
+      "type": "api",
+      "auth": "user",
+      "precondition": "User thường đăng nhập hợp lệ",
+      "request": {
+        "method": "PUT",
+        "path": "/api/users/me",
+        "body": {
+          "role": "admin"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          403
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-12",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC11",
+        "EC20"
+      ],
+      "title": "Admin thêm danh mục sản phẩm mới thành công (POST /api/categories)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/categories",
+        "body": {
+          "name": "Category_{{uniq}}"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Category added successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-13",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC11",
+        "EC08",
+        "EC22",
+        "EC23"
+      ],
+      "title": "Từ chối người dùng thường thêm danh mục sản phẩm mới (POST /api/categories)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user thường hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/categories",
+        "body": {
+          "name": "Hacked_{{uniq}}"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-14",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC12",
+        "EC20"
+      ],
+      "title": "Admin thêm sản phẩm mới thành công (POST /api/products)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/products",
+        "body": {
+          "name": "Product_{{uniq}}",
+          "price": 99000,
+          "category_id": 1,
+          "description": "Admin created",
+          "stock": 50
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Product created"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-15",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC12",
+        "EC08",
+        "EC22",
+        "EC23"
+      ],
+      "title": "Từ chối người dùng thường thêm sản phẩm mới (POST /api/products)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user thường hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/products",
+        "body": {
+          "name": "Product_{{uniq}}",
+          "price": 1000,
+          "category_id": 1,
+          "description": "User created",
+          "stock": 10
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-16",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC12",
+        "EC02",
+        "EC21",
+        "EC23"
+      ],
+      "title": "Từ chối khách vãng lai không có token thêm sản phẩm mới (POST /api/products - Critical Flaw)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Khách vãng lai không đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/products",
+        "body": {
+          "name": "Product_{{uniq}}",
+          "price": 1000,
+          "category_id": 1,
+          "description": "Guest created",
+          "stock": 10
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Unauthorized"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-17",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC13",
+        "EC20"
+      ],
+      "title": "Admin tra cứu danh sách mã giảm giá quản trị thành công (GET /api/coupons)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin hợp lệ",
+      "request": {
+        "method": "GET",
+        "path": "/api/coupons"
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-DT-18",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC13",
+        "EC08",
+        "EC22",
+        "EC23"
+      ],
+      "title": "Từ chối người dùng thường tra cứu danh sách mã giảm giá quản trị (GET /api/coupons)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Tài khoản user thường hợp lệ",
+      "request": {
+        "method": "GET",
+        "path": "/api/coupons"
+      },
+      "expected": {
+        "status": [
+          403
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    }
+  ]
+}
