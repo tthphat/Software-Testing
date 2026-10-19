@@ -175,15 +175,34 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
     - Xây dựng bảng 7 biến (Inputs, State/Context, Outputs) kèm cột Domain value & constraints (cải tiến v1.1).
     - Lưu báo cáo tiếng Việt tại `HW2/report/FR-08/01-domain-testing.vi.md`.
 - **Audit Log**: Thêm entry `A15` vào `HW2/audit/audit-log.jsonl`.
-- **Tình trạng hiện tại**: **DỪNG LẠI TẠI CHECKPOINT STAGE 0 & 1 CHỜ DUYỆT (STOP FOR REVIEW)** theo đúng yêu cầu bài tập.
+- **Tình trạng hiện tại**: Đã hoàn thành Stage 0 & 1, chuyển tiếp Stage 2.
+
+## Phiên 12: Phân hoạch tương đương (Stage 2) cho tính năng FR-08 (Checkout)
+
+- **Tính năng**: **FR-08 — Checkout (Thanh toán & Đặt hàng — Pool B)**
+- **Kỹ thuật**: `domain-testing` (Stage 2)
+- **Hoạt động thực hiện**:
+  - Áp dụng đầy đủ 6 kỹ thuật phân hoạch lớp tương đương theo slide bài giảng S04 (Range, Must be, Type, Missing/Empty, State conflict, Cross-platform skew, Output classes).
+  - Xây dựng bảng **31 lớp tương đương (`EC01` đến `EC31`)** bao quát toàn bộ các điều kiện:
+    - `auth_token`: EC01 (hợp lệ), EC02 (thiếu header 401), EC03 (token sai/tampered 403), EC04 (token rỗng).
+    - `total_amount`: EC05 (hợp lệ khớp giỏ hàng), EC06 ($=0$), EC07 ($<0$ số âm), EC08 (thao túng giá qua Web `editableTotal`), EC09 (chuỗi), EC10 (boolean), EC11 (float), EC12 (thiếu field), EC13 (null).
+    - `shipping_address`: EC14 (hợp lệ), EC15 (rỗng `""`), EC16 (khoảng trắng `"   "`), EC17 (thiếu field - như Web & Mobile), EC18 (sai type), EC19 (payload cực lớn > 1,000 ký tự).
+    - `cart_state`: EC20 (có sản phẩm $\ge 1$), EC21 (giỏ hàng rỗng).
+    - `stock_state`: EC22 (đủ tồn kho), EC23 (vượt tồn kho).
+    - `coupon_state`: EC24 (không dùng coupon), EC25 (coupon hợp lệ tính đúng tiền), EC26 (coupon sai/hết hạn).
+    - `mobile_cart_skew`: EC27 (Mobile tự động cắt bỏ sản phẩm cuối `cart.slice(0, -1)`).
+    - `Output classes`: EC28 (200 OK + orderId), EC29 (401), EC30 (403), EC31 (400 Bad Request).
+  - Cập nhật báo cáo `HW2/report/FR-08/01-domain-testing.vi.md`.
+- **Audit Log**: Thêm entry `A16` vào `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: **DỪNG LẠI TẠI CHECKPOINT STAGE 2 CHỜ DUYỆT (STOP FOR REVIEW)**.
 
 ---
 
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định kết quả khảo sát Stage 0 và Bảng biến Stage 1 của FR-08.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 domain testing stage 0 and 1`.
-3. Sau khi được duyệt, chuyển sang **Stage 2 (Phân hoạch các lớp tương đương Equivalence Partitioning)** cho FR-08 -> DỪNG LẠI CHỜ DUYỆT.
+1. Sinh viên thẩm định bảng phân hoạch 31 lớp tương đương Stage 2 của FR-08.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 equivalence partitioning stage 2`.
+3. Sau khi được duyệt, chuyển sang **Stage 3 (Chọn giá trị đại diện)** và **Stage 4 (Thiết kế ca kiểm thử tối thiểu kèm ma trận bao phủ coverage matrix & xuất JSON)** cho FR-08 -> DỪNG LẠI CHỜ DUYỆT.
 
 ---
 
@@ -200,14 +219,15 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/FR-08/01-domain-testing.vi.md` | Tạo báo cáo Stage 0 và Stage 1 cho FR-08 Checkout |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A15 (FR-08 Stage 0-1) |
-| `HW2/session-history.md` | Cập nhật tiến độ bắt đầu FR-08 |
+| `HW2/report/FR-08/01-domain-testing.vi.md` | Bổ sung Stage 2 (Bảng 31 lớp tương đương EC01 - EC31) |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A16 (FR-08 Stage 2) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 2 cho FR-08 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành Stage 0 & Stage 1 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+**Phiên hiện tại**: Đã hoàn thành Stage 2 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+
 
 
 

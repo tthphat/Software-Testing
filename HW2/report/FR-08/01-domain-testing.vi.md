@@ -146,5 +146,60 @@ Tuân thủ nguyên tắc Domain Testing (slide bài giảng S04) và cải ti�
 
 ---
 
-### DỪNG LẠI TẠI CHECKPOINT (STOP FOR REVIEW)
-*Báo cáo Stage 0 và Stage 1 đã hoàn thành đầy đủ, không tự đoán, gắn thẻ nguồn chi tiết và liệt kê rõ ràng các câu hỏi mở cùng dị biệt mã nguồn. Vui lòng thẩm định trước khi tôi chuyển sang Stage 2 (Phân hoạch các lớp tương đương Equivalence Partitioning).*
+---
+
+## Stage 2 — Phân hoạch các lớp tương đương (Equivalence Partitioning)
+
+Áp dụng phương pháp phân hoạch lớp tương đương theo slide bài giảng S04 (CSC13003) và bộ quy tắc kiểm thử miền toàn diện:
+- **Range (Khoảng giá trị):** Giá trị số dương hợp lệ, số âm, số 0, số tiền không khớp với giá trị giỏ hàng (thao túng giá).
+- **Must be (Điều kiện bắt buộc):** Bắt buộc phải có token đăng nhập hợp lệ (JWT bearer token); địa chỉ giao hàng hợp lệ.
+- **Type (Kiểu dữ liệu):** Kiểu số nguyên hợp lệ vs kiểu chuỗi (String), Boolean, số thực dấu phẩy động (Float), Object.
+- **Missing / Empty (Thiếu hoặc Rỗng):** Chuỗi rỗng `""`, chuỗi khoảng trắng `"   "`, thiếu hoàn toàn trường trong JSON body, giá trị `null`.
+- **State Conflict (Xung đột trạng thái & Tiền đề):** Giỏ hàng có sản phẩm vs giỏ hàng rỗng; mã giảm giá hợp lệ vs mã giảm giá không tồn tại / hết hạn.
+- **Cross-Platform Skew (Dị biệt đa nền tảng - v2.0):**
+  - Thao túng giá thanh toán qua Web UI `editableTotal` (`Checkout.jsx:93-102`).
+  - Mobile tự động cắt bỏ sản phẩm cuối cùng trong giỏ hàng `cart.slice(0, -1)` (`App.js:391`).
+  - Web và Mobile không gửi trường `shipping_address`.
+- **Output Classes (Lớp kết quả đầu ra):** Phân hoạch các mã trạng thái phản hồi HTTP 200, 400, 401, 403, 500.
+
+### Bảng phân hoạch 31 lớp tương đương (Equivalence Classes) cho FR-08
+
+| Biến / Trạng thái | Mã lớp | Phân loại | Định nghĩa lớp tương đương | Mục đích & Rủi ro kiểm thử |
+| :--- | :---: | :---: | :--- | :--- |
+| **`auth_token`** | **EC01** | Valid | Header `Authorization: Bearer <valid_token>` của người dùng thường hợp lệ | Kiểm thử luồng xác thực thành công |
+| | **EC02** | Invalid | Thiếu hoàn toàn header `Authorization` (khách vãng lai chưa đăng nhập) | Kỳ vọng HTTP 401 Unauthorized `[CODE: server.js:103]` |
+| | **EC03** | Invalid | Token sai chữ ký, bị chỉnh sửa (tampered), hoặc sai định dạng chuỗi | Kỳ vọng HTTP 403 Forbidden `[CODE: server.js:106]` |
+| | **EC04** | Invalid | Header Authorization gửi token rỗng (`Bearer `) hoặc `null` | Kỳ vọng HTTP 401 Unauthorized `[CODE: server.js:103]` |
+| **`total_amount`** | **EC05** | Valid | Số nguyên dương lớn hơn 0 ($total\_amount > 0$), khớp chính xác với giá trị giỏ hàng | Dữ liệu thanh toán chuẩn mực |
+| | **EC06** | Invalid | Số tiền bằng 0 ($total\_amount = 0$) | Đặt hàng miễn phí trái phép; nguy cơ gian lận |
+| | **EC07** | Invalid | Số tiền âm ($total\_amount < 0$, ví dụ: `-50000`) | Lỗ hổng số tiền âm làm đảo chiều giao dịch (CWE-20) |
+| | **EC08** | Invalid | Số tiền dương nhưng không khớp với giá trị giỏ hàng (Web `editableTotal` tampering) | Lỗ hổng cho phép sửa giá thanh toán trên Web (Parameter Tampering) |
+| | **EC09** | Invalid | Kiểu dữ liệu chuỗi (String, ví dụ: `"free"` hoặc `"200000"`) | Lỗi Type Skew, kiểm tra ép kiểu SQLite |
+| | **EC10** | Invalid | Kiểu dữ liệu Boolean (`true` / `false`) | Lỗi Type validation |
+| | **EC11** | Invalid | Số thực dấu phẩy động (Float, ví dụ: `199999.5`) | Kiểm tra tính toàn vẹn số tiền thanh toán nguyên tệ |
+| | **EC12** | Invalid | Thiếu hoàn toàn trường `total_amount` trong request body `{}` | Kiểm tra schema validation |
+| | **EC13** | Invalid | Giá trị `null` | Kiểm tra xử lý giá trị null |
+| **`shipping_address`** | **EC14** | Valid | Chuỗi địa chỉ hợp lệ, đầy đủ thông tin (độ dài 5..255 ký tự) | Dữ liệu giao hàng chuẩn |
+| | **EC15** | Invalid | Chuỗi rỗng `""` | Địa chỉ trống không thể giao hàng |
+| | **EC16** | Invalid | Chuỗi chỉ chứa ký tự khoảng trắng `"   "` | Bỏ qua trim chuỗi |
+| | **EC17** | Invalid | Thiếu hoàn toàn trường `shipping_address` trong body (hành vi của Web & Mobile) | Mâu thuẫn giữa Client và Server; DB lưu NULL |
+| | **EC18** | Invalid | Sai kiểu dữ liệu (Boolean `true` hoặc Number `12345`) | Lỗi Type validation |
+| | **EC19** | Invalid | Chuỗi địa chỉ cực lớn (> 1,000 ký tự payload) | Nguy cơ tràn bộ đệm / DoS database |
+| **`cart_state`** | **EC20** | Valid | Giỏ hàng có ít nhất 1 sản phẩm hợp lệ ($quantity \ge 1$) | Điều kiện tiên quyết hợp lệ để checkout |
+| | **EC21** | Invalid | Giỏ hàng rỗng (chưa thêm sản phẩm nào hoặc $quantity = 0$) | Lỗi đặt đơn hàng ma khi giỏ hàng trống |
+| **`stock_state`** | **EC22** | Valid | Số lượng sản phẩm trong giỏ hàng $\le$ số lượng tồn kho trong DB | Đủ hàng để bán |
+| | **EC23** | Invalid | Số lượng sản phẩm trong giỏ hàng $>$ số lượng tồn kho | Bán vượt quá tồn kho (Overselling defect) |
+| **`coupon_state`** | **EC24** | Valid | Không áp dụng mã giảm giá (`coupon_id` là null) | Đơn hàng nguyên giá |
+| | **EC25** | Valid | Áp dụng mã coupon hợp lệ, còn hạn và tính đúng số tiền `final_amount` | Giảm giá hợp lệ |
+| | **EC26** | Invalid | Áp dụng mã coupon không tồn tại, hết hạn hoặc hết lượt | Nguy cơ lạm dụng coupon |
+| **Mobile Skew** | **EC27** | Invalid | Thanh toán qua Mobile với giỏ hàng có từ 2 sản phẩm trở lên | Bị cắt bỏ sản phẩm cuối cùng do `cart.slice(0, -1)` |
+| **Output Classes** | **EC28** | Valid Output | `HTTP 200 OK` kèm `orderId`, đơn hàng được tạo với `status = 'pending'` | Đặt hàng thành công |
+| | **EC29** | Invalid Output | `HTTP 401 Unauthorized` | Từ chối truy cập khi chưa đăng nhập |
+| | **EC30** | Invalid Output | `HTTP 403 Forbidden` | Từ chối khi token sai / không hợp lệ |
+| | **EC31** | Invalid Output | `HTTP 400 Bad Request` | Từ chối request sai dữ liệu (tiền âm, giỏ rỗng,...) |
+
+---
+
+### DỪNG LẠI TẠI CHECKPOINT STAGE 2 (STOP FOR REVIEW)
+*Bảng 31 lớp tương đương trên đã phân loại đầy đủ các điều kiện hợp lệ và không hợp lệ dựa trên toàn bộ 6 kỹ thuật phân hoạch của CSC13003 S04 kèm các phát hiện dị biệt mã nguồn. Vui lòng thẩm định trước khi tôi chuyển sang Stage 3 (Chọn giá trị đại diện) và Stage 4 (Thiết kế ca kiểm thử tối thiểu).*
+
