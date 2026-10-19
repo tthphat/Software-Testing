@@ -1,0 +1,44 @@
+PASS    FR08-DT-01  Checkout thành công với tất cả dữ liệu hợp lệ chuẩn (không dùng coupon)
+PASS    FR08-DT-02  Checkout thành công khi áp dụng mã giảm giá hợp lệ (-10%)
+PASS    FR08-DT-03  Từ chối checkout khi thiếu hoàn toàn header Authorization (khách vãng lai)
+PASS    FR08-DT-04  Từ chối checkout khi token Authorization sai chữ ký / bị giả mạo
+PASS    FR08-DT-05  Từ chối checkout khi header Authorization gửi token rỗng ('Bearer ')
+FAIL    FR08-DT-06  Từ chối checkout khi total_amount = 0 (đặt hàng miễn phí trái phép)  <- status 200 not in [400]
+FAIL    FR08-DT-07  Từ chối checkout khi total_amount là số âm (-50,000 VNĐ)  <- status 200 not in [400]
+FAIL    FR08-DT-08  Từ chối checkout khi total_amount bị can thiệp sửa giá sai lệch giỏ hàng (Web editableTotal)  <- status 200 not in [400]
+FAIL    FR08-DT-09  Từ chối checkout khi total_amount có kiểu dữ liệu chuỗi ký tự ('free')  <- status 200 not in [400]
+FAIL    FR08-DT-10  Từ chối checkout khi total_amount có kiểu Boolean (true)  <- status 200 not in [400]
+FAIL    FR08-DT-11  Từ chối checkout khi total_amount là số thực dấu phẩy động (199999.5)  <- status 200 not in [400]
+FAIL    FR08-DT-12  Từ chối checkout khi thiếu hoàn toàn trường total_amount trong body  <- status 200 not in [400]
+FAIL    FR08-DT-13  Từ chối checkout khi total_amount có giá trị null  <- status 200 not in [400]
+FAIL    FR08-DT-14  Từ chối checkout khi shipping_address là chuỗi rỗng ('')  <- status 200 not in [400]
+FAIL    FR08-DT-15  Từ chối checkout khi shipping_address chỉ chứa ký tự khoảng trắng ('   ')  <- status 200 not in [400]
+FAIL    FR08-DT-16  Từ chối checkout khi thiếu trường shipping_address trong body (hành vi thực tế Web & Mobile)  <- status 200 not in [400]
+FAIL    FR08-DT-17  Từ chối checkout khi shipping_address sai kiểu dữ liệu (Number: 12345)  <- status 200 not in [400]
+FAIL    FR08-DT-18  Từ chối checkout khi shipping_address vượt quá độ dài tối đa hợp lý (> 1,000 ký tự)  <- status 200 not in [400]
+FAIL    FR08-DT-19  Từ chối checkout khi giỏ hàng người dùng hoàn toàn rỗng (cart = [])  <- status 200 not in [400]
+FAIL    FR08-DT-20  Từ chối checkout khi số lượng sản phẩm đặt mua vượt quá tồn kho (Overselling)  <- status 200 not in [400]
+FAIL    FR08-DT-21  Từ chối checkout khi áp dụng mã coupon không tồn tại hoặc hết hạn  <- status 200 not in [400]
+FAIL    FR08-DT-22  Kiểm tra dị biệt Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng (cart.slice(0, -1))  <- status 200 not in [400]
+FAIL    FR08-BVA-01  BVA: total_amount = -50000 (-alpha Extreme số âm)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL    FR08-BVA-02  BVA: total_amount = 0 (LB-1 cận dưới số tiền bằng 0)  <- status 200 not in [400]; body must not contain "Checkout successful"
+PASS    FR08-BVA-03  BVA: total_amount = 1 VNĐ (LB cận dưới tối thiểu hợp lệ)
+PASS    FR08-BVA-04  BVA: total_amount = 2 VNĐ (LB+1 nội biên kề cận)
+PASS    FR08-BVA-05  BVA: total_amount = 2,147,483,646 VNĐ (UB-1 nội biên cận trên)
+PASS    FR08-BVA-06  BVA: total_amount = 2,147,483,647 VNĐ (UB cận trên số nguyên int32 max)
+FAIL    FR08-BVA-07  BVA: total_amount = 2,147,483,648 VNĐ (UB+1 tràn số nguyên int32)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL    FR08-BVA-08  BVA: total_amount = 9,007,199,254,740,991 (+alpha Extreme MAX_SAFE_INTEGER)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL    FR08-BVA-09  BVA: shipping_address length = 0 (chuỗi rỗng -alpha Min Extreme)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL    FR08-BVA-10  BVA: shipping_address length = 4 (LB-1 thiếu 1 ký tự)  <- status 200 not in [400]; body must not contain "Checkout successful"
+PASS    FR08-BVA-11  BVA: shipping_address length = 5 (LB tối thiểu hợp lệ)
+PASS    FR08-BVA-12  BVA: shipping_address length = 6 (LB+1 nội biên cận dưới)
+PASS    FR08-BVA-13  BVA: shipping_address length = 254 (UB-1 nội biên cận trên)
+PASS    FR08-BVA-14  BVA: shipping_address length = 255 ASCII (UB cận trên tối đa)
+PASS    FR08-BVA-15  BVA: shipping_address length = 255 ký tự tiếng Việt UTF-8 có dấu (v2.0 Rule)
+FAIL    FR08-BVA-16  BVA: shipping_address length = 256 (UB+1 vượt quá độ dài chuẩn 255)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL    FR08-BVA-17  BVA: shipping_address length = 10,000 ký tự (+alpha Extreme Payload DoS)  <- status 200 not in [400,413]; body must not contain "Checkout successful"
+FAIL    FR08-BVA-18  BVA: cart_items_count = 0 (LB-1 giỏ hàng rỗng)  <- status 200 not in [400]; body must not contain "Checkout successful"
+PASS    FR08-BVA-19  BVA: cart_items_count = 1 (LB giỏ hàng 1 món - Mobile không cắt bớt)
+PASS    FR08-BVA-20  BVA: cart_items_count = 2 (LB+1 Mobile kích hoạt lỗi cắt bỏ sản phẩm cuối cart.slice(0, -1))
+
+Executed 42: PASS 16, FAIL 26, BLOCKED 0. Results written to HW2/testcases/FR-08.json

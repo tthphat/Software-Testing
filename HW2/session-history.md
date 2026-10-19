@@ -251,11 +251,35 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 ---
 
+## Phiên 16: Thực thi kiểm thử (Stage 1-2) và Phân loại lỗi Triage (Stage 3) cho FR-08 (Checkout)
+
+- **Tính năng**: **FR-08 — Checkout (Thanh toán & Đặt hàng — Pool B)**
+- **Kỹ thuật**: `test-execution-and-bugs` (Stage 1, Stage 2, Stage 3)
+- **Môi trường**: SUT backend đang chạy tại `http://localhost:3000` (Node.js/Express + SQLite3).
+- **Kết quả thực thi**: Chạy thành công toàn bộ **42 ca kiểm thử API** trong `HW2/testcases/FR-08.json`:
+  - **PASS**: **16 ca (38.1%)**
+  - **FAIL**: **26 ca (61.9%)**
+  - **BLOCKED**: **0 ca (0%)**
+- **Minh chứng thực thi**: Lưu trữ tệp log đầy đủ tại `HW2/evidence/FR-08/test-execution.log`.
+- **Phân loại lỗi (Stage 3 Triage)**: Toàn bộ 26 ca FAIL quy về **7 lỗi phần mềm cốt lõi**:
+  1. `BUG-FR08-01` (Critical): Backend hoàn toàn thiếu validation cho `total_amount` (chấp nhận tiền âm, 0đ, chuỗi, boolean, float, null, tràn số int32) — 11 ca test.
+  2. `BUG-FR08-02` (Critical): Lỗ hổng Parameter Tampering / Thao túng giá đơn hàng (Backend tin tưởng 100% số tiền client gửi lên, không tính lại từ giỏ hàng; Web UI cho phép user tự sửa giá trong ô input) — 1 ca test.
+  3. `BUG-FR08-03` (Major): Backend hoàn toàn thiếu validation cho `shipping_address` (chấp nhận rỗng, null, chuỗi dài) và cả Web/Mobile đều không có ô nhập địa chỉ — 9 ca test.
+  4. `BUG-FR08-04` (Major): Backend không kiểm tra giỏ hàng khi checkout (Cho phép đặt hàng khi giỏ rỗng `cart = []`) — 2 ca test.
+  5. `BUG-FR08-05` (Critical): Dị biệt logic nghiêm trọng trên Mobile: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng (`cart.slice(0, -1)`) — 1 ca test.
+  6. `BUG-FR08-06` (Major): Backend không kiểm tra tồn kho (Overselling Defect) và không lưu chi tiết các mặt hàng trong đơn hàng (`order_items`) — 1 ca test.
+  7. `BUG-FR08-07` (Minor): Endpoint checkout không kiểm tra tính hợp lệ của mã giảm giá `coupon_id` — 1 ca test.
+- **Tài liệu tạo mới**: `HW2/report/FR-08/03-execution-and-gap-analysis.vi.md`.
+- **Audit Log**: Thêm entry `A20` vào `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: **DỪNG LẠI TẠI CHECKPOINT STAGE 3 CHỜ DUYỆT (STOP FOR REVIEW)**.
+
+---
+
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định bộ 20 ca kiểm thử BVA và báo cáo Stage 3-4 của FR-08.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 boundary value analysis stage 3-4`.
-3. Sau khi được duyệt, chuyển sang kỹ thuật **Thực thi kiểm thử và Báo cáo lỗi (Test Execution & Bugs)** cho FR-08 (`HW2/report/FR-08/03-execution-and-gap-analysis.vi.md`).
+1. Sinh viên thẩm định bảng kết quả thực thi và phân loại 7 lỗi phần mềm của FR-08.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 test execution and triage stage 1-3`.
+3. Sau khi được duyệt, chuyển sang **Stage 4 (Soạn thảo báo cáo lỗi bugs.vi.md & tạo các issue draft trong HW2/report/issues/)** và **Stage 5 (Phân tích khoảng trống AI Gap Analysis & nâng cấp kỹ năng v2.2)** cho FR-08 -> DỪNG LẠI CHỜ DUYỆT.
 
 ---
 
@@ -272,15 +296,16 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/testcases/FR-08.json` | Bổ sung 20 test cases BVA (tổng cộng 42 test cases) |
-| `HW2/report/FR-08/02-boundary-value-analysis.vi.md` | Hoàn thiện Stage 3 & Stage 4 BVA cho FR-08 |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A19 (FR-08 BVA Stage 3-4) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 3-4 cho FR-08 |
+| `HW2/evidence/FR-08/test-execution.log` | Lưu log kết quả thực thi 42 test cases |
+| `HW2/testcases/FR-08.json` | Cập nhật kết quả thực thi (16 PASS, 26 FAIL, 0 BLOCKED) |
+| `HW2/report/FR-08/03-execution-and-gap-analysis.vi.md` | Tạo báo cáo thực thi và phân loại lỗi Triage Stage 1-3 |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A20 (FR-08 Test Execution Stage 1-3) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 1-3 cho FR-08 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành BVA Stage 3-4 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+**Phiên hiện tại**: Đã hoàn thành Test Execution & Triage Stage 1-3 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
 
 
 

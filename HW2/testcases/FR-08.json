@@ -40,7 +40,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":40}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.532Z"
       }
     },
     {
@@ -83,7 +87,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":41}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.600Z"
       }
     },
     {
@@ -116,7 +124,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Unauthorized\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.605Z"
       }
     },
     {
@@ -150,7 +162,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Forbidden\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.607Z"
       }
     },
     {
@@ -186,7 +202,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Unauthorized\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.610Z"
       }
     },
     {
@@ -216,7 +236,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":42}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.613Z"
       }
     },
     {
@@ -246,7 +272,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":43}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.618Z"
       }
     },
     {
@@ -276,7 +308,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":44}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.622Z"
       }
     },
     {
@@ -306,7 +344,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":45}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.629Z"
       }
     },
     {
@@ -336,7 +380,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":46}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.635Z"
       }
     },
     {
@@ -366,7 +416,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":47}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.640Z"
       }
     },
     {
@@ -395,7 +451,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":48}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.645Z"
       }
     },
     {
@@ -425,7 +487,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":49}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.650Z"
       }
     },
     {
@@ -455,7 +523,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":50}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.654Z"
       }
     },
     {
@@ -485,7 +559,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":51}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.659Z"
       }
     },
     {
@@ -514,7 +594,13 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":52}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.665Z"
       }
     },
     {
@@ -544,7 +630,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":53}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.670Z"
       }
     },
     {
@@ -574,7 +666,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":54}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.674Z"
       }
     },
     {
@@ -604,7 +702,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":55}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.678Z"
       }
     },
     {
@@ -634,7 +738,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":56}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.682Z"
       }
     },
     {
@@ -665,7 +775,13 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":57}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.687Z"
       }
     },
     {
@@ -701,7 +817,13 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":58}",
+        "fail_reasons": [
+          "status 200 not in [400]"
+        ],
+        "executed_at": "2026-10-19T15:46:38.691Z"
       }
     },
     {
@@ -733,7 +855,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":59}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Checkout successful\""
+        ],
+        "executed_at": "2026-10-19T15:46:38.695Z"
       }
     },
     {
@@ -765,7 +894,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":60}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Checkout successful\""
+        ],
+        "executed_at": "2026-10-19T15:46:38.699Z"
       }
     },
     {
@@ -798,7 +934,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":61}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.703Z"
       }
     },
     {
@@ -831,7 +971,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":62}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.708Z"
       }
     },
     {
@@ -864,7 +1008,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":63}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.712Z"
       }
     },
     {
@@ -897,7 +1045,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":64}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.716Z"
       }
     },
     {
@@ -929,7 +1081,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":65}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Checkout successful\""
+        ],
+        "executed_at": "2026-10-19T15:46:38.720Z"
       }
     },
     {
@@ -961,7 +1120,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":66}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Checkout successful\""
+        ],
+        "executed_at": "2026-10-19T15:46:38.724Z"
       }
     },
     {
@@ -993,7 +1159,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":67}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Checkout successful\""
+        ],
+        "executed_at": "2026-10-19T15:46:38.729Z"
       }
     },
     {
@@ -1025,7 +1198,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":68}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Checkout successful\""
+        ],
+        "executed_at": "2026-10-19T15:46:38.733Z"
       }
     },
     {
@@ -1058,7 +1238,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":69}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.737Z"
       }
     },
     {
@@ -1091,7 +1275,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":70}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.742Z"
       }
     },
     {
@@ -1124,7 +1312,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":71}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.746Z"
       }
     },
     {
@@ -1157,7 +1349,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":72}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.750Z"
       }
     },
     {
@@ -1190,7 +1386,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":73}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.754Z"
       }
     },
     {
@@ -1222,7 +1422,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":74}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Checkout successful\""
+        ],
+        "executed_at": "2026-10-19T15:46:38.758Z"
       }
     },
     {
@@ -1255,7 +1462,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":75}",
+        "fail_reasons": [
+          "status 200 not in [400,413]",
+          "body must not contain \"Checkout successful\""
+        ],
+        "executed_at": "2026-10-19T15:46:38.762Z"
       }
     },
     {
@@ -1287,7 +1501,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":76}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Checkout successful\""
+        ],
+        "executed_at": "2026-10-19T15:46:38.767Z"
       }
     },
     {
@@ -1326,7 +1547,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":77}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.771Z"
       }
     },
     {
@@ -1369,7 +1594,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Checkout successful\",\"orderId\":78}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T15:46:38.776Z"
       }
     }
   ]
