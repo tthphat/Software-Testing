@@ -1,0 +1,38 @@
+[2026-10-19T23:18:51.000Z] Test Execution Log for FR-12 (Access Control)
+Target: http://localhost:3000
+Command: node .claude/skills/test-execution-and-bugs/scripts/run_cases.mjs --file HW2/testcases/FR-12.json --config HW2/testcases/config.json
+
+PASS    FR12-DT-01  Admin truy cập API quản trị danh sách người dùng thành công (GET /api/admin/users)
+PASS    FR12-DT-02  Từ chối truy cập API admin khi vắng mặt header Authorization (GET /api/admin/users)
+PASS    FR12-DT-03  Từ chối truy cập API admin khi header Authorization chỉ có tiền tố Bearer không có token
+PASS    FR12-DT-04  Từ chối truy cập API admin khi header Authorization dùng sai tiền tố xác thực (Basic)
+PASS    FR12-DT-05  Từ chối truy cập API admin khi Token JWT bị sai chữ ký (Tampered Signature)
+PASS    FR12-DT-06  Từ chối truy cập API admin khi Token JWT bị sai cấu trúc định dạng (Malformed Token)
+FAIL    FR12-DT-07  Từ chối truy cập API admin khi người dùng có vai trò user thông thường (GET /api/admin/users)  <- status 200 not in [403]; body missing "Forbidden"
+FAIL    FR12-DT-08  Từ chối truy cập API admin khi Token chứa vai trò không nhận diện (role guest)  <- status 200 not in [403]
+PASS    FR12-DT-09  Từ chối truy cập API admin khi Token JWT đã hết hạn sử dụng (Expired Token)
+PASS    FR12-DT-10  Kiểm tra thu hồi quyền truy cập khi tài khoản người dùng đã bị xóa khỏi cơ sở dữ liệu
+FAIL    FR12-DT-11  Kiểm tra ngăn chặn người dùng tự thay đổi vai trò (role) qua endpoint PUT /api/users/me  <- status 200 not in [400,403]
+PASS    FR12-DT-12  Admin thêm danh mục sản phẩm mới thành công (POST /api/categories)
+FAIL    FR12-DT-13  Từ chối người dùng thường thêm danh mục sản phẩm mới (POST /api/categories)  <- status 200 not in [403]
+PASS    FR12-DT-14  Admin thêm sản phẩm mới thành công (POST /api/products)
+FAIL    FR12-DT-15  Từ chối người dùng thường thêm sản phẩm mới (POST /api/products)  <- status 200 not in [403]
+FAIL    FR12-DT-16  Từ chối khách vãng lai không có token thêm sản phẩm mới (POST /api/products - Critical Flaw)  <- status 200 not in [401]; body missing "Unauthorized"
+PASS    FR12-DT-17  Admin tra cứu danh sách mã giảm giá quản trị thành công (GET /api/coupons)
+FAIL    FR12-DT-18  Từ chối người dùng thường tra cứu danh sách mã giảm giá quản trị (GET /api/coupons)  <- status 200 not in [403]
+PASS    FR12-BVA-01  BVA token.exp = T_now - 1s (Token vừa hết hạn trong quá khứ)
+PASS    FR12-BVA-02  BVA token.exp = T_now (Biên thời gian kiểm tra tại thời điểm hiện tại)
+PASS    FR12-BVA-03  BVA token.exp = T_now + 1s (Token còn hiệu lực danh định)
+PASS    FR12-BVA-04  BVA token.exp = 0 (Cực trị Epoch 1970 - Token hết hạn sâu trong quá khứ)
+PASS    FR12-BVA-05  BVA token.exp = 2147483647 (Cực trị Năm 2038 - Max 32-bit timestamp)
+PASS    FR12-BVA-06  BVA param.id = 0 (LB-1 ID không hợp lệ trên API DELETE /api/admin/coupons/0)
+PASS    FR12-BVA-07  BVA param.id = 1 (LB Coupon ID trên API DELETE /api/admin/coupons/1)
+PASS    FR12-BVA-08  BVA param.id = 2 (LB+1 Coupon ID kế tiếp trên API DELETE /api/admin/coupons/2)
+PASS    FR12-BVA-09  BVA param.id = -1 (Cực trị âm ID trên API DELETE /api/admin/coupons/-1)
+PASS    FR12-BVA-10  BVA param.id = 999999999 (Cực trị lớn ID không tồn tại trên DELETE /api/admin/coupons/999999999)
+FAIL    FR12-BVA-11  BVA product.price = 0 (LB giá sản phẩm khi tạo qua POST /api/products không auth)  <- status 200 not in [401]; body missing "Unauthorized"
+FAIL    FR12-BVA-12  BVA product.price = -1 (LB-1 giá âm khi tạo qua POST /api/products không auth)  <- status 200 not in [400,401]
+FAIL    FR12-BVA-13  BVA product.stock = 0 (LB hết hàng khi tạo qua POST /api/products không auth)  <- status 200 not in [401]; body missing "Unauthorized"
+FAIL    FR12-BVA-14  BVA product.name.length = 100 ký tự tiếng Việt có dấu UTF-8 (UB Encoding Boundary)  <- status 200 not in [401]; body missing "Unauthorized"
+
+Summary: Executed 32: PASS 21, FAIL 11, BLOCKED 0.

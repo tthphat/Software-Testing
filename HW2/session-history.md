@@ -342,6 +342,38 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 ---
 
+### 5. FR-12: Access Control (Kiểm soát truy cập) - Hoàn tất Domain Testing, BVA, Test Execution & Defect Triage (Stage 0-5)
+
+- **Domain Testing (Stage 0 - Stage 5)**:
+  - Khảo sát 14 endpoint thuộc nhóm Admin, Categories, Products, Coupons, Users.
+  - Xây dựng 23 lớp tương đương (`EC01` – `EC23`) bao quát phân quyền và xác thực.
+  - Thiết kế 18 test cases (`FR12-DT-01` đến `FR12-DT-18`), độ bao phủ 100%.
+  - Lưu báo cáo tại `HW2/report/FR-12/01-domain-testing.vi.md`.
+  - Audit log: `A16`, `A17`, `A18`.
+- **Boundary Value Analysis (Stage 1 - Stage 4)**:
+  - Chọn 3 miền có thứ tự: `token.exp`, `param.id`, và `product price/stock`.
+  - Áp dụng biến thể 3-value BVA, mô hình 9 điểm, kiểm thử biên mã hóa UTF-8 tiếng Việt có dấu.
+  - Thiết kế 14 test cases (`FR12-BVA-01` đến `FR12-BVA-14`).
+  - Xuất file máy đọc tổng hợp `HW2/testcases/FR-12.json` (32 test cases).
+  - Lưu báo cáo tại `HW2/report/FR-12/02-boundary-value-analysis.vi.md`.
+  - Audit log: `A19`.
+- **Thực thi kiểm thử, Triage lỗi & Báo cáo chính (Stage 1 - Stage 6)**:
+  - Thực thi toàn bộ 32 test cases qua runner: **21 PASS, 11 FAIL, 0 BLOCKED**.
+  - Triage 11 ca thất bại thành 3 lỗi phần mềm gốc rễ:
+    1. `BUG-FR12-01` (Critical, P1): `authenticateToken` thiếu kiểm tra `role === 'admin'`.
+    2. `BUG-FR12-02` (Critical, P1): Nhóm route `POST/PUT/DELETE /api/products` bỏ quên `authenticateToken`.
+    3. `BUG-FR12-03` (High, P2): Lỗ hổng Mass Assignment tại `PUT /api/users/me` cho phép user tự nâng quyền thành admin.
+  - Cập nhật tài liệu tổng hợp lỗi `HW2/report/bugs.vi.md` (nâng lên 12 bugs).
+  - Tạo 3 dự thảo GitHub Issues: `BUG-FR12-01.md`, `BUG-FR12-02.md`, `BUG-FR12-03.md` tại `HW2/report/issues/`.
+  - Tạo báo cáo thực thi và AI Gap Analysis tại `HW2/report/FR-12/03-execution-and-gap-analysis.vi.md`.
+  - Cập nhật nâng cấp kỹ năng v2.2 trong `skills-changelog.md`.
+  - Cập nhật Báo cáo chính `HW2/23120319_HW02_Main_Report.md`: hoàn thiện Mục 3.5 (7 tiểu mục FR-12), cập nhật Mục 3.6 (12 bugs), cập nhật Mục 4 (99 test cases: 52 PASS, 47 FAIL).
+  - Cập nhật `HW2/README.md`: tổng hợp 99 test cases, 12 bugs và đánh dấu hoàn thành checklist cho FR-12.
+  - Audit log: `A20`, `A21`.
+- **Tình trạng hiện tại**: **HOÀN THÀNH TOÀN DIỆN TÍNH NĂNG FR-12 (STAGE 0 ĐẾN STAGE 6). DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW)**.
+
+---
+
 ## File đã tạo/sửa gần nhất
 
 | File | Hành động |
@@ -349,14 +381,24 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 | `HW2/evidence/FR-08/BUG-FR08-01.png` → `07.png` | Tạo mới 7 ảnh minh chứng GitHub Issues (#10 → #16) cho FR-08 |
 | `HW2/evidence/FR-01/test-execution.log` | Tạo mới log thực thi chi tiết 30 ca kiểm thử cho FR-01 |
 | `HW2/evidence/FR-08/test-execution.log` | Nâng cấp log thực thi chi tiết 42 ca kiểm thử cho FR-08 |
-| `HW2/23120319_HW02_Main_Report.md` | Tích hợp hoàn tất FR-08 (Section 3.4), 16 bugs (Section 3.6), 109 TCs (Section 4) |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A22 (FR-08 Main Report Update) |
-| `HW2/session-history.md` | Cập nhật Phiên 18 hoàn tất Stage 6 và tính năng FR-08 |
+| `HW2/report/FR-12/01-domain-testing.vi.md` | Hoàn thành báo cáo Domain Testing (Stage 0 - 5) cho FR-12 |
+| `HW2/report/FR-12/02-boundary-value-analysis.vi.md` | Hoàn thành báo cáo BVA (Stage 1 - 4) cho FR-12 |
+| `HW2/testcases/FR-12.json` | Bộ 32 test cases máy đọc hoàn chỉnh (18 DT + 14 BVA) |
+| `HW2/evidence/FR-12/test-execution.log` | Log thực thi chi tiết 32 test cases (21 PASS, 11 FAIL) |
+| `HW2/report/bugs.vi.md` | Tổng hợp 19 lỗi toàn hệ thống (5 FR-01, 4 FR-03, 7 FR-08, 3 FR-12) |
+| `HW2/report/issues/BUG-FR12-01.md` | Dự thảo GitHub Issue BUG-FR12-01 (Broken Access Control) |
+| `HW2/report/issues/BUG-FR12-02.md` | Dự thảo GitHub Issue BUG-FR12-02 (Missing Auth Products) |
+| `HW2/report/issues/BUG-FR12-03.md` | Dự thảo GitHub Issue BUG-FR12-03 (Mass Assignment Privilege Escalation) |
+| `HW2/report/FR-12/03-execution-and-gap-analysis.vi.md` | Báo cáo thực thi và phân tích khoảng trống AI Gap Analysis |
+| `skills-changelog.md` | Cập nhật nâng cấp kỹ năng v2.2 và v2.3 |
+| `HW2/23120319_HW02_Main_Report.md` | Tổng hợp toàn diện 4 tính năng, 19 bugs, 141 test cases |
+| `HW2/README.md` | Cập nhật bảng tổng kết 141 TCs, 19 bugs, checklist cả 4 tính năng |
+| `HW2/audit/audit-log.jsonl` | Hợp nhất audit log từ A01 đến A28 |
 
 ---
 
-**Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành 100% tính năng FR-08 và đầy đủ toàn bộ Evidence (Logs & Screenshots). Sẵn sàng chuyển sang FR-12.
+**Ngày cập nhật**: 20/10/2026  
+**Phiên hiện tại**: Đã hoàn thành 100% toàn bộ 4 tính năng: FR-01 (Đăng ký tài khoản), FR-03 (Quên/Đặt lại mật khẩu), FR-08 (Checkout & Thanh toán), FR-12 (Kiểm soát truy cập & Phân quyền), đầy đủ 141 ca kiểm thử (68 PASS, 73 FAIL), 19 lỗi phần mềm độc lập, đầy đủ Logs thực thi và Screenshots minh chứng. Hợp nhất nhánh `main` và `FR-12` thành công.
 
 
 
