@@ -117,24 +117,54 @@ Toàn bộ 42 test cases đã được thực thi tự động qua test runner `
 
 ## 4. Phân loại lỗi phần mềm (Defect Triage — Stage 3)
 
-Qua đối chiếu kết quả thực thi và phân tích nguyên nhân gốc trong mã nguồn SUT, toàn bộ **26 ca kiểm thử thất bại** được quy về **6 lỗi phần mềm cốt lõi (Defect Root Causes)**:
+Qua đối chiếu kết quả thực thi và phân tích nguyên nhân gốc trong mã nguồn SUT, toàn bộ **26 ca kiểm thử thất bại** được quy về **7 lỗi phần mềm cốt lõi (Defect Root Causes)**:
 
 ### Bảng phân loại lỗi (Triage Summary Table)
 
 | Mã lỗi | Tiêu đề lỗi (Defect Title) | Các ca kiểm thử bộc lộ | Mức độ nghiêm trọng | Nguyên nhân gốc trong mã nguồn |
 | :--- | :--- | :--- | :---: | :--- |
-| **BUG-FR08-01** | Backend hoàn toàn thiếu validation cho trường `total_amount` (chấp nhận tiền âm, 0đ, chuỗi, boolean, float, null, tràn số int32) | `FR08-DT-06`, `FR08-DT-07`, `FR08-DT-09`, `FR08-DT-10`, `FR08-DT-11`, `FR08-DT-12`, `FR08-DT-13`, `FR08-BVA-01`, `FR08-BVA-02`, `FR08-BVA-07`, `FR08-BVA-08` (11 TCs) | **Critical** | `server.js:299-303`: Backend giải nén trực tiếp `req.body.total_amount` và insert thẳng vào SQLite không kiểm tra giá trị dương hay kiểu dữ liệu. |
-| **BUG-FR08-02** | Lỗ hổng Parameter Tampering: Backend tin tưởng 100% số tiền client gửi lên, không tính lại từ giỏ hàng; Frontend Web cung cấp ô input tự sửa tiền | `FR08-DT-08` (1 TC) | **Critical** | `server.js:299` không tính lại tổng tiền từ `userCarts[userId]` hay bảng `products`; `Checkout.jsx:93-102` cung cấp input editable cho phép user tự gõ giá thanh toán. |
-| **BUG-FR08-03** | Backend hoàn toàn thiếu validation cho `shipping_address`; Frontend Web và Mobile không có ô nhập địa chỉ giao hàng | `FR08-DT-14`, `FR08-DT-15`, `FR08-DT-16`, `FR08-DT-17`, `FR08-DT-18`, `FR08-BVA-09`, `FR08-BVA-10`, `FR08-BVA-16`, `FR08-BVA-17` (9 TCs) | **Major** | `server.js:299` không kiểm tra địa chỉ, chấp nhận chuỗi rỗng và null; Web & Mobile UI hoàn toàn không có form địa chỉ và không gửi field này lên API. |
+| **BUG-FR08-01** | Backend hoàn toàn thiếu validation cho trường `total_amount` (chấp nhận tiền âm, 0đ, chuỗi, boolean, float, null, tràn số int32) | `FR08-DT-06` – `13`, `FR08-BVA-01`, `02`, `07`, `08` (11 TCs) | **Critical** | `server.js:299-303`: Backend giải nén trực tiếp `req.body.total_amount` và insert thẳng vào SQLite không kiểm tra giá trị dương hay kiểu dữ liệu. |
+| **BUG-FR08-02** | Lỗ hổng Parameter Tampering: Backend không tính lại tổng tiền từ giỏ hàng; Frontend Web cung cấp ô input tự sửa tiền | `FR08-DT-08` (1 TC) | **Critical** | `server.js:299` không tính lại tổng tiền từ `userCarts[userId]` hay bảng `products`; `Checkout.jsx:93-102` cung cấp input editable cho phép user tự gõ giá thanh toán. |
+| **BUG-FR08-03** | Backend hoàn toàn thiếu validation cho `shipping_address`; Frontend Web và Mobile không có ô nhập địa chỉ giao hàng | `FR08-DT-14` – `18`, `FR08-BVA-09`, `10`, `16`, `17` (9 TCs) | **Major** | `server.js:299` không kiểm tra địa chỉ, chấp nhận chuỗi rỗng và null; Web & Mobile UI hoàn toàn không có form địa chỉ và không gửi field này lên API. |
 | **BUG-FR08-04** | Backend không kiểm tra trạng thái giỏ hàng khi checkout (Cho phép đặt đơn hàng ma khi giỏ hàng rỗng) | `FR08-DT-19`, `FR08-BVA-18` (2 TCs) | **Major** | `server.js:297-309` không kiểm tra `userCarts[userId]`, cho phép người dùng checkout đơn hàng khi giỏ hoàn toàn rỗng và không xóa giỏ sau khi đặt. |
-| **BUG-FR08-05** | Dị biệt logic nghiêm trọng trên Mobile: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng khi checkout | `FR08-DT-22` (1 TC) | **Critical** | `App.js:391`: Frontend Mobile cố tình thực hiện `items: cart.length > 1 ? cart.slice(0, -1) : cart` làm người dùng bị mất sản phẩm khi đặt hàng. |
+| **BUG-FR08-05** | Dị biệt logic nghiêm trọng trên Mobile: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng khi checkout | `FR08-DT-22`, `FR08-BVA-20` (2 TCs) | **Critical** | `App.js:391`: Frontend Mobile cố tình thực hiện `items: cart.length > 1 ? cart.slice(0, -1) : cart` làm người dùng bị mất sản phẩm khi đặt hàng. |
 | **BUG-FR08-06** | Backend không kiểm tra tồn kho (Overselling Defect) và không lưu chi tiết các mặt hàng trong đơn hàng (`order_items`) | `FR08-DT-20` (1 TC) | **Major** | `server.js:301-308`: Không kiểm tra và giảm trừ cột `stock` trong bảng `products`; cơ sở dữ liệu hoàn toàn không có bảng `order_items`. |
 | **BUG-FR08-07** | Endpoint checkout không kiểm tra tính hợp lệ của mã giảm giá `coupon_id` | `FR08-DT-21` (1 TC) | **Minor** | `server.js:297-309`: Không kiểm tra lại mã coupon đã hết hạn hay không tồn tại mà ghi nhận thanh toán trực tiếp. |
 
 ---
 
-### DỪNG LẠI TẠI CHECKPOINT STAGE 3 CHỜ DUYỆT (STOP FOR REVIEW)
+## 5. Phân tích khoảng trống của AI (AI Gap Analysis — Stage 5)
 
-Theo thỏa thuận làm việc và quy chuẩn kỹ năng `test-execution-and-bugs`:
-- **Stage 1 (Môi trường)**, **Stage 2 (Thực thi 42 test cases)** và **Stage 3 (Phân loại lỗi Triage thành 7 nhóm lỗi gốc)** đã hoàn tất trọn vẹn.
-- Trình sinh viên thẩm định bảng kết quả thực thi, phân loại lỗi và mức độ nghiêm trọng trước khi tiến hành **Stage 4 (Soạn thảo báo cáo chi tiết trong `bugs.vi.md` & các file issue draft)** và **Stage 5 (Phân tích khoảng trống AI Gap Analysis & nâng cấp kỹ năng)**.
+Bảng đối chiếu so sánh toàn diện giữa bộ kiểm thử AI ban đầu thiết kế và các khiếm khuyết thực tế sâu sắc được phát hiện qua quá trình khảo sát mã nguồn SUT và thực thi kiểm thử:
+
+| STT | Mục bị bỏ sót / Thách thức thực tế | Cách phát hiện | Vì sao AI dễ bỏ sót ban đầu | Phân loại nguyên nhân (Assignment Category) | Cải tiến kỹ năng (Skill Fix) |
+| :---: | :--- | :--- | :--- | :--- | :--- |
+| 1 | **Thiên kiến tin tưởng tham số tài chính client (Client-trusted Financial Parameter Bias)** | Khi kiểm tra `server.js:299`, thấy backend lấy thẳng `total_amount` từ body và insert DB, không tính lại từ giỏ hàng | AI theo quán tính coi các tham số trong Request Body là độc lập, không tự động kích hoạt nguyên tắc "Toàn vẹn giao dịch tài chính": số tiền phải luôn được tính lại ở phía server dựa trên giỏ hàng và bảng giá niêm yết | **Inherent feature complexity** & **Tool limitation** | Bổ sung **Financial Transaction Integrity Rule** (v2.2): Mọi tham số tiền bạc, giá cả gửi từ Client đều phải coi là không đáng tin cậy (Untrusted Input); server bắt buộc phải tính toán độc lập. |
+| 2 | **Lỗ hổng giao diện cho phép sửa dữ liệu chỉ đọc (Frontend UI Input Defect)** | Đọc mã nguồn `Checkout.jsx:93-102` phát hiện ô input `type="number"` có gán `onChange` vào `setEditableTotal` | AI khi chỉ tập trung kiểm thử API sẽ có "điểm mù" về giao diện người dùng: không biết Web UI đang mở cho phép user tự ý sửa giá trị số tiền thay vì khóa `readOnly` | **Tool limitation** | Mở rộng quy tắc **Cross-Platform Inspection**: Khi kiểm thử tính năng liên quan đến dữ liệu nhạy cảm, phải kiểm tra các thuộc tính form (`readOnly`, `disabled`, `type`) trên cả Web và Mobile. |
+| 3 | **Thiếu thực thể cốt lõi trong DB (`order_items`) & Bán vượt tồn kho (Overselling)** | Khảo sát `database.js:74-81` và `server.js:301` thấy bảng `orders` không có khóa ngoại nối với sản phẩm và không có lệnh trừ `stock` | Tài liệu đặc tả `api_specification.md` chỉ mô tả endpoint `checkout` với input cơ bản, không mô tả lược đồ CSDL; AI nếu chỉ bám theo spec sẽ bỏ qua việc xác minh dữ liệu chi tiết đơn hàng và tồn kho | **Prompt/input quality** & **Inherent feature complexity** | Bổ sung **Database Schema & Inventory Lifecycle Checklist**: Luôn đối chiếu cấu trúc bảng DB để xác nhận đơn hàng có lưu chi tiết món hàng (`order_items`) và có trừ tồn kho tương tranh hay không. |
+| 4 | **Dị biệt mã nguồn cố ý làm sai lệch dữ liệu (`cart.slice(0, -1)`)** | Đọc mã nguồn `App.js:391` trên Mobile phát hiện lệnh cắt bỏ sản phẩm cuối cùng của giỏ hàng | Lỗi này không phải do lập trình viên vô tình viết nhầm điều kiện biên, mà là một dòng code cố tình can thiệp làm biến dạng giỏ hàng; AI thông thường chỉ tìm lỗi vô tình (off-by-one, thiếu check null) | **Inherent feature complexity** | Tích hợp **Client-Side Data Mutation Inspection**: Rà soát các thao tác biến đổi mảng/object (`slice`, `pop`, `filter`) trên client trước khi payload được đóng gói gửi qua mạng. |
+
+---
+
+## 6. Danh mục bản thảo GitHub Issues (Stage 4)
+
+Toàn bộ 7 lỗi phần mềm của FR-08 đã được soạn thảo thành các bản thảo GitHub Issues chi tiết theo chuẩn mẫu báo cáo lỗi:
+
+1. **[BUG-FR08-01.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-01.md)**: Backend hoàn toàn thiếu validation cho trường `total_amount` khi checkout *(Severity: Critical)*.
+2. **[BUG-FR08-02.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-02.md)**: Lỗ hổng Parameter Tampering: Backend không tính lại tổng tiền từ giỏ hàng, Web cho phép user tự sửa giá *(Severity: Critical)*.
+3. **[BUG-FR08-03.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-03.md)**: Backend thiếu validation `shipping_address`; Web và Mobile không có ô nhập địa chỉ *(Severity: Major)*.
+4. **[BUG-FR08-04.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-04.md)**: Cho phép đặt hàng khi giỏ hàng rỗng và không xóa giỏ hàng sau khi checkout *(Severity: Major)*.
+5. **[BUG-FR08-05.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-05.md)**: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng khi checkout (`cart.slice(0, -1)`) *(Severity: Critical)*.
+6. **[BUG-FR08-06.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-06.md)**: Không kiểm tra số lượng tồn kho (Overselling) và DB không lưu chi tiết các mặt hàng (`order_items`) *(Severity: Major)*.
+7. **[BUG-FR08-07.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-07.md)**: Endpoint checkout không xác thực tính hợp lệ của mã giảm giá `coupon_id` *(Severity: Minor)*.
+
+*Tài liệu tổng hợp lỗi toàn hệ thống đã được đồng bộ tại:* [HW2/report/bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md).
+
+---
+
+### DỪNG LẠI TẠI CHECKPOINT STAGE 5 CHỜ DUYỆT (STOP FOR REVIEW)
+
+Theo quy định kiểm soát chất lượng của môn học:
+- **Stage 1 (Môi trường)**, **Stage 2 (Thực thi 42 test cases)**, **Stage 3 (Triage)**, **Stage 4 (Báo cáo lỗi & GitHub Issues)** và **Stage 5 (AI Gap Analysis & Nâng cấp kỹ năng v2.2)** đã hoàn tất trọn vẹn.
+- Toàn bộ 42 ca kiểm thử đã thực thi (16 PASS, 26 FAIL), 7 lỗi phần mềm nghiêm trọng đã được lập hồ sơ chi tiết.
+- Trình sinh viên thẩm định trước khi chuyển sang **Stage 6 (Cập nhật số liệu tổng hợp vào README.md và Main Report)**.

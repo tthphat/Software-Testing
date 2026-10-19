@@ -275,11 +275,35 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 ---
 
+## Phiên 17: Báo cáo lỗi (Stage 4) và Phân tích khoảng trống AI Gap Analysis (Stage 5) cho FR-08 (Checkout)
+
+- **Tính năng**: **FR-08 — Checkout (Thanh toán & Đặt hàng — Pool B)**
+- **Kỹ thuật**: `test-execution-and-bugs` (Stage 4, Stage 5)
+- **Hoạt động thực hiện**:
+  - **Stage 4 (Bug Reports & GitHub Issues)**:
+    - Bổ sung 7 lỗi phần mềm (`BUG-FR08-01` đến `BUG-FR08-07`) vào báo cáo tổng hợp `HW2/report/bugs.vi.md`.
+    - Tạo 7 bản thảo GitHub Issues hoàn chỉnh trong `HW2/report/issues/`:
+      - `BUG-FR08-01.md`: Backend thiếu validation `total_amount` (Critical).
+      - `BUG-FR08-02.md`: Lỗ hổng Parameter Tampering, Web cho phép sửa giá tiền (Critical).
+      - `BUG-FR08-03.md`: Backend thiếu validation `shipping_address`, Web/Mobile thiếu trường địa chỉ (Major).
+      - `BUG-FR08-04.md`: Checkout khi giỏ hàng rỗng và không dọn giỏ sau đặt hàng (Major).
+      - `BUG-FR08-05.md`: Mobile tự ý cắt xén sản phẩm cuối cùng `cart.slice(0, -1)` (Critical).
+      - `BUG-FR08-06.md`: Không kiểm tra tồn kho Overselling và DB thiếu bảng `order_items` (Major).
+      - `BUG-FR08-07.md`: Không kiểm tra tính hợp lệ của coupon khi checkout (Minor).
+  - **Stage 5 (AI Gap Analysis & Nâng cấp kỹ năng v2.2)**:
+    - Phân tích 4 khoảng trống AI lớn đối chiếu với 3 phân loại bắt buộc của đề bài (Prompt/input quality, Tool limitation, Inherent feature complexity).
+    - Cập nhật nâng cấp bộ kỹ năng lên **v2.2** trong `skills-changelog.md`: Quy tắc toàn vẹn giao dịch tài chính (Financial Transaction Integrity Rule), Kiểm tra thuộc tính input form client nhạy cảm (Cross-Platform Inspection), và Checklist đối chiếu CSDL chi tiết (Database Schema Checklist).
+    - Hoàn thiện tài liệu `HW2/report/FR-08/03-execution-and-gap-analysis.vi.md`.
+- **Audit Log**: Thêm entry `A21` vào `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: **DỪNG LẠI TẠI CHECKPOINT STAGE 5 CHỜ DUYỆT (STOP FOR REVIEW)**.
+
+---
+
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định bảng kết quả thực thi và phân loại 7 lỗi phần mềm của FR-08.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 test execution and triage stage 1-3`.
-3. Sau khi được duyệt, chuyển sang **Stage 4 (Soạn thảo báo cáo lỗi bugs.vi.md & tạo các issue draft trong HW2/report/issues/)** và **Stage 5 (Phân tích khoảng trống AI Gap Analysis & nâng cấp kỹ năng v2.2)** cho FR-08 -> DỪNG LẠI CHỜ DUYỆT.
+1. Sinh viên thẩm định bộ 7 báo cáo lỗi GitHub Issues và bảng AI Gap Analysis Stage 4-5 của FR-08.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 bug reports and AI gap analysis stage 4-5`.
+3. Sau khi được duyệt, chuyển sang **Stage 6 (Thực thi script summary.mjs, cập nhật bảng số liệu tổng kết vào README.md và cập nhật báo cáo chính 23120319_HW02_Main_Report.md)**.
 
 ---
 
@@ -296,16 +320,17 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/evidence/FR-08/test-execution.log` | Lưu log kết quả thực thi 42 test cases |
-| `HW2/testcases/FR-08.json` | Cập nhật kết quả thực thi (16 PASS, 26 FAIL, 0 BLOCKED) |
-| `HW2/report/FR-08/03-execution-and-gap-analysis.vi.md` | Tạo báo cáo thực thi và phân loại lỗi Triage Stage 1-3 |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A20 (FR-08 Test Execution Stage 1-3) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 1-3 cho FR-08 |
+| `HW2/report/issues/BUG-FR08-01.md` đến `BUG-FR08-07.md` | Tạo mới 7 bản thảo GitHub Issues cho FR-08 |
+| `HW2/report/bugs.vi.md` | Bổ sung 7 lỗi phần mềm của FR-08 vào báo cáo tổng hợp |
+| `skills-changelog.md` | Nâng cấp bộ kỹ năng lên v2.2 (Financial Integrity & DB Checklist) |
+| `HW2/report/FR-08/03-execution-and-gap-analysis.vi.md` | Bổ sung Stage 4 & Stage 5 hoàn chỉnh |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A21 (FR-08 Stage 4-5) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 4-5 cho FR-08 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành Test Execution & Triage Stage 1-3 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+**Phiên hiện tại**: Đã hoàn thành Stage 4-5 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
 
 
 

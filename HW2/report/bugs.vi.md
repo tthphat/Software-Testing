@@ -17,6 +17,13 @@ Tài liệu này tổng hợp toàn bộ các khiếm khuyết phần mềm (bug
 | **BUG-FR03-02** | Backend hoàn toàn không kiểm tra tính hợp lệ và độ phức tạp của `newPassword` trên `POST /api/reset-password` | FR-03 | FR03-DT-16..22, FR03-BVA-01, 02, 08, 09 | **Critical** | **High** | Confirmed (Đã xác minh qua code & API) |
 | **BUG-FR03-03** | Mã đặt lại mật khẩu không có thời hạn hết hạn (Token never expires do thiếu trường thời gian trong DB) | FR-03 | Code analysis database.js:58 & server.js | **Major** | **Medium** | Confirmed (Đã xác minh qua code) |
 | **BUG-FR03-04** | Endpoint `POST /api/forgot-password` trả về HTTP 404 Not Found thay vì HTTP 400 Bad Request khi email không hợp lệ | FR-03 | FR03-DT-03..07 | **Minor** | **Low** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR08-01** | Backend hoàn toàn thiếu validation cho trường `total_amount` (chấp nhận tiền âm, 0đ, chuỗi, boolean, float, null, tràn số int32) | FR-08 | FR08-DT-06..13, FR08-BVA-01, 02, 07, 08 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR08-02** | Lỗ hổng Parameter Tampering: Backend không tính lại tổng tiền từ giỏ hàng; Frontend Web cung cấp ô input tự sửa tiền thanh toán | FR-08 | FR08-DT-08 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR08-03** | Backend thiếu validation `shipping_address`; Frontend Web và Mobile không có ô nhập địa chỉ giao hàng | FR-08 | FR08-DT-14..18, FR08-BVA-09, 10, 16, 17 | **Major** | **High** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR08-04** | Backend không kiểm tra trạng thái giỏ hàng khi checkout (Cho phép đặt đơn hàng ma khi giỏ rỗng `cart = []`) | FR-08 | FR08-DT-19, FR08-BVA-18 | **Major** | **High** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR08-05** | Dị biệt logic nghiêm trọng trên Mobile: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng khi checkout (`cart.slice(0, -1)`) | FR-08 | FR08-DT-22, FR08-BVA-20 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR08-06** | Backend không kiểm tra tồn kho (Overselling Defect) và không lưu chi tiết các mặt hàng trong đơn hàng (`order_items`) | FR-08 | FR08-DT-20 | **Major** | **High** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR08-07** | Endpoint checkout không kiểm tra tính hợp lệ của mã giảm giá `coupon_id` | FR-08 | FR08-DT-21 | **Minor** | **Medium** | Confirmed (Đã xác minh qua code & API) |
 
 ---
 
@@ -448,3 +455,260 @@ Content-Type: application/json; charset=utf-8
   ```
   Thiếu bước kiểm tra định dạng và tính bắt buộc: `if (!email || typeof email !== 'string' || !isValidEmail(email)) return res.status(400)...` trước khi truy vấn database.
 
+---
+
+### BUG-FR08-01: Backend hoàn toàn thiếu validation cho trường `total_amount` khi checkout
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-08 – Đặt hàng và Thanh toán (Checkout) |
+| **Test cases liên quan** | `FR08-DT-06` đến `FR08-DT-13`, `FR08-BVA-01`, `02`, `07`, `08` (11 test cases) |
+| **Mức độ (Severity)** | **Critical** (Lỗ hổng xử lý số tiền / Tiền âm / Tràn số nguyên) |
+| **Độ ưu tiên (Priority)** | **Immediate** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Windows 11, Node.js v20.x, SQLite3, Base URL `http://localhost:3000` |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+Khi người dùng gửi yêu cầu đặt hàng qua endpoint `POST /api/checkout`, máy chủ Backend hoàn toàn không kiểm tra tính hợp lệ của trường `total_amount`. Hệ thống chấp nhận bất kỳ giá trị bất thường nào: số tiền âm (`-50,000` VNĐ làm đảo chiều dòng tiền), số tiền bằng `0` VNĐ (mua hàng miễn phí trái phép), chuỗi (`"free"`), kiểu boolean (`true`), giá trị `null`, số thực không nguyên (`199999.5`), hoặc các số cực lớn gây tràn số nguyên 32-bit trong SQLite (`2,147,483,648`). Mọi request sai trái trên đều được Backend ghi vào cơ sở dữ liệu và trả về `HTTP 200 OK` thay vì từ chối bằng `HTTP 400 Bad Request`.
+
+#### 2. Request / Response thực tế từ Test Runner (`FR08-DT-07` - Số tiền âm)
+```http
+POST /api/checkout HTTP/1.1
+Authorization: Bearer <valid_token>
+Content-Type: application/json
+
+{
+  "total_amount": -50000,
+  "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "Checkout successful",
+  "orderId": 4
+}
+```
+
+#### 3. Kết quả mong đợi vs Kết quả thực tế
+- **Kết quả mong đợi:** HTTP 400 Bad Request, từ chối giao dịch.
+- **Kết quả thực tế:** HTTP 200 OK, đơn hàng tạo thành công với `total_amount = -50000`.
+
+#### 4. Phân tích nguyên nhân
+Tại `eshop-sut/backend/server.js:299-304`:
+```javascript
+const { total_amount, shipping_address } = req.body;
+db.run(
+  "INSERT INTO orders (user_id, total_amount, status, shipping_address) VALUES (?, ?, ?, ?)",
+  [userId, total_amount, "pending", shipping_address],
+  ...
+);
+```
+Thiếu câu lệnh kiểm tra: `if (typeof total_amount !== 'number' || total_amount <= 0 || !Number.isInteger(total_amount)) return res.status(400)...`
+
+---
+
+### BUG-FR08-02: Lỗ hổng Parameter Tampering: Backend không tính lại tổng tiền từ giỏ hàng, Web cho phép user tự sửa giá
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-08 – Đặt hàng và Thanh toán (Checkout) |
+| **Test cases liên quan** | `FR08-DT-08` (1 test case) |
+| **Mức độ (Severity)** | **Critical** (Price Manipulation / Parameter Tampering) |
+| **Độ ưu tiên (Priority)** | **Immediate** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Web UI `Checkout.jsx`, Backend `server.js` |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+1. **Phía Backend (`server.js:299`):** Khi người dùng gọi `POST /api/checkout`, máy chủ tin tưởng 100% giá trị `total_amount` gửi lên từ client mà không truy vấn lại giỏ hàng của người dùng (`userCarts[userId]`) hay bảng `products` để tính lại tổng tiền thực tế.
+2. **Phía Frontend Web (`Checkout.jsx:93-102`):** Trên giao diện thanh toán, ô hiển thị tổng tiền lại là một thẻ `<input type="number">` ở trạng thái mở cho phép sửa tự do (`editableTotal`). Người dùng có thể tự xóa số tiền 200,000 VNĐ và gõ 1,000 VNĐ rồi bấm thanh toán thành công.
+
+#### 2. Request / Response thực tế từ Test Runner (`FR08-DT-08`)
+```http
+POST /api/checkout HTTP/1.1
+Authorization: Bearer <valid_token>
+Content-Type: application/json
+
+{
+  "total_amount": 10000,
+  "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "Checkout successful",
+  "orderId": 5
+}
+```
+
+#### 3. Kết quả mong đợi vs Kết quả thực tế
+- **Kết quả mong đợi:** HTTP 400 Bad Request ("Số tiền không khớp với giỏ hàng").
+- **Kết quả thực tế:** HTTP 200 OK, đơn hàng tạo với giá trị bị sửa đổi 10,000 VNĐ.
+
+#### 4. Phân tích nguyên nhân
+Backend không tự động tính tổng tiền từ giỏ hàng: $\text{ExpectedTotal} = \sum (\text{item.price} \times \text{item.quantity}) - \text{Discount}$. Ô input trên Web UI không có thuộc tính `readOnly`.
+
+---
+
+### BUG-FR08-03: Backend thiếu validation `shipping_address`; Web và Mobile không có ô nhập địa chỉ
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-08 – Đặt hàng và Thanh toán (Checkout) |
+| **Test cases liên quan** | `FR08-DT-14` đến `18`, `FR08-BVA-09`, `10`, `16`, `17` (9 test cases) |
+| **Mức độ (Severity)** | **Major** (Missing Required Field / Cross-Platform Spec Mismatch) |
+| **Độ ưu tiên (Priority)** | **High** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Web UI, Mobile App, Backend API |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+1. **Tại Backend (`server.js:299`):** Trường `shipping_address` là thông tin bắt buộc để giao hàng. Backend không kiểm tra trường này, chấp nhận chuỗi rỗng `""`, khoảng trắng `"   "`, sai kiểu (Number `12345`), và chuỗi payload siêu lớn (10,000 ký tự DoS). Khi client không gửi trường này, máy chủ lưu `NULL` vào DB và trả về HTTP 200 OK.
+2. **Tại Web & Mobile:** Giao diện Web (`Checkout.jsx`) và ứng dụng Mobile (`App.js`) hoàn toàn không có ô nhập địa chỉ cho người dùng và không gửi field này lên API, khiến 100% đơn hàng thực tế đều bị `NULL` địa chỉ giao hàng.
+
+#### 2. Request / Response thực tế từ Test Runner (`FR08-DT-16` - Thiếu field)
+```http
+POST /api/checkout HTTP/1.1
+Authorization: Bearer <valid_token>
+Content-Type: application/json
+
+{
+  "total_amount": 200000
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "Checkout successful",
+  "orderId": 13
+}
+```
+
+#### 3. Kết quả mong đợi vs Kết quả thực tế
+- **Kết quả mong đợi:** HTTP 400 Bad Request ("Địa chỉ giao hàng không được để trống").
+- **Kết quả thực tế:** HTTP 200 OK, đơn hàng tạo với `shipping_address = NULL`.
+
+---
+
+### BUG-FR08-04: Backend không kiểm tra giỏ hàng khi checkout (Cho phép đặt đơn hàng ma khi giỏ rỗng)
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-08 – Đặt hàng và Thanh toán (Checkout) |
+| **Test cases liên quan** | `FR08-DT-19`, `FR08-BVA-18` (2 test cases) |
+| **Mức độ (Severity)** | **Major** (Business Logic Defect / Cart Lifecycle) |
+| **Độ ưu tiên (Priority)** | **High** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Backend API `server.js` |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+1. **Đặt đơn hàng ma:** Backend không kiểm tra xem giỏ hàng của người dùng (`userCarts[userId]`) có sản phẩm nào không. Một user vừa tạo tài khoản, giỏ rỗng 0 món, vẫn có thể gọi API checkout tạo đơn hàng thành công.
+2. **Không dọn giỏ hàng:** Sau khi checkout thành công, backend không xóa `userCarts[userId]`, và Frontend Web cũng không gọi `clearCart()`, khiến các món đã mua vẫn nằm lại trong giỏ hàng.
+
+#### 2. Request / Response thực tế từ Test Runner (`FR08-DT-19`)
+```http
+POST /api/checkout HTTP/1.1
+Authorization: Bearer <valid_token>
+Content-Type: application/json
+
+{
+  "total_amount": 200000,
+  "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "Checkout successful",
+  "orderId": 16
+}
+```
+
+#### 3. Kết quả mong đợi vs Kết quả thực tế
+- **Kết quả mong đợi:** HTTP 400 Bad Request ("Giỏ hàng rỗng, không thể thanh toán").
+- **Kết quả thực tế:** HTTP 200 OK, đơn hàng ma được tạo trong DB.
+
+---
+
+### BUG-FR08-05: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng khi checkout (`cart.slice(0, -1)`)
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-08 – Đặt hàng và Thanh toán (Checkout) |
+| **Test cases liên quan** | `FR08-DT-22`, `FR08-BVA-20` (2 test cases) |
+| **Mức độ (Severity)** | **Critical** (Client-side Data Tampering Defect) |
+| **Độ ưu tiên (Priority)** | **Immediate** |
+| **Khả năng tái hiện** | Luôn luôn (100% trên Mobile) |
+| **Môi trường** | Frontend Mobile `App.js:391` |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+Trên ứng dụng di động Mobile (`eshop-sut/frontend-mobile/App.js:391`), trong hàm `handleCheckout`, mã nguồn tồn tại logic cố ý cắt bỏ phần tử cuối cùng của mảng giỏ hàng:
+```javascript
+items: cart.length > 1 ? cart.slice(0, -1) : cart
+```
+Khi khách hàng mua từ 2 sản phẩm trở lên, sản phẩm cuối cùng sẽ bị loại bỏ khỏi danh sách gửi lên máy chủ. Khách hàng trả tiền cả 2 sản phẩm nhưng chỉ nhận được 1 sản phẩm.
+
+#### 2. Phân tích code
+Tại `App.js:384-395`:
+```javascript
+await fetch(`${API_URL}/checkout`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+  body: JSON.stringify({
+    items: cart.length > 1 ? cart.slice(0, -1) : cart,
+    total_amount: finalAmount,
+    coupon_id: couponResult?.coupon_id || null,
+  }),
+});
+```
+
+#### 3. Kết quả mong đợi vs Kết quả thực tế
+- **Kết quả mong đợi:** Gửi nguyên vẹn mảng `items: cart`.
+- **Kết quả thực tế:** Bị cắt bớt sản phẩm cuối cùng do `cart.slice(0, -1)`.
+
+---
+
+### BUG-FR08-06: Backend không kiểm tra tồn kho (Overselling Defect) và DB không lưu chi tiết đơn hàng (`order_items`)
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-08 – Đặt hàng và Thanh toán (Checkout) |
+| **Test cases liên quan** | `FR08-DT-20` (1 test case) |
+| **Mức độ (Severity)** | **Major** (Inventory Integrity & Architectural Defect) |
+| **Độ ưu tiên (Priority)** | **High** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Backend `server.js`, Database `database.js` |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+1. **Lỗi bán vượt tồn kho (Overselling):** Backend không kiểm tra số lượng tồn kho `product.stock` trong DB. Người dùng đặt số lượng lớn hơn tồn kho vẫn được phê duyệt và tồn kho không bị giảm trừ.
+2. **Thiếu bảng `order_items`:** Cơ sở dữ liệu SQLite chỉ có bảng `orders`, hoàn toàn không có bảng hay cột nào lưu danh sách các sản phẩm của đơn hàng. Cả khách hàng và người quản trị đều không thể biết đơn hàng gồm những món nào.
+
+#### 2. Phân tích code
+Tại `server.js:301-308`: Chỉ có lệnh `INSERT INTO orders` với tổng tiền, không có `UPDATE products SET stock = stock - ?` và không lưu chi tiết món hàng.
+
+---
+
+### BUG-FR08-07: Endpoint checkout không kiểm tra tính hợp lệ của mã giảm giá `coupon_id`
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-08 – Đặt hàng và Thanh toán (Checkout) |
+| **Test cases liên quan** | `FR08-DT-21` (1 test case) |
+| **Mức độ (Severity)** | **Minor** (Business Logic Defect) |
+| **Độ ưu tiên (Priority)** | **Medium** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Backend `server.js` |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+Endpoint `POST /api/checkout` nhận trường `coupon_id` nhưng không kiểm tra lại trong bảng `coupons` xem mã coupon có tồn tại, còn hạn sử dụng, hoặc vượt số lượt dùng tối đa hay không. Kẻ gian có thể áp dụng mã tùy ý hoặc giảm giá bất hợp pháp mà máy chủ không xác thực đối chiếu.

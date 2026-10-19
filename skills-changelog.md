@@ -12,6 +12,7 @@ Tài liệu này ghi nhận quá trình cải tiến và tiến hóa của các 
 | **v1.1** | 2026-10-17 | `domain-testing` (Stage 1) | **FR-01 (Account Registration)** | Bổ sung cột **"Domain Value & Constraints"** vào Bảng biến Input/Output/State; làm căn cứ chặt chẽ cho Stage 2 phân hoạch lớp tương đương |
 | **v2.0** | 2026-10-18 | `domain-testing`, `boundary-value-analysis`, `test-execution-and-bugs` | **FR-01 (Account Registration)** | Bổ sung kiểm tra lệch pha đa nền tảng (Web vs Mobile vs Backend), kiểm tra Unicode UTF-8 tiếng Việt, và nguyên tắc Zero-Trust SUT |
 | **v2.1** | 2026-10-19 | `test-execution-and-bugs`, `domain-testing` | **FR-03 (Forgot & Reset Password)** | Bổ sung cơ chế Dynamic Setup Hook cho tính năng stateful, kiểm tra rò rỉ dữ liệu nhạy cảm trong response (CWE-200), và checklist biến trạng thái thời gian (Token Expiration) |
+| **v2.2** | 2026-10-19 | `domain-testing`, `boundary-value-analysis`, `test-execution-and-bugs` | **FR-08 (Checkout)** | Bổ sung quy tắc toàn vẹn giao dịch tài chính (Financial Transaction Integrity Rule), kiểm tra thuộc tính input form client nhạy cảm, và checklist đối chiếu CSDL chi tiết (Database Schema Checklist) |
 
 ---
 
@@ -78,10 +79,33 @@ Tài liệu này ghi nhận quá trình cải tiến và tiến hóa của các 
 
 ---
 
+### 2.4. Nâng cấp v2.2 (2026-10-19): AI Gap Analysis sau khi thực thi kiểm thử và báo cáo lỗi FR-08 (Checkout)
+
+#### Gap 1: Thiên kiến tin tưởng tham số tài chính từ Client (Client-trusted Financial Parameter Bias)
+- **Vấn đề phát hiện:** Khi kiểm tra endpoint `POST /api/checkout`, Backend lấy thẳng giá trị `req.body.total_amount` do Client gửi lên và lưu trực tiếp vào cơ sở dữ liệu. AI thông thường coi `total_amount` như một biến đầu vào độc lập, không tự động nhận thức rằng: trong bất kỳ hệ thống giao dịch thương mại nào, **Client tuyệt đối không được phép quyết định giá tiền**. Máy chủ bắt buộc phải tính toán lại tổng tiền từ danh sách sản phẩm trong giỏ hàng và đơn giá niêm yết trong DB.
+- **Phân loại nguyên nhân:** `Inherent feature complexity` & `Tool limitation`.
+- **Cải tiến cụ thể trong Skill v2.2:**
+  - Bổ sung vào `domain-testing` và `test-execution-and-bugs`: **Quy tắc toàn vẹn giao dịch tài chính (Financial Transaction Integrity Rule)**:
+    Mọi tham số liên quan đến số tiền, đơn giá, chiết khấu gửi từ Client đều phải coi là dữ liệu không an toàn (Untrusted Input). Khi thiết kế kiểm thử miền, bắt buộc phải có ca kiểm thử **Thao túng tham số giá (Parameter Tampering)**: gửi số tiền thanh toán sai lệch so với giá trị giỏ hàng để phát hiện lỗ hổng này.
+
+#### Gap 2: Điểm mù giao diện người dùng đối với các trường chỉ đọc (Frontend UI Input Defect)
+- **Vấn đề phát hiện:** Trên giao diện Web (`Checkout.jsx:93-102`), ô hiển thị tổng tiền lại là một thẻ input `type="number"` có thể tự do gõ sửa (`editableTotal`). Nếu AI chỉ kiểm thử qua HTTP API Runner, AI sẽ không bao giờ phát hiện được khiếm khuyết giao diện nghiêm trọng này.
+- **Phân loại nguyên nhân:** `Tool limitation` (Kiểm thử API không bao quát được hành vi component UI).
+- **Cải tiến cụ thể trong Skill v2.2:**
+  - Mở rộng quy tắc **Cross-Platform Inspection**: Khi khảo sát mã nguồn client (Web JSX / Mobile), phải kiểm tra kỹ thuộc tính của các ô nhập liệu liên quan đến dữ liệu nhạy cảm (tổng tiền, mã ID, trạng thái). Nếu không có thuộc tính `readOnly` hoặc `disabled`, phải ghi nhận ngay khiếm khuyết UI Defect.
+
+#### Gap 3: Bỏ sót thực thể quan hệ kiến trúc CSDL (`order_items`) & Bán vượt tồn kho
+- **Vấn đề phát hiện:** Do tài liệu đặc tả `api_specification.md` chỉ mô tả endpoint `checkout` với body `{ total_amount, shipping_address }`, AI ban đầu bỏ qua việc kiểm tra xem đơn hàng có lưu danh sách sản phẩm đã mua hay không. Kiểm tra CSDL thực tế cho thấy bảng `orders` hoàn toàn không có bảng nối `order_items`, và backend không trừ số lượng `stock`.
+- **Phân loại nguyên nhân:** `Prompt/input quality` & `Inherent feature complexity`.
+- **Cải tiến cụ thể trong Skill v2.2:**
+  - Bổ sung vào `domain-testing` (Stage 0): **Checklist kiểm tra CSDL chi tiết (Database Schema & Inventory Lifecycle Checklist)**: Bắt buộc đối chiếu cấu trúc bảng SQLite để xác minh xem hệ thống có lưu chi tiết quan hệ thực thể (One-to-Many giữa `orders` và `order_items`) và có cơ chế kiểm soát tồn kho chống Overselling hay không.
+
+---
+
 ## 3. Kế hoạch áp dụng tiếp theo
 
-Các nâng cấp v1.1, v2.0 và v2.1 sẽ tiếp tục được áp dụng nhất quán cho các tính năng tiếp theo (FR-08 Checkout, Cart) để:
+Các nâng cấp v1.1, v2.0, v2.1 và v2.2 sẽ tiếp tục được áp dụng nhất quán cho các tính năng tiếp theo để:
 1. Xác định chuẩn xác miền giá trị và ràng buộc ngay từ Stage 1.
-2. Xử lý chuẩn xác các luồng kiểm thử phụ thuộc trạng thái phức tạp (Stateful workflows như Giỏ hàng -> Đặt hàng).
-3. Chủ động phát hiện các lỗ hổng an ninh thông tin và các biến trạng thái ngầm.
+2. Xử lý chuẩn xác các luồng kiểm thử phụ thuộc trạng thái phức tạp (Stateful workflows).
+3. Đảm bảo toàn vẹn dữ liệu giao dịch tài chính, kiểm soát tồn kho và phát hiện các dị biệt đa nền tảng.
 
