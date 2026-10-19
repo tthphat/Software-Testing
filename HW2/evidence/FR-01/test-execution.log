@@ -1,0 +1,448 @@
+================================================================================
+EShop SUT Test Execution Log: FR-01 (Account Registration)
+Environment: http://localhost:3000
+Executed at: 2026-10-19T16:30:37.213Z
+Total Cases: 30 | PASS: 10 | FAIL: 20 | BLOCKED: 0
+================================================================================
+
+[CLI RUNNER OUTPUT]
+PASS   FR01-DT-01   Đăng ký thành công với tất cả dữ liệu hợp lệ
+FAIL   FR01-DT-02   Đăng ký không thành công khi name là chuỗi rỗng  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-03   Đăng ký không thành công khi thiếu trường name  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-04   Đăng ký không thành công khi name sai kiểu dữ liệu (số nguyên)  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-05   Đăng ký không thành công khi email sai định dạng (thiếu @)  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-06   Đăng ký không thành công khi email là chuỗi rỗng  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-07   Đăng ký không thành công khi thiếu trường email  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-08   Đăng ký không thành công khi email sai kiểu dữ liệu (boolean)  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-09   Đăng ký không thành công khi mật khẩu quá ngắn (< 8 ký tự)  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-10   Đăng ký không thành công khi mật khẩu thiếu chữ in hoa  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-11   Đăng ký không thành công khi mật khẩu thiếu chữ in thường  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-12   Đăng ký không thành công khi mật khẩu thiếu chữ số  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-13   Đăng ký không thành công khi mật khẩu thiếu ký tự đặc biệt  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-14   Đăng ký không thành công khi mật khẩu là chuỗi rỗng  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-15   Đăng ký không thành công khi thiếu trường password  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-DT-16   Đăng ký không thành công khi email đã tồn tại trong hệ thống (Duplicate)  <- status 200 not in [400,409]; body must not contain "User registered successfully"
+PASS   FR01-BVA-01  BVA: Đăng ký với name độ dài tối thiểu 1 ký tự (LB)
+PASS   FR01-BVA-02  BVA: Đăng ký với name độ dài 2 ký tự (LB+1)
+PASS   FR01-BVA-03  BVA: Đăng ký với name độ dài 99 ký tự (UB-1)
+PASS   FR01-BVA-04  BVA: Đăng ký với name độ dài 100 ký tự (UB)
+FAIL   FR01-BVA-05  BVA: Đăng ký với name độ dài 101 ký tự vượt giới hạn (UB+1)  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-BVA-06  BVA: Đăng ký với name cực lớn 1.000 ký tự (Extreme)  <- status 200 not in [400,413,422]; body must not contain "User registered successfully"
+FAIL   FR01-BVA-07  BVA: Đăng ký với password 7 ký tự dưới ngưỡng tối thiểu (LB-1)  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+PASS   FR01-BVA-08  BVA: Đăng ký với password đúng 8 ký tự đủ điều kiện (LB)
+PASS   FR01-BVA-09  BVA: Đăng ký với password 9 ký tự sát biên trong (LB+1)
+PASS   FR01-BVA-10  BVA: Đăng ký với password dài 127 ký tự (UB-1)
+PASS   FR01-BVA-11  BVA: Đăng ký với password dài đúng 128 ký tự (UB)
+FAIL   FR01-BVA-12  BVA: Đăng ký với password 129 ký tự vượt giới hạn (UB+1)  <- status 200 not in [400,422]; body must not contain "User registered successfully"
+FAIL   FR01-BVA-13  BVA: Đăng ký với password cực dài 1.000 ký tự (Extreme DoS Hash test)  <- status 200 not in [400,413,422]; body must not contain "User registered successfully"
+PASS   FR01-BVA-14  BVA: Đăng ký với name tiếng Việt có dấu đúng 100 ký tự (Biên UTF-8)
+
+Executed 30: PASS 10, FAIL 20, BLOCKED 0. Results written to HW2/testcases/FR-01.json
+
+================================================================================
+DETAILED EXECUTION TRACE (30 TEST CASES)
+================================================================================
+
+[PASS] FR01-DT-01
+Title: Đăng ký thành công với tất cả dữ liệu hợp lệ
+Technique: DT | Covers: [EC01, EC05, EC10, EC18, EC20]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":3}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-02
+Title: Đăng ký không thành công khi name là chuỗi rỗng
+Technique: DT | Covers: [EC02, EC21]
+Request: POST /api/register
+Body: {"name":"","email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":4}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-03
+Title: Đăng ký không thành công khi thiếu trường name
+Technique: DT | Covers: [EC03, EC21]
+Request: POST /api/register
+Body: {"email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":5}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-04
+Title: Đăng ký không thành công khi name sai kiểu dữ liệu (số nguyên)
+Technique: DT | Covers: [EC04, EC21]
+Request: POST /api/register
+Body: {"name":12345,"email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":6}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-05
+Title: Đăng ký không thành công khi email sai định dạng (thiếu @)
+Technique: DT | Covers: [EC06, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"invalid_email_domain.com","password":"Password123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":7}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-06
+Title: Đăng ký không thành công khi email là chuỗi rỗng
+Technique: DT | Covers: [EC07, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"","password":"Password123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":8}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-07
+Title: Đăng ký không thành công khi thiếu trường email
+Technique: DT | Covers: [EC08, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","password":"Password123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":9}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-08
+Title: Đăng ký không thành công khi email sai kiểu dữ liệu (boolean)
+Technique: DT | Covers: [EC09, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":true,"password":"Password123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":10}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-09
+Title: Đăng ký không thành công khi mật khẩu quá ngắn (< 8 ký tự)
+Technique: DT | Covers: [EC11, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Pass1!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":11}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-10
+Title: Đăng ký không thành công khi mật khẩu thiếu chữ in hoa
+Technique: DT | Covers: [EC12, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"password123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":12}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-11
+Title: Đăng ký không thành công khi mật khẩu thiếu chữ in thường
+Technique: DT | Covers: [EC13, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"PASSWORD123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":13}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-12
+Title: Đăng ký không thành công khi mật khẩu thiếu chữ số
+Technique: DT | Covers: [EC14, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Password!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":14}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-13
+Title: Đăng ký không thành công khi mật khẩu thiếu ký tự đặc biệt
+Technique: DT | Covers: [EC15, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Password123"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":15}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-14
+Title: Đăng ký không thành công khi mật khẩu là chuỗi rỗng
+Technique: DT | Covers: [EC16, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":""}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":16}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-15
+Title: Đăng ký không thành công khi thiếu trường password
+Technique: DT | Covers: [EC17, EC21]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":17}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-DT-16
+Title: Đăng ký không thành công khi email đã tồn tại trong hệ thống (Duplicate)
+Technique: DT | Covers: [EC19, EC22]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"admin@eshop.com","password":"Password123!"}
+Expected Status: [400, 409]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":18}
+Verification: FAILED (Reasons: status 200 not in [400,409]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[PASS] FR01-BVA-01
+Title: BVA: Đăng ký với name độ dài tối thiểu 1 ký tự (LB)
+Technique: BVA | Covers: [LB(name.length=1)]
+Request: POST /api/register
+Body: {"name":"A","email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":19}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR01-BVA-02
+Title: BVA: Đăng ký với name độ dài 2 ký tự (LB+1)
+Technique: BVA | Covers: [LB+1(name.length=2)]
+Request: POST /api/register
+Body: {"name":"An","email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":20}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR01-BVA-03
+Title: BVA: Đăng ký với name độ dài 99 ký tự (UB-1)
+Technique: BVA | Covers: [UB-1(name.length=99)]
+Request: POST /api/register
+Body: {"name":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":21}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR01-BVA-04
+Title: BVA: Đăng ký với name độ dài 100 ký tự (UB)
+Technique: BVA | Covers: [UB(name.length=100)]
+Request: POST /api/register
+Body: {"name":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":22}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-BVA-05
+Title: BVA: Đăng ký với name độ dài 101 ký tự vượt giới hạn (UB+1)
+Technique: BVA | Covers: [UB+1(name.length=101)]
+Request: POST /api/register
+Body: {"name":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":23}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-BVA-06
+Title: BVA: Đăng ký với name cực lớn 1.000 ký tự (Extreme)
+Technique: BVA | Covers: [Extreme(name.length=1000)]
+Request: POST /api/register
+Body: {"name":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [400, 413, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":24}
+Verification: FAILED (Reasons: status 200 not in [400,413,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-BVA-07
+Title: BVA: Đăng ký với password 7 ký tự dưới ngưỡng tối thiểu (LB-1)
+Technique: BVA | Covers: [LB-1(password.length=7)]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Pass1!a"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":25}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[PASS] FR01-BVA-08
+Title: BVA: Đăng ký với password đúng 8 ký tự đủ điều kiện (LB)
+Technique: BVA | Covers: [LB(password.length=8)]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Pass12!a"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":26}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR01-BVA-09
+Title: BVA: Đăng ký với password 9 ký tự sát biên trong (LB+1)
+Technique: BVA | Covers: [LB+1(password.length=9)]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Pass123!a"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":27}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR01-BVA-10
+Title: BVA: Đăng ký với password dài 127 ký tự (UB-1)
+Technique: BVA | Covers: [UB-1(password.length=127)]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":28}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR01-BVA-11
+Title: BVA: Đăng ký với password dài đúng 128 ký tự (UB)
+Technique: BVA | Covers: [UB(password.length=128)]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":29}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-BVA-12
+Title: BVA: Đăng ký với password 129 ký tự vượt giới hạn (UB+1)
+Technique: BVA | Covers: [UB+1(password.length=129)]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+Expected Status: [400, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":30}
+Verification: FAILED (Reasons: status 200 not in [400,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR01-BVA-13
+Title: BVA: Đăng ký với password cực dài 1.000 ký tự (Extreme DoS Hash test)
+Technique: BVA | Covers: [Extreme(password.length=1000)]
+Request: POST /api/register
+Body: {"name":"Nguyen Van A","email":"user_{{uniq}}@domain.com","password":"Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+Expected Status: [400, 413, 422]
+Expected Body Excludes: ["User registered successfully"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":31}
+Verification: FAILED (Reasons: status 200 not in [400,413,422]; body must not contain "User registered successfully")
+
+--------------------------------------------------------------------------------
+
+[PASS] FR01-BVA-14
+Title: BVA: Đăng ký với name tiếng Việt có dấu đúng 100 ký tự (Biên UTF-8)
+Technique: BVA | Covers: [Encoding(UTF-8-name=100chars)]
+Request: POST /api/register
+Body: {"name":"Nguyễn aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","email":"user_{{uniq}}@domain.com","password":"Password123!"}
+Expected Status: [200]
+Expected Body Includes: ["User registered successfully"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"User registered successfully","id":32}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+================================================================================
+END OF TEST EXECUTION LOG
+================================================================================

@@ -12,7 +12,8 @@ Tài liệu này ghi nhận quá trình cải tiến và tiến hóa của các 
 | **v1.1** | 2026-10-17 | `domain-testing` (Stage 1) | **FR-01 (Account Registration)** | Bổ sung cột **"Domain Value & Constraints"** vào Bảng biến Input/Output/State; làm căn cứ chặt chẽ cho Stage 2 phân hoạch lớp tương đương |
 | **v2.0** | 2026-10-18 | `domain-testing`, `boundary-value-analysis`, `test-execution-and-bugs` | **FR-01 (Account Registration)** | Bổ sung kiểm tra lệch pha đa nền tảng (Web vs Mobile vs Backend), kiểm tra Unicode UTF-8 tiếng Việt, và nguyên tắc Zero-Trust SUT |
 | **v2.1** | 2026-10-19 | `test-execution-and-bugs`, `domain-testing` | **FR-03 (Forgot & Reset Password)** | Bổ sung cơ chế Dynamic Setup Hook cho tính năng stateful, kiểm tra rò rỉ dữ liệu nhạy cảm trong response (CWE-200), và checklist biến trạng thái thời gian (Token Expiration) |
-| **v2.2** | 2026-10-19 | `domain-testing`, `boundary-value-analysis`, `test-execution-and-bugs` | **FR-12 (Access control)** | Tách biệt kiểm tra Phân quyền (Authorization) vs Xác thực (Authentication), nguyên tắc bất biến dữ liệu mồi cố định (Test Fixture Immutability), kiểm toán leo quyền đa tính năng (Mass Assignment Audit) |
+| **v2.2** | 2026-10-19 | `domain-testing`, `boundary-value-analysis`, `test-execution-and-bugs` | **FR-08 (Checkout)** | Bổ sung quy tắc toàn vẹn giao dịch tài chính (Financial Transaction Integrity Rule), kiểm tra thuộc tính input form client nhạy cảm, và checklist đối chiếu CSDL chi tiết (Database Schema Checklist) |
+| **v2.3** | 2026-10-19 | `domain-testing`, `boundary-value-analysis`, `test-execution-and-bugs` | **FR-12 (Access control)** | Tách biệt kiểm tra Phân quyền (Authorization) vs Xác thực (Authentication), nguyên tắc bất biến dữ liệu mồi cố định (Test Fixture Immutability), kiểm toán leo quyền đa tính năng (Mass Assignment Audit) |
 
 ---
 
@@ -79,40 +80,63 @@ Tài liệu này ghi nhận quá trình cải tiến và tiến hóa của các 
 
 ---
 
-### 2.4. Nâng cấp v2.2 (2026-10-19): AI Gap Analysis sau khi thực thi kiểm thử và báo cáo lỗi FR-12
+### 2.4. Nâng cấp v2.2 (2026-10-19): AI Gap Analysis sau khi thực thi kiểm thử và báo cáo lỗi FR-08 (Checkout)
+
+#### Gap 1: Thiên kiến tin tưởng tham số tài chính từ Client (Client-trusted Financial Parameter Bias)
+- **Vấn đề phát hiện:** Khi kiểm tra endpoint `POST /api/checkout`, Backend lấy thẳng giá trị `req.body.total_amount` do Client gửi lên và lưu trực tiếp vào cơ sở dữ liệu. AI thông thường coi `total_amount` như một biến đầu vào độc lập, không tự động nhận thức rằng: trong bất kỳ hệ thống giao dịch thương mại nào, **Client tuyệt đối không được phép quyết định giá tiền**. Máy chủ bắt buộc phải tính toán lại tổng tiền từ danh sách sản phẩm trong giỏ hàng và đơn giá niêm yết trong DB.
+- **Phân loại nguyên nhân:** `Inherent feature complexity` & `Tool limitation`.
+- **Cải tiến cụ thể trong Skill v2.2:**
+  - Bổ sung vào `domain-testing` và `test-execution-and-bugs`: **Quy tắc toàn vẹn giao dịch tài chính (Financial Transaction Integrity Rule)**:
+    Mọi tham số liên quan đến số tiền, đơn giá, chiết khấu gửi từ Client đều phải coi là dữ liệu không an toàn (Untrusted Input). Khi thiết kế kiểm thử miền, bắt buộc phải có ca kiểm thử **Thao túng tham số giá (Parameter Tampering)**: gửi số tiền thanh toán sai lệch so với giá trị giỏ hàng để phát hiện lỗ hổng này.
+
+#### Gap 2: Điểm mù giao diện người dùng đối với các trường chỉ đọc (Frontend UI Input Defect)
+- **Vấn đề phát hiện:** Trên giao diện Web (`Checkout.jsx:93-102`), ô hiển thị tổng tiền lại là một thẻ input `type="number"` có thể tự do gõ sửa (`editableTotal`). Nếu AI chỉ kiểm thử qua HTTP API Runner, AI sẽ không bao giờ phát hiện được khiếm khuyết giao diện nghiêm trọng này.
+- **Phân loại nguyên nhân:** `Tool limitation` (Kiểm thử API không bao quát được hành vi component UI).
+- **Cải tiến cụ thể trong Skill v2.2:**
+  - Mở rộng quy tắc **Cross-Platform Inspection**: Khi khảo sát mã nguồn client (Web JSX / Mobile), phải kiểm tra kỹ thuộc tính của các ô nhập liệu liên quan đến dữ liệu nhạy cảm (tổng tiền, mã ID, trạng thái). Nếu không có thuộc tính `readOnly` hoặc `disabled`, phải ghi nhận ngay khiếm khuyết UI Defect.
+
+#### Gap 3: Bỏ sót thực thể quan hệ kiến trúc CSDL (`order_items`) & Bán vượt tồn kho
+- **Vấn đề phát hiện:** Do tài liệu đặc tả `api_specification.md` chỉ mô tả endpoint `checkout` với body `{ total_amount, shipping_address }`, AI ban đầu bỏ qua việc kiểm tra xem đơn hàng có lưu danh sách sản phẩm đã mua hay không. Kiểm tra CSDL thực tế cho thấy bảng `orders` hoàn toàn không có bảng nối `order_items`, và backend không trừ số lượng `stock`.
+- **Phân loại nguyên nhân:** `Prompt/input quality` & `Inherent feature complexity`.
+- **Cải tiến cụ thể trong Skill v2.2:**
+  - Bổ sung vào `domain-testing` (Stage 0): **Checklist kiểm tra CSDL chi tiết (Database Schema & Inventory Lifecycle Checklist)**: Bắt buộc đối chiếu cấu trúc bảng SQLite để xác minh xem hệ thống có lưu chi tiết quan hệ thực thể (One-to-Many giữa `orders` và `order_items`) và có cơ chế kiểm soát tồn kho chống Overselling hay không.
+
+---
+
+### 2.5. Nâng cấp v2.3 (2026-10-19): AI Gap Analysis sau khi thực thi kiểm thử và báo cáo lỗi FR-12 (Access control)
 
 #### Gap 1: Nhầm lẫn giữa Xác thực (Authentication) và Phân quyền (Authorization)
 - **Vấn đề phát hiện:** Khi đọc mã nguồn, AI nhìn thấy các route quản trị (`/api/admin/users`, `/api/admin/orders`, `/api/categories`, `/api/coupons`) đều có middleware `authenticateToken`, nên có xu hướng suy đoán các route này đã được bảo vệ đầy đủ. Tuy nhiên, khi kiểm tra sâu vào nội dung `authenticateToken`, hàm này chỉ thực thi `jwt.verify()` để xác thực danh tính người dùng mà hoàn toàn không so khớp `req.user.role === 'admin'`. Kết quả là người dùng thông thường (`role: 'user'`) gọi API quản trị vẫn nhận được HTTP 200 OK thay vì 403 Forbidden.
 - **Phân loại nguyên nhân:** `Tool limitation` & `Inherent feature complexity` (Thiên kiến ngữ nghĩa và cấu trúc bảo mật phân tầng).
-- **Cải tiến cụ thể trong Skill v2.2:**
+- **Cải tiến cụ thể trong Skill v2.3:**
   - Bổ sung vào `domain-testing` (Stage 0) và `test-execution-and-bugs` (Stage 3): **Quy tắc phân tách Xác thực vs Phân quyền (Authorization vs Authentication Separation Rule)**. Khi kiểm tra các endpoint đặc quyền, bắt buộc phải thẩm tra độc lập hai lớp bảo vệ: (1) Lớp xác thực định danh (Có token hợp lệ không?) và (2) Lớp phân quyền vai trò (Có câu lệnh kiểm tra `user.role === required_role` hay không?). Tuyệt đối không suy diễn sự hiện diện của `authenticateToken` là đồng nghĩa với việc đã phân quyền thành công.
 
 #### Gap 2: Nguy cơ phá hủy dữ liệu mồi cố định trong các ca kiểm thử BVA (Destructive Test Fixture Mutation)
 - **Vấn đề phát hiện:** Khi thiết kế các ca kiểm thử BVA cho endpoint xóa quản trị `DELETE /api/admin/users/:id`, nếu áp dụng các điểm biên số nguyên nhỏ nhất một cách máy móc (ID = 1 là Admin, ID = 2 là User mồi), thao tác kiểm thử sẽ xóa mất các tài khoản cố định được định cấu hình trong `config.json` và cơ sở dữ liệu. Điều này dẫn tới việc phá vỡ khả năng chạy lại tự động (re-runnability) của toàn bộ bộ kiểm thử trong các lần tiếp theo.
 - **Phân loại nguyên nhân:** `Inherent feature complexity` (Tác động phụ của thao tác phá hủy stateful lên môi trường test).
-- **Cải tiến cụ thể trong Skill v2.2:**
+- **Cải tiến cụ thể trong Skill v2.3:**
   - Bổ sung vào `boundary-value-analysis` (Stage 3): **Quy tắc bất biến dữ liệu mồi kiểm thử (Test Fixture Immutability & Re-runnability Rule)**. Đối với các phương thức HTTP phá hủy (DELETE / purge), tuyệt đối không sử dụng ID của các bản ghi dữ liệu mồi cốt lõi (Core Seed Data). Phải chuyển hướng kiểm thử sang các thực thể tạm thời độc lập (như mã giảm giá coupon ngẫu nhiên) hoặc sử dụng các ID không tồn tại để kiểm tra biên xử lý lỗi của hệ thống.
 
 #### Gap 3: Bỏ sót lỗ hổng leo quyền Mass Assignment ở endpoint thông thường (Cross-Feature Privilege Escalation Audit)
 - **Vấn đề phát hiện:** Khi nhận yêu cầu kiểm thử tính năng Kiểm soát truy cập (FR-12), AI có xu hướng chỉ tập trung rà soát các endpoint có tiền tố `/api/admin/*`, bỏ qua các endpoint thông thường như cập nhật hồ sơ `PUT /api/users/me`. Trên thực tế, endpoint này cho phép người dùng truyền trường `role` trong request body và ghi đè trực tiếp vào DB, tạo thành lỗ hổng leo quyền tối nghiêm trọng (Privilege Escalation via Mass Assignment).
 - **Phân loại nguyên nhân:** `Prompt/input quality` & `Inherent feature complexity`.
-- **Cải tiến cụ thể trong Skill v2.2:**
+- **Cải tiến cụ thể trong Skill v2.3:**
   - Bổ sung vào `domain-testing` (Stage 0): **Checklist kiểm toán leo quyền đa tính năng (Cross-Feature Privilege Escalation Audit Checklist)**. Trong phạm vi Access Control, phải rà soát tất cả các endpoint cho phép người dùng thay đổi dữ liệu của chính mình (Profile Update, Registration, Password Change) để phát hiện lỗ hổng over-posting/mass assignment ảnh hưởng tới các trường đặc quyền (`role`, `permissions`, `is_admin`, `balance`).
 
 #### Gap 4: Lệch pha chuỗi thông báo phản hồi của SUT (SUT Specific Response String Matching)
 - **Vấn đề phát hiện:** Ví dụ tại `POST /api/categories`, đặc tả ghi nhận chuỗi mẫu `"Category added successfully"`, nhưng mã nguồn SUT thực tế trả về `{ "message": "Category created" }`. Nếu test runner assert chuỗi cứng theo đặc tả, ca kiểm thử sẽ bị đánh dấu là BLOCKED giả tạo dù chức năng hoạt động đúng nghiệp vụ.
 - **Phân loại nguyên nhân:** `Prompt/input quality`.
-- **Cải tiến cụ thể trong Skill v2.2:**
+- **Cải tiến cụ thể trong Skill v2.3:**
   - Bổ sung vào `domain-testing` (Stage 3): **Quy tắc căn chỉnh chuỗi SUT (SUT Exact String Alignment Rule)**. Luôn đối chiếu chuỗi thông báo phản hồi với mã nguồn route handler trước khi sinh tệp JSON máy đọc, ưu tiên xác thực theo mã HTTP status và các trường cấu trúc cốt lõi thay vì chuỗi văn bản tự do.
 
 ---
 
 ## 3. Kế hoạch áp dụng tiếp theo
 
-Các nâng cấp v1.1, v2.0, v2.1 và v2.2 tạo nên bộ khung kỹ năng kiểm thử toàn diện:
+Toàn bộ các nâng cấp từ v1.1, v2.0, v2.1, v2.2 đến v2.3 tạo nên bộ khung kỹ năng kiểm thử toàn diện:
 1. Xác định chuẩn xác miền giá trị và ràng buộc ngay từ Stage 1.
 2. Xử lý chuẩn xác các luồng kiểm thử phụ thuộc trạng thái phức tạp (Stateful workflows như Giỏ hàng -> Đặt hàng).
-3. Chủ động phát hiện các lỗ hổng an ninh thông tin, biến trạng thái ngầm và các đường dẫn leo quyền tinh vi.
-4. Bảo toàn tính toàn vẹn và khả năng tái thực thi của môi trường kiểm thử tự động.
-
+3. Đảm bảo toàn vẹn dữ liệu giao dịch tài chính, kiểm soát tồn kho và phát hiện các dị biệt đa nền tảng (Web vs Mobile).
+4. Chủ động phân tách rõ ràng Xác thực vs Phân quyền, phát hiện các biến trạng thái ngầm và đường dẫn leo quyền tinh vi.
+5. Bảo toàn tính toàn vẹn và khả năng tái thực thi của môi trường kiểm thử tự động (Test Fixture Immutability).
 

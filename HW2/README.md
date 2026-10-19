@@ -34,13 +34,13 @@
 
 | Chỉ số | Giá trị |
 |---|---|
-| Số tính năng được kiểm thử | 3 / 4 (FR-01, FR-03, FR-12) |
-| Số test case đã thiết kế | 99 |
-| Số test case đã thực thi | 99 (100%) |
-| Số test case PASS | 52 |
-| Số test case FAIL | 47 |
+| Số tính năng được kiểm thử | 4 / 4 (FR-01, FR-03, FR-08, FR-12) |
+| Số test case đã thiết kế | 141 |
+| Số test case đã thực thi | 141 (100%) |
+| Số test case PASS | 68 |
+| Số test case FAIL | 73 |
 | Số test case BLOCKED | 0 |
-| Số bug phát hiện | 12 (5 từ FR-01, 4 từ FR-03, 3 từ FR-12) |
+| Số bug phát hiện | 19 (5 từ FR-01, 4 từ FR-03, 7 từ FR-08, 3 từ FR-12) |
 
 ### 2.2 Chi tiết theo tính năng
 
@@ -48,9 +48,9 @@
 |---|:---:|:---:|:---:|:---:|:---:|
 | FR-01 (Đăng ký tài khoản) | 30 | 30 | 10 | 20 | 5 |
 | FR-03 (Quên & Đặt lại mật khẩu) | 37 | 37 | 21 | 16 | 4 |
-| FR-08 (Thanh toán & Đặt hàng) | Kế hoạch | - | - | - | - |
+| FR-08 (Thanh toán & Đặt hàng) | 42 | 42 | 16 | 26 | 7 |
 | FR-12 (Kiểm soát truy cập) | 32 | 32 | 21 | 11 | 3 |
-| **Tổng cộng** | **99** | **99** | **52** | **47** | **12** |
+| **Tổng cộng** | **141** | **141** | **68** | **73** | **19** |
 
 ---
 
@@ -74,11 +74,11 @@
 - [x] Phân tích Boundary Value Analysis cho FR-01
 - [x] Phân tích Domain Testing cho FR-03
 - [x] Phân tích Boundary Value Analysis cho FR-03
-- [ ] Phân tích Domain Testing cho FR-08
-- [ ] Phân tích Boundary Value Analysis cho FR-08
+- [x] Phân tích Domain Testing cho FR-08
+- [x] Phân tích Boundary Value Analysis cho FR-08
 - [x] Phân tích Domain Testing cho FR-12
 - [x] Phân tích Boundary Value Analysis cho FR-12
-- [ ] Tổng hợp kết quả và kết luận
+- [x] Tổng hợp kết quả và kết luận
 
 ---
 

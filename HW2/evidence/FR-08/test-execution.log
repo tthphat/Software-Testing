@@ -1,0 +1,591 @@
+================================================================================
+EShop SUT Test Execution Log: FR-08 (Checkout - Thanh toán & Đặt hàng)
+Environment: http://localhost:3000
+Executed at: 2026-10-19T16:31:26.937Z
+Total Cases: 42 | PASS: 16 | FAIL: 26 | BLOCKED: 0
+================================================================================
+
+[CLI RUNNER OUTPUT]
+PASS   FR08-DT-01   Checkout thành công với tất cả dữ liệu hợp lệ chuẩn (không dùng coupon)
+PASS   FR08-DT-02   Checkout thành công khi áp dụng mã giảm giá hợp lệ (-10%)
+PASS   FR08-DT-03   Từ chối checkout khi thiếu hoàn toàn header Authorization (khách vãng lai)
+PASS   FR08-DT-04   Từ chối checkout khi token Authorization sai chữ ký / bị giả mạo
+PASS   FR08-DT-05   Từ chối checkout khi header Authorization gửi token rỗng ('Bearer ')
+FAIL   FR08-DT-06   Từ chối checkout khi total_amount = 0 (đặt hàng miễn phí trái phép)  <- status 200 not in [400]
+FAIL   FR08-DT-07   Từ chối checkout khi total_amount là số âm (-50,000 VNĐ)  <- status 200 not in [400]
+FAIL   FR08-DT-08   Từ chối checkout khi total_amount bị can thiệp sửa giá sai lệch giỏ hàng (Web editableTotal)  <- status 200 not in [400]
+FAIL   FR08-DT-09   Từ chối checkout khi total_amount có kiểu dữ liệu chuỗi ký tự ('free')  <- status 200 not in [400]
+FAIL   FR08-DT-10   Từ chối checkout khi total_amount có kiểu Boolean (true)  <- status 200 not in [400]
+FAIL   FR08-DT-11   Từ chối checkout khi total_amount là số thực dấu phẩy động (199999.5)  <- status 200 not in [400]
+FAIL   FR08-DT-12   Từ chối checkout khi thiếu hoàn toàn trường total_amount trong body  <- status 200 not in [400]
+FAIL   FR08-DT-13   Từ chối checkout khi total_amount có giá trị null  <- status 200 not in [400]
+FAIL   FR08-DT-14   Từ chối checkout khi shipping_address là chuỗi rỗng ('')  <- status 200 not in [400]
+FAIL   FR08-DT-15   Từ chối checkout khi shipping_address chỉ chứa ký tự khoảng trắng ('   ')  <- status 200 not in [400]
+FAIL   FR08-DT-16   Từ chối checkout khi thiếu trường shipping_address trong body (hành vi thực tế Web & Mobile)  <- status 200 not in [400]
+FAIL   FR08-DT-17   Từ chối checkout khi shipping_address sai kiểu dữ liệu (Number: 12345)  <- status 200 not in [400]
+FAIL   FR08-DT-18   Từ chối checkout khi shipping_address vượt quá độ dài tối đa hợp lý (> 1,000 ký tự)  <- status 200 not in [400]
+FAIL   FR08-DT-19   Từ chối checkout khi giỏ hàng người dùng hoàn toàn rỗng (cart = [])  <- status 200 not in [400]
+FAIL   FR08-DT-20   Từ chối checkout khi số lượng sản phẩm đặt mua vượt quá tồn kho (Overselling)  <- status 200 not in [400]
+FAIL   FR08-DT-21   Từ chối checkout khi áp dụng mã coupon không tồn tại hoặc hết hạn  <- status 200 not in [400]
+FAIL   FR08-DT-22   Kiểm tra dị biệt Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng (cart.slice(0, -1))  <- status 200 not in [400]
+FAIL   FR08-BVA-01  BVA: total_amount = -50000 (-alpha Extreme số âm)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL   FR08-BVA-02  BVA: total_amount = 0 (LB-1 cận dưới số tiền bằng 0)  <- status 200 not in [400]; body must not contain "Checkout successful"
+PASS   FR08-BVA-03  BVA: total_amount = 1 VNĐ (LB cận dưới tối thiểu hợp lệ)
+PASS   FR08-BVA-04  BVA: total_amount = 2 VNĐ (LB+1 nội biên kề cận)
+PASS   FR08-BVA-05  BVA: total_amount = 2,147,483,646 VNĐ (UB-1 nội biên cận trên)
+PASS   FR08-BVA-06  BVA: total_amount = 2,147,483,647 VNĐ (UB cận trên số nguyên int32 max)
+FAIL   FR08-BVA-07  BVA: total_amount = 2,147,483,648 VNĐ (UB+1 tràn số nguyên int32)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL   FR08-BVA-08  BVA: total_amount = 9,007,199,254,740,991 (+alpha Extreme MAX_SAFE_INTEGER)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL   FR08-BVA-09  BVA: shipping_address length = 0 (chuỗi rỗng -alpha Min Extreme)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL   FR08-BVA-10  BVA: shipping_address length = 4 (LB-1 thiếu 1 ký tự)  <- status 200 not in [400]; body must not contain "Checkout successful"
+PASS   FR08-BVA-11  BVA: shipping_address length = 5 (LB tối thiểu hợp lệ)
+PASS   FR08-BVA-12  BVA: shipping_address length = 6 (LB+1 nội biên cận dưới)
+PASS   FR08-BVA-13  BVA: shipping_address length = 254 (UB-1 nội biên cận trên)
+PASS   FR08-BVA-14  BVA: shipping_address length = 255 ASCII (UB cận trên tối đa)
+PASS   FR08-BVA-15  BVA: shipping_address length = 255 ký tự tiếng Việt UTF-8 có dấu (v2.0 Rule)
+FAIL   FR08-BVA-16  BVA: shipping_address length = 256 (UB+1 vượt quá độ dài chuẩn 255)  <- status 200 not in [400]; body must not contain "Checkout successful"
+FAIL   FR08-BVA-17  BVA: shipping_address length = 10,000 ký tự (+alpha Extreme Payload DoS)  <- status 200 not in [400,413]; body must not contain "Checkout successful"
+FAIL   FR08-BVA-18  BVA: cart_items_count = 0 (LB-1 giỏ hàng rỗng)  <- status 200 not in [400]; body must not contain "Checkout successful"
+PASS   FR08-BVA-19  BVA: cart_items_count = 1 (LB giỏ hàng 1 món - Mobile không cắt bớt)
+PASS   FR08-BVA-20  BVA: cart_items_count = 2 (LB+1 Mobile kích hoạt lỗi cắt bỏ sản phẩm cuối cart.slice(0, -1))
+
+Executed 42: PASS 16, FAIL 26, BLOCKED 0. Results written to HW2/testcases/FR-08.json
+
+================================================================================
+DETAILED EXECUTION TRACE (42 TEST CASES)
+================================================================================
+
+[PASS] FR08-DT-01
+Title: Checkout thành công với tất cả dữ liệu hợp lệ chuẩn (không dùng coupon)
+Technique: DT | Covers: [EC01, EC05, EC14, EC20, EC22, EC24, EC28]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":40}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-DT-02
+Title: Checkout thành công khi áp dụng mã giảm giá hợp lệ (-10%)
+Technique: DT | Covers: [EC01, EC05, EC14, EC20, EC22, EC25, EC28]
+Request: POST /api/checkout
+Body: {"total_amount":180000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM","coupon_id":1}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Expected Body Excludes: ["error"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":41}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-DT-03
+Title: Từ chối checkout khi thiếu hoàn toàn header Authorization (khách vãng lai)
+Technique: DT | Covers: [EC02, EC29]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [401]
+Expected Body Includes: ["Unauthorized"]
+Actual Status: 401
+Actual Body: {"error":"Unauthorized"}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-DT-04
+Title: Từ chối checkout khi token Authorization sai chữ ký / bị giả mạo
+Technique: DT | Covers: [EC03, EC30]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [403]
+Expected Body Includes: ["Forbidden"]
+Actual Status: 403
+Actual Body: {"error":"Forbidden"}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-DT-05
+Title: Từ chối checkout khi header Authorization gửi token rỗng ('Bearer ')
+Technique: DT | Covers: [EC04, EC29]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [401]
+Expected Body Includes: ["Unauthorized"]
+Actual Status: 401
+Actual Body: {"error":"Unauthorized"}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-06
+Title: Từ chối checkout khi total_amount = 0 (đặt hàng miễn phí trái phép)
+Technique: DT | Covers: [EC06, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":0,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":42}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-07
+Title: Từ chối checkout khi total_amount là số âm (-50,000 VNĐ)
+Technique: DT | Covers: [EC07, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":-50000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":43}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-08
+Title: Từ chối checkout khi total_amount bị can thiệp sửa giá sai lệch giỏ hàng (Web editableTotal)
+Technique: DT | Covers: [EC08, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":1000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":44}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-09
+Title: Từ chối checkout khi total_amount có kiểu dữ liệu chuỗi ký tự ('free')
+Technique: DT | Covers: [EC09, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":"free","shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":45}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-10
+Title: Từ chối checkout khi total_amount có kiểu Boolean (true)
+Technique: DT | Covers: [EC10, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":true,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":46}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-11
+Title: Từ chối checkout khi total_amount là số thực dấu phẩy động (199999.5)
+Technique: DT | Covers: [EC11, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":199999.5,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":47}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-12
+Title: Từ chối checkout khi thiếu hoàn toàn trường total_amount trong body
+Technique: DT | Covers: [EC12, EC31]
+Request: POST /api/checkout
+Body: {"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":48}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-13
+Title: Từ chối checkout khi total_amount có giá trị null
+Technique: DT | Covers: [EC13, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":null,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":49}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-14
+Title: Từ chối checkout khi shipping_address là chuỗi rỗng ('')
+Technique: DT | Covers: [EC15, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":""}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":50}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-15
+Title: Từ chối checkout khi shipping_address chỉ chứa ký tự khoảng trắng ('   ')
+Technique: DT | Covers: [EC16, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"   "}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":51}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-16
+Title: Từ chối checkout khi thiếu trường shipping_address trong body (hành vi thực tế Web & Mobile)
+Technique: DT | Covers: [EC17, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":200000}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":52}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-17
+Title: Từ chối checkout khi shipping_address sai kiểu dữ liệu (Number: 12345)
+Technique: DT | Covers: [EC18, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":12345}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":53}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-18
+Title: Từ chối checkout khi shipping_address vượt quá độ dài tối đa hợp lý (> 1,000 ký tự)
+Technique: DT | Covers: [EC19, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem."}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":54}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-19
+Title: Từ chối checkout khi giỏ hàng người dùng hoàn toàn rỗng (cart = [])
+Technique: DT | Covers: [EC21, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":55}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-20
+Title: Từ chối checkout khi số lượng sản phẩm đặt mua vượt quá tồn kho (Overselling)
+Technique: DT | Covers: [EC23, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":56}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-21
+Title: Từ chối checkout khi áp dụng mã coupon không tồn tại hoặc hết hạn
+Technique: DT | Covers: [EC26, EC31]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM","coupon_id":999999}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":57}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-DT-22
+Title: Kiểm tra dị biệt Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng (cart.slice(0, -1))
+Technique: DT | Covers: [EC27, EC31]
+Request: POST /api/checkout
+Body: {"items":[{"id":1,"quantity":1}],"total_amount":200000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":58}
+Verification: FAILED (Reasons: status 200 not in [400])
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-BVA-01
+Title: BVA: total_amount = -50000 (-alpha Extreme số âm)
+Technique: BVA | Covers: [-alpha(total_amount=-50000)]
+Request: POST /api/checkout
+Body: {"total_amount":-50000,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Expected Body Excludes: ["Checkout successful"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":59}
+Verification: FAILED (Reasons: status 200 not in [400]; body must not contain "Checkout successful")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-BVA-02
+Title: BVA: total_amount = 0 (LB-1 cận dưới số tiền bằng 0)
+Technique: BVA | Covers: [LB-1(total_amount=0)]
+Request: POST /api/checkout
+Body: {"total_amount":0,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Expected Body Excludes: ["Checkout successful"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":60}
+Verification: FAILED (Reasons: status 200 not in [400]; body must not contain "Checkout successful")
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-03
+Title: BVA: total_amount = 1 VNĐ (LB cận dưới tối thiểu hợp lệ)
+Technique: BVA | Covers: [LB(total_amount=1)]
+Request: POST /api/checkout
+Body: {"total_amount":1,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":61}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-04
+Title: BVA: total_amount = 2 VNĐ (LB+1 nội biên kề cận)
+Technique: BVA | Covers: [LB+1(total_amount=2)]
+Request: POST /api/checkout
+Body: {"total_amount":2,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":62}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-05
+Title: BVA: total_amount = 2,147,483,646 VNĐ (UB-1 nội biên cận trên)
+Technique: BVA | Covers: [UB-1(total_amount=2147483646)]
+Request: POST /api/checkout
+Body: {"total_amount":2147483646,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":63}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-06
+Title: BVA: total_amount = 2,147,483,647 VNĐ (UB cận trên số nguyên int32 max)
+Technique: BVA | Covers: [UB(total_amount=2147483647)]
+Request: POST /api/checkout
+Body: {"total_amount":2147483647,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":64}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-BVA-07
+Title: BVA: total_amount = 2,147,483,648 VNĐ (UB+1 tràn số nguyên int32)
+Technique: BVA | Covers: [UB+1(total_amount=2147483648)]
+Request: POST /api/checkout
+Body: {"total_amount":2147483648,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Expected Body Excludes: ["Checkout successful"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":65}
+Verification: FAILED (Reasons: status 200 not in [400]; body must not contain "Checkout successful")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-BVA-08
+Title: BVA: total_amount = 9,007,199,254,740,991 (+alpha Extreme MAX_SAFE_INTEGER)
+Technique: BVA | Covers: [+alpha(total_amount=9007199254740991)]
+Request: POST /api/checkout
+Body: {"total_amount":9007199254740991,"shipping_address":"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"}
+Expected Status: [400]
+Expected Body Excludes: ["Checkout successful"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":66}
+Verification: FAILED (Reasons: status 200 not in [400]; body must not contain "Checkout successful")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-BVA-09
+Title: BVA: shipping_address length = 0 (chuỗi rỗng -alpha Min Extreme)
+Technique: BVA | Covers: [-alpha(address_len=0)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":""}
+Expected Status: [400]
+Expected Body Excludes: ["Checkout successful"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":67}
+Verification: FAILED (Reasons: status 200 not in [400]; body must not contain "Checkout successful")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-BVA-10
+Title: BVA: shipping_address length = 4 (LB-1 thiếu 1 ký tự)
+Technique: BVA | Covers: [LB-1(address_len=4)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"Q.1 "}
+Expected Status: [400]
+Expected Body Excludes: ["Checkout successful"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":68}
+Verification: FAILED (Reasons: status 200 not in [400]; body must not contain "Checkout successful")
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-11
+Title: BVA: shipping_address length = 5 (LB tối thiểu hợp lệ)
+Technique: BVA | Covers: [LB(address_len=5)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"Quan1"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":69}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-12
+Title: BVA: shipping_address length = 6 (LB+1 nội biên cận dưới)
+Technique: BVA | Covers: [LB+1(address_len=6)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"Quan 1"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":70}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-13
+Title: BVA: shipping_address length = 254 (UB-1 nội biên cận trên)
+Technique: BVA | Covers: [UB-1(address_len=254)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":71}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-14
+Title: BVA: shipping_address length = 255 ASCII (UB cận trên tối đa)
+Technique: BVA | Covers: [UB(address_len=255_ascii)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":72}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-15
+Title: BVA: shipping_address length = 255 ký tự tiếng Việt UTF-8 có dấu (v2.0 Rule)
+Technique: BVA | Covers: [UB(address_len=255_utf8)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"Số 123 Đường Nguyễn Trãi, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh, Việt Nam. Số 123 Đường Nguyễn Trãi, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh, Việt Nam. Số 123 Đường Nguyễn Trãi, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh, Việt Nam. "}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":73}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-BVA-16
+Title: BVA: shipping_address length = 256 (UB+1 vượt quá độ dài chuẩn 255)
+Technique: BVA | Covers: [UB+1(address_len=256)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
+Expected Status: [400]
+Expected Body Excludes: ["Checkout successful"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":74}
+Verification: FAILED (Reasons: status 200 not in [400]; body must not contain "Checkout successful")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-BVA-17
+Title: BVA: shipping_address length = 10,000 ký tự (+alpha Extreme Payload DoS)
+Technique: BVA | Covers: [+alpha(address_len=10000)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
+Expected Status: [400, 413]
+Expected Body Excludes: ["Checkout successful"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":75}
+Verification: FAILED (Reasons: status 200 not in [400,413]; body must not contain "Checkout successful")
+
+--------------------------------------------------------------------------------
+
+[FAIL] FR08-BVA-18
+Title: BVA: cart_items_count = 0 (LB-1 giỏ hàng rỗng)
+Technique: BVA | Covers: [LB-1(cart_items=0)]
+Request: POST /api/checkout
+Body: {"total_amount":200000,"shipping_address":"123 Le Loi, Quan 1, TP.HCM"}
+Expected Status: [400]
+Expected Body Excludes: ["Checkout successful"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":76}
+Verification: FAILED (Reasons: status 200 not in [400]; body must not contain "Checkout successful")
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-19
+Title: BVA: cart_items_count = 1 (LB giỏ hàng 1 món - Mobile không cắt bớt)
+Technique: BVA | Covers: [LB(cart_items=1_mobile_skew)]
+Request: POST /api/checkout
+Body: {"items":[{"id":1,"quantity":1}],"total_amount":200000,"shipping_address":"123 Le Loi, Quan 1, TP.HCM"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":77}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+[PASS] FR08-BVA-20
+Title: BVA: cart_items_count = 2 (LB+1 Mobile kích hoạt lỗi cắt bỏ sản phẩm cuối cart.slice(0, -1))
+Technique: BVA | Covers: [LB+1(cart_items=2_mobile_skew)]
+Request: POST /api/checkout
+Body: {"items":[{"id":1,"quantity":1},{"id":2,"quantity":1}],"total_amount":400000,"shipping_address":"123 Le Loi, Quan 1, TP.HCM"}
+Expected Status: [200]
+Expected Body Includes: ["Checkout successful","orderId"]
+Actual Status: 200
+Actual Body: {"message":"Checkout successful","orderId":78}
+Verification: OK (Passed all assertions)
+
+--------------------------------------------------------------------------------
+
+================================================================================
+END OF TEST EXECUTION LOG
+================================================================================
