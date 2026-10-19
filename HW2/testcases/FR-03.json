@@ -1,0 +1,784 @@
+{
+  "feature": "FR-03",
+  "cases": [
+    {
+      "id": "FR03-DT-01",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC08",
+        "EC11",
+        "EC18",
+        "EC26",
+        "EC28"
+      ],
+      "title": "Quy trình khôi phục mật khẩu hoàn chỉnh thành công (Step 1 + Step 2)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại trong database",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": "test@eshop.com"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Mã đặt lại mật khẩu đã được tạo",
+          "resetToken"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-02",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC02",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email chưa từng đăng ký trong DB",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email không tồn tại trong hệ thống",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": "not_found_{{uniq}}@domain.com"
+        }
+      },
+      "expected": {
+        "status": [
+          404
+        ],
+        "body_includes": [
+          "User not found"
+        ],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-03",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC03",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-04",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC04",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP thiếu trường email trong body",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {}
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-05",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC05",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email thiếu ký tự @",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": "testeshop.com"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-06",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC06",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email thiếu tên miền domain sau @",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": "test@"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-07",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC07",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email kiểu dữ liệu Boolean",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": true
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-08",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC09",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với email không khớp với tài khoản được cấp OTP",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com đã được cấp token ở Step 1",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "admin@eshop.com",
+          "resetToken": "0000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-09",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC10",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với email chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "",
+          "resetToken": "0000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-10",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC12",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với mã OTP sai giá trị 4 chữ số",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "0000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-11",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC13",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với mã OTP sai độ dài (6 chữ số theo mẫu spec)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "123456",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-12",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC14",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với mã OTP là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-13",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC15",
+        "EC29"
+      ],
+      "title": "Bước 2: Tái sử dụng token đã được sử dụng thành công (Single-use test)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token đã được dùng ở lần reset trước (đã xóa về NULL)",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "ALREADY_USED",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-14",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC16",
+        "EC29"
+      ],
+      "title": "Bước 2: Dùng mã OTP của User B để đổi mật khẩu cho User A (Cross-account attack)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản User A và User B cùng tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "TOKEN_OF_OTHER_USER",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-15",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC17",
+        "EC29"
+      ],
+      "title": "Bước 2: Gửi token cho tài khoản chưa từng gọi Step 1 (reset_token IS NULL)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản chưa từng yêu cầu quên mật khẩu",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "admin@eshop.com",
+          "resetToken": "1234",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-16",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC19",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới quá ngắn (< 8 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-17",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC20",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới thiếu chữ in hoa",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-18",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC21",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới thiếu chữ in thường",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "PASSWORD123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-19",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC22",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới thiếu chữ số",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Password!@#"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-20",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC23",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới có khoảng trắng, thiếu ký tự đặc biệt (Web regex skew)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "NewPassword 123"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-21",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC24",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-DT-22",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC25",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới vượt quá độ dài tối đa (> 128 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "A1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    }
+  ]
+}

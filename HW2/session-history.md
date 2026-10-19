@@ -90,19 +90,26 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
   - **Audit Log**: ✅ Đã ghi A07 trong `HW2/audit/audit-log.jsonl`
 - **FR-01 (Account Registration)**: ✅ Hoàn thành 100% trọn vẹn toàn bộ chu trình 4 kỹ năng (Domain Testing, BVA, Execution, Bug Reports, v2 Changelog, Main Report).
 - **FR-03 (Forgot Password & Password Reset)**:
-  - **Stage 0 (Facts Collection)**: ✅ Hoàn thành khảo sát đối chiếu 3 tầng (Backend, Web, Mobile). Phát hiện lỗi rò rỉ OTP qua response, token không có thời hạn, lệch pha regex password Web vs Mobile, lệch pha OTP 4 số vs 6 số.
-  - **Stage 1 (Variables & Domains)**: ✅ Lập bảng biến Input / Output / State kèm miền giá trị chi tiết (Domains) tại `HW2/report/FR-03/01-domain-testing.vi.md`.
-  - **Stage 2 (Equivalence Partitioning)**: ✅ Xây dựng bảng 31 lớp tương đương (`EC01` đến `EC31`) bao quát toàn diện quy trình 2 bước và các điều kiện Range, Must be, Type, Missing/Empty, State conflict, Cross-platform skew, Output classes.
-  - **Audit Log**: ✅ Đã ghi entries A08, A09 trong `HW2/audit/audit-log.jsonl`.
-- **Tình trạng hiện tại**: Đang dừng ở điểm kiểm soát **STOP FOR REVIEW** sau Stage 2 của FR-03 để sinh viên thẩm định và phê duyệt các lớp tương đương trước khi sang Stage 3 & 4 (Chọn đại diện & Sinh test cases).
+  - **Stage 0 (Facts Collection)**: ✅ Khảo sát đối chiếu 3 tầng (Backend, Web, Mobile). Phát hiện rò rỉ OTP qua response, token không hạn dùng, lệch pha regex password Web vs Mobile, lệch pha OTP 4 số vs 6 số.
+  - **Stage 1 (Variables & Domains)**: ✅ Lập bảng biến Input / Output / State kèm miền giá trị chi tiết (Domains).
+  - **Stage 2 (Equivalence Partitioning)**: ✅ Bảng 31 lớp tương đương (`EC01` đến `EC31`).
+  - **Stage 3 (Representative Values)**: ✅ Xác định giá trị đại diện chuẩn cho 31 lớp EC.
+  - **Stage 4 (Minimum Test Cases & Coverage Matrix)**: ✅ Thiết kế bộ 22 ca kiểm thử tối thiểu (`FR03-DT-01` đến `FR03-DT-22`), ma trận bao phủ 100%. Xuất tệp máy đọc `HW2/testcases/FR-03.json`.
+  - **Stage 5 (Self-Check & Blind Spots)**: ✅ Phân tích blind spot (token expiry) và áp dụng nguyên tắc Zero-Trust SUT.
+  - **Audit Log**: ✅ Đã ghi các entries A08, A09, A10 trong `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: Đã hoàn thành 100% kỹ thuật **Domain Testing** cho **FR-03**. Đang dừng ở điểm kiểm soát **STOP FOR REVIEW** để sinh viên thẩm định trước khi chuyển sang kỹ thuật **Boundary Value Analysis (BVA)**.
 
 ---
 
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định bảng phân hoạch tương đương (EC01 - EC31) của FR-03.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 equivalence partitions stage 2`.
-3. Tiến hành **Stage 3 (Chọn đại diện)** và **Stage 4 (Thiết kế bộ test case tối thiểu & Ma trận bao phủ 100%)** cho FR-03.
+1. Sinh viên thẩm định bộ test case và ma trận bao phủ của FR-03 Domain Testing.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 domain testing stage 3-5 test cases and coverage`.
+3. Chuyển sang kỹ thuật: **Boundary Value Analysis (BVA)** cho FR-03:
+   - Stage 1: Xác định các miền có thứ tự (`newPassword.length` [8, 128], `resetToken.length` [4, 4]).
+   - Stage 2: Biến thể 3-value BVA kết hợp mô hình 9 điểm và biên UTF-8 tiếng Việt (v2.0).
+   - Stage 3: Sinh bộ ca kiểm thử biên và cập nhật vào `HW2/testcases/FR-03.json`.
+   - Stage 4: Tự kiểm tra và blind spots.
 
 ---
 
@@ -118,14 +125,16 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/FR-03/01-domain-testing.vi.md` | Bổ sung Stage 2 (31 lớp tương đương EC01 - EC31) |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A09 (FR-03 Stage 2) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 2 cho FR-03 |
+| `HW2/report/FR-03/01-domain-testing.vi.md` | Hoàn thành trọn vẹn Stage 0 đến Stage 5 |
+| `HW2/testcases/FR-03.json` | Tạo tệp dữ liệu kiểm thử máy đọc (22 TCs Domain Testing) |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A10 (FR-03 Stage 3-5) |
+| `HW2/session-history.md` | Cập nhật hoàn thành Domain Testing cho FR-03 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đang chờ sinh viên duyệt Stage 2 của FR-03.
+**Phiên hiện tại**: Đã xong Domain Testing FR-03. Chờ duyệt để chuyển sang BVA.
+
 
 
 

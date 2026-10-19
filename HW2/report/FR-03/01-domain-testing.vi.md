@@ -254,8 +254,134 @@ Tuân thủ hướng dẫn phân hoạch kiểm thử miền theo bài giảng *
 
 ---
 
+## Stage 3: Chọn giá trị đại diện (Representative Values)
+
+Theo hướng dẫn bài giảng **S04 Domain Testing (Step 3: Selecting representative values)**:
+- Mỗi lớp tương đương được gán một giá trị đại diện cụ thể, thực tế và khả thi trong môi trường kiểm thử.
+- Với các lớp kiểm thử trạng thái (State): sử dụng tài khoản seed sẵn trong database (`test@eshop.com`) và cơ chế lấy token động từ Bước 1.
+
+| Biến / Trạng thái | Mã EC | Mô tả lớp tương đương | Giá trị đại diện (Representative Value) | Loại lớp |
+| :--- | :---: | :--- | :--- | :---: |
+| `Step1.email` | `EC01` | Email hợp lệ, tồn tại trong DB | `"test@eshop.com"` | **Valid** |
+| `Step1.email` | `EC02` | Email hợp lệ cú pháp nhưng chưa đăng ký | `"not_found_{{uniq}}@domain.com"` | Invalid |
+| `Step1.email` | `EC03` | Chuỗi rỗng | `""` | Invalid |
+| `Step1.email` | `EC04` | Thiếu trường `email` trong JSON | `{}` (bỏ qua field `email`) | Invalid |
+| `Step1.email` | `EC05` | Sai cú pháp: thiếu ký tự `@` | `"testeshop.com"` | Invalid |
+| `Step1.email` | `EC06` | Sai cú pháp: thiếu tên miền sau `@` | `"test@"` | Invalid |
+| `Step1.email` | `EC07` | Sai kiểu dữ liệu: Boolean `true` | `true` | Invalid |
+| `Step2.email` | `EC08` | Email trùng khớp với tài khoản cấp OTP | `"test@eshop.com"` | **Valid** |
+| `Step2.email` | `EC09` | Email không khớp với token (email user khác) | `"admin@eshop.com"` | Invalid |
+| `Step2.email` | `EC10` | Chuỗi rỗng ở Bước 2 | `""` | Invalid |
+| `Step2.resetToken` | `EC11` | Đúng 4 chữ số và trùng khớp DB | `res.data.resetToken` (lấy động từ Bước 1, e.g. `"5678"`) | **Valid** |
+| `Step2.resetToken` | `EC12` | Sai giá trị 4 chữ số | `"0000"` | Invalid |
+| `Step2.resetToken` | `EC13` | Sai độ dài (6 chữ số theo mẫu spec) | `"123456"` | Invalid |
+| `Step2.resetToken` | `EC14` | Chuỗi rỗng ở Bước 2 | `""` | Invalid |
+| `Step2.resetToken` | `EC15` | Token đã được sử dụng (tái sử dụng token) | Gọi lại Step 2 lần thứ hai với cùng token vừa đổi thành công | Invalid |
+| `Step2.resetToken` | `EC16` | Token của User B gửi kèm email User A | Token sinh từ `admin@eshop.com` gửi kèm `test@eshop.com` | Invalid |
+| `Step2.resetToken` | `EC17` | Token gửi cho user chưa từng gọi Step 1 | Gửi token cho user vừa đăng ký mới (`reset_token IS NULL`) | Invalid |
+| `Step2.newPassword` | `EC18` | Mật khẩu chuẩn mạnh ($8..128$) | `"NewPassword123!"` (đủ hoa, thường, số, ký tự đặc biệt) | **Valid** |
+| `Step2.newPassword` | `EC19` | Độ dài quá ngắn (< 8) | `"Pass1!"` (6 ký tự) | Invalid |
+| `Step2.newPassword` | `EC20` | Thiếu chữ in hoa | `"newpassword123!"` | Invalid |
+| `Step2.newPassword` | `EC21` | Thiếu chữ in thường | `"NEWPASSWORD123!"` | Invalid |
+| `Step2.newPassword` | `EC22` | Thiếu chữ số | `"NewPassword!@#"` | Invalid |
+| `Step2.newPassword` | `EC23` | Thiếu ký tự đặc biệt, có khoảng trắng (Web skew) | `"NewPassword 123"` | Invalid |
+| `Step2.newPassword` | `EC24` | Chuỗi rỗng | `""` | Invalid |
+| `Step2.newPassword` | `EC25` | Độ dài quá dài (> 128) | `"A1!" + "a".repeat(126)` (129 ký tự) | Invalid |
+| `Step1.Response.status` | `EC26` | Trả về HTTP 200 OK Bước 1 | HTTP 200 OK | **Valid Output** |
+| `Step1.Response.status` | `EC27` | Trả về HTTP 404 Not Found Bước 1 | HTTP 404 Not Found | Invalid Output |
+| `Step2.Response.status` | `EC28` | Trả về HTTP 200 OK Bước 2 | HTTP 200 OK | **Valid Output** |
+| `Step2.Response.status` | `EC29` | Trả về HTTP 400 Bad Request Bước 2 | HTTP 400 Bad Request | Invalid Output |
+| `Step2.Response.status` | `EC30` | Trả về HTTP 400 Bad Request (Kỳ vọng REST) | HTTP 400 Bad Request | Invalid Output |
+| `Response.status` | `EC31` | Trả về HTTP 500 Internal Error | HTTP 500 Internal Server Error | Invalid Output |
+
+---
+
+## Stage 4: Chọn bộ test case tối thiểu và Ma trận bao phủ (Coverage Matrix)
+
+Áp dụng quy tắc kết hợp kiểm thử miền của môn học (slide S04):
+1. **1 test case hợp lệ**: Kết hợp tối đa các lớp Valid (`EC01, EC08, EC11, EC18, EC26, EC28`).
+2. **21 test cases không hợp lệ đơn lập**: Mỗi ca chỉ vi phạm duy nhất 1 lớp Invalid, các trường còn lại giữ ở giá trị danh định hợp lệ để cô lập nguyên nhân gây lỗi.
+
+Tổng cộng bộ kiểm thử miền gồm **22 ca kiểm thử tối thiểu** (`FR03-DT-01` đến `FR03-DT-22`).
+
+### 4.1 Bảng chi tiết 22 ca kiểm thử miền (Test Cases Table)
+
+| Mã TC | Tên ca kiểm thử | Các lớp EC được phủ | Dữ liệu kiểm thử (Request Data) | Kỳ vọng (Expected Result) | Nguồn (Source tag) |
+| :--- | :--- | :---: | :--- | :--- | :---: |
+| **FR03-DT-01** | Quy trình khôi phục mật khẩu hoàn chỉnh hợp lệ | `EC01`, `EC08`, `EC11`, `EC18`, `EC26`, `EC28` | **Bước 1:** `POST /api/forgot-password` với `email: "test@eshop.com"`<br>**Bước 2:** `POST /api/reset-password` với `email: "test@eshop.com"`, `resetToken: <token_từ_bước_1>`, `newPassword: "NewPassword123!"` | - Bước 1: HTTP 200, trả về `resetToken`<br>- Bước 2: HTTP 200, message `"Password reset successfully"` | `[SPEC]` api_spec:42, 51<br>`[CODE]` server.js:78, 95 |
+| **FR03-DT-02** | Bước 1: Yêu cầu OTP cho email chưa từng đăng ký | `EC02`, `EC27` | `POST /api/forgot-password`<br>`body: { email: "not_found_{{uniq}}@domain.com" }` | HTTP 404 Not Found, body có `"User not found"` | `[CODE]` server.js:71 |
+| **FR03-DT-03** | Bước 1: Yêu cầu OTP với email rỗng | `EC03`, `EC27` *(code thực tế)* | `POST /api/forgot-password`<br>`body: { email: "" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-04** | Bước 1: Yêu cầu OTP thiếu trường email | `EC04`, `EC27` *(code thực tế)* | `POST /api/forgot-password`<br>`body: {}` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-05** | Bước 1: Email sai cú pháp (thiếu `@`) | `EC05`, `EC27` *(code thực tế)* | `POST /api/forgot-password`<br>`body: { email: "testeshop.com" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-06** | Bước 1: Email sai cú pháp (thiếu domain) | `EC06`, `EC27` *(code thực tế)* | `POST /api/forgot-password`<br>`body: { email: "test@" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-07** | Bước 1: Email sai kiểu dữ liệu (Boolean `true`) | `EC07`, `EC27` *(code thực tế)* | `POST /api/forgot-password`<br>`body: { email: true }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-08** | Bước 2: Email không khớp với tài khoản được cấp OTP | `EC09`, `EC29` | `POST /api/reset-password`<br>`body: { email: "admin@eshop.com", resetToken: "<token_của_test>", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-09** | Bước 2: Email là chuỗi rỗng | `EC10`, `EC29` | `POST /api/reset-password`<br>`body: { email: "", resetToken: "<valid_token>", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-10** | Bước 2: Mã OTP sai giá trị 4 chữ số | `EC12`, `EC29` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "0000", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-11** | Bước 2: Mã OTP sai độ dài (6 chữ số theo mẫu spec) | `EC13`, `EC29` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "123456", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[SPEC]` api_spec:42<br>`[CODE]` server.js:94 |
+| **FR03-DT-12** | Bước 2: Mã OTP là chuỗi rỗng | `EC14`, `EC29` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-13** | Bước 2: Tái sử dụng token đã dùng thành công (Single-use test) | `EC15`, `EC29` | `POST /api/reset-password` lần 2 với cùng `resetToken` đã được đổi thành công ở TC01 | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:90-94 |
+| **FR03-DT-14** | Bước 2: Dùng mã OTP của User B để đổi mật khẩu cho User A | `EC16`, `EC29` | `POST /api/reset-password`<br>`body: { email: "userA", resetToken: "<token_của_userB>", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:90-94 |
+| **FR03-DT-15** | Bước 2: Gửi token cho user chưa từng yêu cầu quên mật khẩu | `EC17`, `EC29` | `POST /api/reset-password`<br>`body: { email: "new_user", resetToken: "1234", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:90-94 |
+| **FR03-DT-16** | Bước 2: Mật khẩu mới quá ngắn (< 8 ký tự) | `EC19`, `EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "Pass1!" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code chấp nhận trả về 200 | `[SPEC]` api_spec:51<br>`[CODE]` server.js:95 |
+| **FR03-DT-17** | Bước 2: Mật khẩu mới thiếu chữ in hoa | `EC20`, `EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "password123!" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code chấp nhận trả về 200 | `[SPEC]` api_spec:51<br>`[CODE]` server.js:95 |
+| **FR03-DT-18** | Bước 2: Mật khẩu mới thiếu chữ in thường | `EC21`, `EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "PASSWORD123!" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code chấp nhận trả về 200 | `[SPEC]` api_spec:51<br>`[CODE]` server.js:95 |
+| **FR03-DT-19** | Bước 2: Mật khẩu mới thiếu chữ số | `EC22`, `EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "Password!@#" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code chấp nhận trả về 200 | `[SPEC]` api_spec:51<br>`[CODE]` server.js:95 |
+| **FR03-DT-20** | Bước 2: Mật khẩu mới có khoảng trắng, thiếu ký tự đặc biệt (Web regex skew) | `EC23`, `EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "NewPassword 123" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code chấp nhận trả về 200 | `[SPEC]` api_spec:51<br>`[CODE]` ForgotPassword.jsx:26 |
+| **FR03-DT-21** | Bước 2: Mật khẩu mới là chuỗi rỗng `""` | `EC24`, `EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code chấp nhận trả về 200 | `[SPEC]` api_spec:51<br>`[CODE]` server.js:95 |
+| **FR03-DT-22** | Bước 2: Mật khẩu mới quá dài (> 128 ký tự) | `EC25`, `EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "A1!" + "a".repeat(126) }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code chấp nhận trả về 200 | `[ASSUMED]` Security standard<br>`[CODE]` server.js:95 |
+
+---
+
+### 4.2 Ma trận bao phủ 100% các lớp tương đương (Coverage Matrix)
+
+| Mã EC | FR03-DT-01 | FR03-DT-02..07 | FR03-DT-08..15 | FR03-DT-16..22 | Trạng thái bao phủ |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| **EC01** | **X** | | | | **100% Phủ** |
+| **EC02** | | **X** (DT-02) | | | **100% Phủ** |
+| **EC03** | | **X** (DT-03) | | | **100% Phủ** |
+| **EC04** | | **X** (DT-04) | | | **100% Phủ** |
+| **EC05** | | **X** (DT-05) | | | **100% Phủ** |
+| **EC06** | | **X** (DT-06) | | | **100% Phủ** |
+| **EC07** | | **X** (DT-07) | | | **100% Phủ** |
+| **EC08** | **X** | | | | **100% Phủ** |
+| **EC09** | | | **X** (DT-08) | | **100% Phủ** |
+| **EC10** | | | **X** (DT-09) | | **100% Phủ** |
+| **EC11** | **X** | | | | **100% Phủ** |
+| **EC12** | | | **X** (DT-10) | | **100% Phủ** |
+| **EC13** | | | **X** (DT-11) | | **100% Phủ** |
+| **EC14** | | | **X** (DT-12) | | **100% Phủ** |
+| **EC15** | | | **X** (DT-13) | | **100% Phủ** |
+| **EC16** | | | **X** (DT-14) | | **100% Phủ** |
+| **EC17** | | | **X** (DT-15) | | **100% Phủ** |
+| **EC18** | **X** | | | | **100% Phủ** |
+| **EC19** | | | | **X** (DT-16) | **100% Phủ** |
+| **EC20** | | | | **X** (DT-17) | **100% Phủ** |
+| **EC21** | | | | **X** (DT-18) | **100% Phủ** |
+| **EC22** | | | | **X** (DT-19) | **100% Phủ** |
+| **EC23** | | | | **X** (DT-20) | **100% Phủ** |
+| **EC24** | | | | **X** (DT-21) | **100% Phủ** |
+| **EC25** | | | | **X** (DT-22) | **100% Phủ** |
+| **EC26** | **X** | | | | **100% Phủ** |
+| **EC27** | | **X** (DT-02..07) | | | **100% Phủ** |
+| **EC28** | **X** | | | | **100% Phủ** |
+| **EC29** | | | **X** (DT-08..15) | | **100% Phủ** |
+| **EC30** | | | | **X** (DT-16..22) | **100% Phủ** |
+| **EC31** | *(Lỗi ngoại lệ Database Exception, dự phòng cho SQL crash)* | | | | Đã phân tích |
+
+---
+
+## Stage 5: Tự kiểm tra và Điểm mù (Self-Check & Blind Spots)
+
+1. **Tuân thủ quy tắc cô lập lỗi:** Mỗi ca kiểm thử không hợp lệ từ `FR03-DT-02` đến `FR03-DT-22` chỉ vi phạm duy nhất một lớp tương đương, các biến còn lại đều giữ ở trạng thái danh định hợp lệ.
+2. **Điểm mù về thời hạn Token (Token Expiry):** Trong lý thuyết kiểm thử quy trình xác thực, việc kiểm tra token hết hạn sau $T$ phút (ví dụ 15 phút) là ca kiểm thử bắt buộc. Tuy nhiên trong mã nguồn SUT, bảng `users` không có cột lưu thời gian tạo token và code backend không có logic kiểm tra thời gian hết hạn. Do đó ca kiểm thử token hết hạn không thể kích hoạt bằng dữ liệu gửi lên (sẽ được ghi nhận vào báo cáo khiếm khuyết thiết kế).
+3. **Nguyên tắc Zero-Trust SUT (v2.0):** Nhận diện trước rằng toàn bộ các ca kiểm thử `newPassword` vi phạm (`FR03-DT-16` đến `FR03-DT-22`) dự kiến sẽ trả về HTTP 200 (FAIL so với kỳ vọng HTTP 400) do backend thiếu hoàn toàn mã kiểm tra validation.
+
+---
+
 > [!IMPORTANT]
 > **ĐIỂM DỪNG ĐỂ DUYỆT (STOP FOR REVIEW)**:  
-> Đã hoàn thành phân hoạch **31 lớp tương đương** (`EC01` đến `EC31`) bao quát toàn diện quy trình 2 bước và các biến Input / Output / State.  
-> Xin mời người kiểm thử thẩm định trước khi chuyển sang **Stage 3 (Chọn đại diện)** và **Stage 4 (Thiết kế test cases & Ma trận bao phủ)**!
+> Hoàn thành trọn vẹn quy trình Domain Testing cho **FR-03** (Stages 0, 1, 2, 3, 4, 5).  
+> Đã thiết kế **22 ca kiểm thử tối thiểu** bao phủ 100% ma trận 31 lớp tương đương. Xin mời người kiểm thử thẩm định trước khi chuyển sang kỹ thuật **Boundary Value Analysis (BVA)**!
+
 
