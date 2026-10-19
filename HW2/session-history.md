@@ -88,19 +88,20 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
   - **Stage 5 (AI Gap Analysis)**: ✅ Phân tích 3 khoảng trống lớn (Cross-platform skew, Unicode byte vs char, Bias towards standard behavior) và nâng cấp kỹ năng v1 -> v2 tại `skills-changelog.md`
   - **Stage 6 (Summary numbers)**: ✅ Cập nhật `HW2/report/FR-01/03-execution-and-gap-analysis.vi.md`
   - **Audit Log**: ✅ Đã ghi A07 trong `HW2/audit/audit-log.jsonl`
-- **Tình trạng**: Đã hoàn thành 100% trọn vẹn toàn bộ chu trình 4 kỹ năng cho **FR-01**.
+- **FR-01 (Account Registration)**: ✅ Hoàn thành 100% trọn vẹn toàn bộ chu trình 4 kỹ năng (Domain Testing, BVA, Execution, Bug Reports, v2 Changelog, Main Report).
+- **FR-03 (Forgot Password & Password Reset)**:
+  - **Stage 0 (Facts Collection)**: ✅ Hoàn thành khảo sát đối chiếu 3 tầng (Backend, Web, Mobile). Phát hiện lỗi rò rỉ OTP qua response, token không có thời hạn, lệch pha regex password Web vs Mobile, lệch pha OTP 4 số vs 6 số.
+  - **Stage 1 (Variables & Domains)**: ✅ Lập bảng biến Input / Output / State kèm miền giá trị chi tiết (Domains) tại `HW2/report/FR-03/01-domain-testing.vi.md`.
+  - **Audit Log**: ✅ Đã ghi entry A08 trong `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: Đang dừng ở điểm kiểm soát **STOP FOR REVIEW** sau Stage 0 & Stage 1 của FR-03 để sinh viên thẩm định và phê duyệt trước khi sang Stage 2 (Equivalence Partitioning).
 
 ---
 
 ## Kế hoạch tiếp theo
 
-1. Sinh viên duyệt kết quả và thực hiện Git commit:
-   `git add -A && git commit -m "HW2-docs(FR-01): test execution, bug reports and AI gap analysis"`
-2. **Xác định tính năng tiếp theo**:
-   - Lưu ý quan trọng: Quy định đồ án yêu cầu chọn 4 tính năng từ 4 Pool khác nhau (Pool A, Pool B, Pool C, Pool D - Mobile App).
-   - Trước đó dự kiến (FR-01 Pool A, FR-03 Pool A, FR-08 Pool B, FR-11 Pool C) bị trùng Pool A và thiếu Pool D (mất 15 điểm tính năng D).
-   - Cần chốt chọn 1 tính năng Pool D (Mobile App: Mobile Register, Mobile Search, Mobile Cart, hoặc Mobile Forgot Password).
-3. Bắt đầu áp dụng bộ skill v2 cho tính năng kế tiếp.
+1. Sinh viên thẩm định kết quả Stage 0 và Stage 1 của FR-03.
+2. Tiến hành **Stage 2: Phân hoạch tương đương (Equivalence Partitioning)** cho FR-03 theo slide S04 (phân hoạch cho cả 2 bước: yêu cầu OTP và đặt lại mật khẩu).
+3. Đề xuất commit Git sau khi hoàn thành các chặng được duyệt.
 
 ---
 
@@ -116,17 +117,15 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/testcases/FR-01.json` | Cập nhật kết quả thực thi (10 PASS, 20 FAIL) |
-| `HW2/report/bugs.vi.md` | Báo cáo tổng hợp 5 lỗi phát hiện |
-| `HW2/report/issues/BUG-FR01-01.md` đến `BUG-FR01-05.md` | 5 bản thảo GitHub issues |
-| `HW2/report/FR-01/03-execution-and-gap-analysis.vi.md` | Báo cáo tổng kết thực thi và khoảng trống AI của FR-01 |
-| `skills-changelog.md` | Ghi nhận cải tiến kỹ năng v1 -> v2 từ AI Gap Analysis |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A07 |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Test Execution FR-01 |
+| `HW2/report/FR-03/01-domain-testing.vi.md` | Tạo báo cáo Stage 0 và Stage 1 cho FR-03 |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A08 (FR-03 Stage 0-1) |
+| `HW2/session-history.md` | Cập nhật tiến độ bắt đầu FR-03 |
+| `HW2/23120319_HW02_Main_Report.md` | Hoàn thiện toàn bộ nội dung FR-01 trong Báo cáo chính |
 
 ---
 
-**Ngày cập nhật**: 18/10/2026  
-**Phiên tiếp theo**: Commit Git và triển khai tính năng kế tiếp với bộ skill v2.
+**Ngày cập nhật**: 19/10/2026  
+**Phiên hiện tại**: Đang chờ sinh viên duyệt Stage 0 & Stage 1 của FR-03.
+
 
 
