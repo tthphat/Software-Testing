@@ -17,6 +17,9 @@ Tài liệu này tổng hợp toàn bộ các khiếm khuyết phần mềm (bug
 | **BUG-FR03-02** | Backend hoàn toàn không kiểm tra tính hợp lệ và độ phức tạp của `newPassword` trên `POST /api/reset-password` | FR-03 | FR03-DT-16..22, FR03-BVA-01, 02, 08, 09 | **Critical** | **High** | Confirmed (Đã xác minh qua code & API) |
 | **BUG-FR03-03** | Mã đặt lại mật khẩu không có thời hạn hết hạn (Token never expires do thiếu trường thời gian trong DB) | FR-03 | Code analysis database.js:58 & server.js | **Major** | **Medium** | Confirmed (Đã xác minh qua code) |
 | **BUG-FR03-04** | Endpoint `POST /api/forgot-password` trả về HTTP 404 Not Found thay vì HTTP 400 Bad Request khi email không hợp lệ | FR-03 | FR03-DT-03..07 | **Minor** | **Low** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR12-01** | Backend middleware `authenticateToken` không kiểm tra vai trò admin và các route quản trị (`/api/admin/users`, `/api/admin/orders`, `/api/categories`, `/api/coupons`) thiếu role check dẫn đến người dùng thường truy cập và thực thi trái phép (Broken Access Control) | FR-12 | FR12-DT-07, 08, 13, 15, 18 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR12-02** | Endpoint quản lý sản phẩm `POST /api/products`, `PUT /api/products/:id`, `DELETE /api/products/:id` bỏ quên middleware `authenticateToken`, cho phép khách vãng lai (unauthenticated) tạo/sửa/xóa sản phẩm trái phép và bypass validation | FR-12 | FR12-DT-16, FR12-BVA-11, 12, 13, 14 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR12-03** | Lỗ hổng gán tham số hàng loạt (Mass Assignment) tại `PUT /api/users/me` cho phép người dùng thường tự nâng quyền tài khoản thành Admin (`privilege escalation`) | FR-12 | FR12-DT-11 | **High** | **High** | Confirmed (Đã xác minh qua code & API) |
 
 ---
 
@@ -447,4 +450,197 @@ Content-Type: application/json; charset=utf-8
   });
   ```
   Thiếu bước kiểm tra định dạng và tính bắt buộc: `if (!email || typeof email !== 'string' || !isValidEmail(email)) return res.status(400)...` trước khi truy vấn database.
+
+---
+
+### BUG-FR12-01: Backend middleware `authenticateToken` không kiểm tra vai trò admin và các route quản trị thiếu role check
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-12 – Kiểm soát truy cập (Access Control) |
+| **Test cases liên quan** | `FR12-DT-07`, `FR12-DT-08`, `FR12-DT-13`, `FR12-DT-15`, `FR12-DT-18` (5 test cases) |
+| **Mức độ (Severity)** | **Critical** (Broken Access Control / BOLA - Toàn bộ chức năng quản trị bị người dùng thường xâm nhập) |
+| **Độ ưu tiên (Priority)** | **Immediate** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Windows 11, Node.js v20.x, SQLite3, Base URL `http://localhost:3000` |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+- Theo đặc tả kiến trúc bảo mật và `api_specification.md` (mục 6. Phân quyền và Bảo mật), các endpoint thuộc nhóm Quản trị viên (`/api/admin/users`, `/api/admin/orders`, `/api/categories`, `/api/coupons`) chỉ được phép truy cập bởi tài khoản có quyền `admin` (`role === 'admin'`). Người dùng thường (`role === 'user'`) khi gửi token truy cập các tài nguyên này phải bị từ chối với mã lỗi HTTP 403 Forbidden.
+- Tuy nhiên trong mã nguồn SUT, middleware `authenticateToken` (`server.js:100-110`) chỉ giải mã JWT và gán `req.user = user` mà không kiểm tra trường `role`. Đồng thời, tất cả các controller/route handler quản trị (`GET /api/admin/users`, `DELETE /api/admin/users/:id`, `GET /api/admin/orders`, `POST /api/categories`, `POST /api/coupons`, v.v.) hoàn toàn không có bất kỳ dòng lệnh nào kiểm tra `if (req.user.role !== 'admin') return res.status(403)...`.
+- Hậu quả: Bất kỳ người dùng thường nào sau khi đăng nhập đều có thể xem danh sách toàn bộ người dùng, xóa người dùng khác, đổi trạng thái đơn hàng, tạo/xóa danh mục và mã giảm giá coupon tùy ý (HTTP 200 OK thay vì 403 Forbidden).
+
+#### 2. Request / Response thực tế từ Test Runner (`FR12-DT-07` - User thường gọi GET /api/admin/users)
+```http
+GET /api/admin/users HTTP/1.1
+Authorization: Bearer <regular_user_jwt_token>
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+[
+  {
+    "id": 1,
+    "name": "Admin",
+    "email": "admin@eshop.com",
+    "role": "admin"
+  },
+  {
+    "id": 2,
+    "name": "Test User",
+    "email": "test@eshop.com",
+    "role": "user"
+  }
+]
+```
+
+#### 3. Kết quả mong đợi vs Kết quả thực tế
+- **Kết quả mong đợi:** HTTP 403 Forbidden kèm body `{ "error": "Access denied" }` hoặc `{ "message": "Admin privileges required" }` `[SPEC: api_specification.md:120-128]`.
+- **Kết quả thực tế:** HTTP 200 OK, trả về toàn bộ danh sách người dùng trong cơ sở dữ liệu.
+
+#### 4. Phân tích nguyên nhân & Mã nguồn liên quan
+- Tại `eshop-sut/backend/server.js:100-110`:
+  ```javascript
+  const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Access token required' });
+
+    jwt.verify(token, SECRET_KEY, (err, user) => {
+      if (err) return res.status(403).json({ error: 'Invalid or expired token' });
+      req.user = user;
+      next(); // Chỉ xác thực định danh (Authentication), hoàn toàn thiếu phân quyền (Authorization)
+    });
+  };
+  ```
+- Tại các route admin (`server.js:231-301`):
+  ```javascript
+  app.get('/api/admin/users', authenticateToken, (req, res) => {
+    db.all('SELECT id, name, email, role FROM users', [], (err, rows) => { ... });
+  });
+  ```
+  Không có middleware kiểm tra role quản trị như `requireAdmin = (req, res, next) => { if (req.user.role !== 'admin') return res.status(403).json({ error: 'Forbidden' }); next(); }`.
+- Phân loại lỗi theo CWE: CWE-285 (Improper Authorization), CWE-862 (Missing Authorization), OWASP A01:2021-Broken Access Control.
+
+---
+
+### BUG-FR12-02: Endpoint quản lý sản phẩm `POST /api/products`, `PUT /api/products/:id`, `DELETE /api/products/:id` bỏ quên middleware `authenticateToken`
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-12 – Kiểm soát truy cập (Access Control) & FR-04 (Product Management) |
+| **Test cases liên quan** | `FR12-DT-16`, `FR12-BVA-11`, `FR12-BVA-12`, `FR12-BVA-13`, `FR12-BVA-14` (5 test cases) |
+| **Mức độ (Severity)** | **Critical** (Missing Authentication for Critical Function - Bất kỳ ai ngoài Internet đều có thể tạo/sửa/xóa kho hàng) |
+| **Độ ưu tiên (Priority)** | **Immediate** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Windows 11, Node.js v20.x, SQLite3, Base URL `http://localhost:3000` |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+- Theo đặc tả hệ thống `api_specification.md` (mục 3. Quản lý sản phẩm), thao tác tạo sản phẩm mới (`POST /api/products`), sửa sản phẩm (`PUT /api/products/:id`) và xóa sản phẩm (`DELETE /api/products/:id`) là các thao tác quản trị viên bắt buộc phải có Authorization header chứa Bearer Token của tài khoản Admin. Khách vãng lai (unauthenticated/guest) khi gọi các API này phải bị chặn với mã lỗi HTTP 401 Unauthorized.
+- Trong mã nguồn `eshop-sut/backend/server.js:167`, các route này hoàn toàn được khai báo công khai mà không gắn middleware `authenticateToken`.
+- Hậu quả: Bất kỳ ai không cần đăng nhập hay có token đều có thể gửi request tạo sản phẩm mới với giá trị bất kỳ (thậm chí giá âm, giá 0 đồng, tồn kho âm), hoặc xóa sạch toàn bộ sản phẩm khỏi kho hàng của hệ thống EShop.
+
+#### 2. Request / Response thực tế từ Test Runner (`FR12-DT-16` - Unauthenticated POST /api/products)
+```http
+POST /api/products HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "Unauthenticated Product",
+  "price": 100,
+  "stock": 10,
+  "category_id": 1
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "Product created",
+  "id": 11
+}
+```
+
+#### 3. Kết quả mong đợi vs Kết quả thực tế
+- **Kết quả mong đợi:** HTTP 401 Unauthorized (`{ "error": "Access token required" }`) `[SPEC: api_specification.md:60-64]`.
+- **Kết quả thực tế:** HTTP 201 Created, sản phẩm được lưu trực tiếp vào cơ sở dữ liệu mà không cần xác thực người gửi.
+
+#### 4. Phân tích nguyên nhân & Mã nguồn liên quan
+- Tại `eshop-sut/backend/server.js:167`:
+  ```javascript
+  app.post('/api/products', (req, res) => { // THIẾU authenticateToken VÀ requireAdmin
+    const { name, description, price, stock, category_id, image_url } = req.body;
+    db.run(
+      'INSERT INTO products (name, description, price, stock, category_id, image_url) VALUES (?, ?, ?, ?, ?, ?)',
+      [name, description, price, stock, category_id, image_url],
+      function (err) { ... }
+    );
+  });
+  ```
+- Các route `PUT /api/products/:id` (`server.js:180`) và `DELETE /api/products/:id` (`server.js:192`) cũng mắc lỗi tương tự.
+- Phân loại lỗi theo CWE: CWE-306 (Missing Authentication for Critical Function), OWASP A01:2021-Broken Access Control.
+
+---
+
+### BUG-FR12-03: Lỗ hổng gán tham số hàng loạt (Mass Assignment) tại `PUT /api/users/me` cho phép người dùng tự nâng quyền thành Admin
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-12 – Kiểm soát truy cập (Access Control) |
+| **Test cases liên quan** | `FR12-DT-11` (1 test case) |
+| **Mức độ (Severity)** | **High** (Privilege Escalation via Mass Assignment) |
+| **Độ ưu tiên (Priority)** | **High** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Windows 11, Node.js v20.x, SQLite3, Base URL `http://localhost:3000` |
+| **Ngày phát hiện** | 2026-10-19 |
+
+#### 1. Mô tả chi tiết
+- Endpoint `PUT /api/users/me` dùng để cho phép người dùng đăng nhập cập nhật thông tin hồ sơ của chính mình (như tên, mật khẩu, email).
+- Tuy nhiên trong handler xử lý, backend nhận trực tiếp trường `role` từ request body và đưa thẳng vào câu lệnh SQL `UPDATE users SET name = ?, email = ?, password = ?, role = ? WHERE id = ?`.
+- Hậu quả: Một người dùng thông thường (`role: 'user'`) chỉ cần gửi một request đơn giản với payload `{"role": "admin"}` là có thể tự cấp quyền quản trị viên tối cao cho tài khoản của mình mà không cần bất kỳ sự phê duyệt nào.
+
+#### 2. Request / Response thực tế từ Test Runner (`FR12-DT-11` - User leo quyền thành admin)
+```http
+PUT /api/users/me HTTP/1.1
+Authorization: Bearer <regular_user_jwt_token>
+Content-Type: application/json
+
+{
+  "name": "Escalated User",
+  "email": "test@eshop.com",
+  "role": "admin"
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "message": "Profile updated successfully"
+}
+```
+Sau đó khi gọi `GET /api/users/me`, trường `role` trong cơ sở dữ liệu đã biến thành `"admin"`.
+
+#### 3. Kết quả mong đợi vs Kết quả thực tế
+- **Kết quả mong đợi:** Máy chủ phải từ chối request với HTTP 400 Bad Request hoặc âm thầm bỏ qua (ignore/sanitize) trường `role`, chỉ cho phép người dùng sửa đổi các trường thông tin cá nhân được phép (`name`, `password`, `email`) `[SPEC: api_specification.md:28-32]`.
+- **Kết quả thực tế:** Máy chủ trả về HTTP 200 OK và cập nhật trường `role = 'admin'` vào cơ sở dữ liệu.
+
+#### 4. Phân tích nguyên nhân & Mã nguồn liên quan
+- Tại `eshop-sut/backend/server.js:124-138`:
+  ```javascript
+  app.put('/api/users/me', authenticateToken, (req, res) => {
+    const { name, email, password, role } = req.body; // Over-posting / Mass Assignment
+    db.run(
+      'UPDATE users SET name = ?, email = ?, password = ?, role = ? WHERE id = ?',
+      [name, email, password, role, req.user.id],
+      function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Profile updated successfully' });
+      }
+    );
+  });
+  ```
+- Backend không áp dụng whitelist các trường được phép cập nhật bởi người dùng thông thường (`req.body` không được sanitize).
+- Phân loại lỗi theo CWE: CWE-915 (Improperly Controlled Modification of Dynamically-Determined Object Attributes), CWE-269 (Improper Privilege Management), OWASP A04:2021-Insecure Design.
+
 

@@ -33,7 +33,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "[{\"id\":1,\"name\":\"Admin User\",\"email\":\"admin@eshop.com\",\"role\":\"admin\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null},{\"id\":2,\"name\":\"Test User\",\"email\":\"test@eshop.com\",\"role\":\"user\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null}]",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.550Z"
       }
     },
     {
@@ -62,7 +66,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Unauthorized\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.620Z"
       }
     },
     {
@@ -94,7 +102,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Unauthorized\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.622Z"
       }
     },
     {
@@ -124,7 +136,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Forbidden\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.624Z"
       }
     },
     {
@@ -156,7 +172,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Forbidden\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.626Z"
       }
     },
     {
@@ -188,7 +208,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Forbidden\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.628Z"
       }
     },
     {
@@ -218,7 +242,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "[{\"id\":1,\"name\":\"Admin User\",\"email\":\"admin@eshop.com\",\"role\":\"admin\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null},{\"id\":2,\"name\":\"Test User\",\"email\":\"test@eshop.com\",\"role\":\"user\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null}]",
+        "fail_reasons": [
+          "status 200 not in [403]",
+          "body missing \"Forbidden\""
+        ],
+        "executed_at": "2026-10-19T16:18:51.630Z"
       }
     },
     {
@@ -247,7 +278,13 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "[{\"id\":1,\"name\":\"Admin User\",\"email\":\"admin@eshop.com\",\"role\":\"admin\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null},{\"id\":2,\"name\":\"Test User\",\"email\":\"test@eshop.com\",\"role\":\"user\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null}]",
+        "fail_reasons": [
+          "status 200 not in [403]"
+        ],
+        "executed_at": "2026-10-19T16:18:51.635Z"
       }
     },
     {
@@ -279,7 +316,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Forbidden\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.638Z"
       }
     },
     {
@@ -310,7 +351,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Forbidden\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.639Z"
       }
     },
     {
@@ -341,7 +386,13 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Profile updated\"}",
+        "fail_reasons": [
+          "status 200 not in [400,403]"
+        ],
+        "executed_at": "2026-10-19T16:18:51.641Z"
       }
     },
     {
@@ -368,12 +419,16 @@
           200
         ],
         "body_includes": [
-          "Category added successfully"
+          "Category created"
         ]
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Category created\",\"id\":6}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.649Z"
       }
     },
     {
@@ -404,7 +459,13 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Category created\",\"id\":7}",
+        "fail_reasons": [
+          "status 200 not in [403]"
+        ],
+        "executed_at": "2026-10-19T16:18:51.654Z"
       }
     },
     {
@@ -440,7 +501,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Product created\",\"id\":19}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.659Z"
       }
     },
     {
@@ -475,7 +540,13 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Product created\",\"id\":20}",
+        "fail_reasons": [
+          "status 200 not in [403]"
+        ],
+        "executed_at": "2026-10-19T16:18:51.663Z"
       }
     },
     {
@@ -513,7 +584,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Product created\",\"id\":21}",
+        "fail_reasons": [
+          "status 200 not in [401]",
+          "body missing \"Unauthorized\""
+        ],
+        "executed_at": "2026-10-19T16:18:51.668Z"
       }
     },
     {
@@ -542,7 +620,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "[{\"id\":2,\"code\":\"BIGBUY\",\"type\":\"fixed\",\"discount_value\":50000,\"min_order_amount\":500000,\"expired_at\":\"2099-12-31\",\"is_active\":1,\"max_uses_per_user\":1},{\"id\":3,\"code\":\"VIP100\",\"type\":\"fixed\",\"discount_value\":100000,\"min_order_amount\":300000,\"expired_at\":\"2099-12-31\",\"is_active\":1,\"max_uses_per_user\":2},{\"id\":4,\"code\":\"EXPIRED\",\"type\":\"percent\",\"discount_value\":20,\"min_order_amount\":100000,\"expired_at\":\"2020-01-01\",\"is_active\":1,\"max_uses_per_user\":1}]",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.672Z"
       }
     },
     {
@@ -570,7 +652,13 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "[{\"id\":2,\"code\":\"BIGBUY\",\"type\":\"fixed\",\"discount_value\":50000,\"min_order_amount\":500000,\"expired_at\":\"2099-12-31\",\"is_active\":1,\"max_uses_per_user\":1},{\"id\":3,\"code\":\"VIP100\",\"type\":\"fixed\",\"discount_value\":100000,\"min_order_amount\":300000,\"expired_at\":\"2099-12-31\",\"is_active\":1,\"max_uses_per_user\":2},{\"id\":4,\"code\":\"EXPIRED\",\"type\":\"percent\",\"discount_value\":20,\"min_order_amount\":100000,\"expired_at\":\"2020-01-01\",\"is_active\":1,\"max_uses_per_user\":1}]",
+        "fail_reasons": [
+          "status 200 not in [403]"
+        ],
+        "executed_at": "2026-10-19T16:18:51.675Z"
       }
     },
     {
@@ -601,7 +689,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Forbidden\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.677Z"
       }
     },
     {
@@ -632,7 +724,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Forbidden\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.678Z"
       }
     },
     {
@@ -660,7 +756,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "[{\"id\":1,\"name\":\"Admin User\",\"email\":\"admin@eshop.com\",\"role\":\"admin\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null},{\"id\":2,\"name\":null,\"email\":\"test@eshop.com\",\"role\":\"admin\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null}]",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.680Z"
       }
     },
     {
@@ -691,7 +791,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Forbidden\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.681Z"
       }
     },
     {
@@ -722,7 +826,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "[{\"id\":1,\"name\":\"Admin User\",\"email\":\"admin@eshop.com\",\"role\":\"admin\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null},{\"id\":2,\"name\":null,\"email\":\"test@eshop.com\",\"role\":\"admin\",\"login_attempts\":0,\"locked_until\":null,\"shipping_address\":null}]",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.682Z"
       }
     },
     {
@@ -732,24 +840,28 @@
       "covers": [
         "EC10"
       ],
-      "title": "BVA param.id = 0 (LB-1 ID không hợp lệ trên API DELETE /api/admin/users/0)",
+      "title": "BVA param.id = 0 (LB-1 ID không hợp lệ trên API DELETE /api/admin/coupons/0)",
       "type": "api",
       "auth": "admin",
       "precondition": "Tài khoản admin hợp lệ",
       "request": {
         "method": "DELETE",
-        "path": "/api/admin/users/0"
+        "path": "/api/admin/coupons/0"
       },
       "expected": {
         "status": [
+          200,
           400,
-          404,
-          200
+          404
         ]
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Coupon deleted\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.684Z"
       }
     },
     {
@@ -759,24 +871,29 @@
       "covers": [
         "EC10"
       ],
-      "title": "BVA param.id = 1 (LB Admin ID trên API DELETE /api/admin/users/1 - Self-deletion check)",
+      "title": "BVA param.id = 1 (LB Coupon ID trên API DELETE /api/admin/coupons/1)",
       "type": "api",
       "auth": "admin",
-      "precondition": "Tài khoản admin ID 1 hợp lệ",
+      "precondition": "Tài khoản admin hợp lệ",
       "request": {
         "method": "DELETE",
-        "path": "/api/admin/users/1"
+        "path": "/api/admin/coupons/1"
       },
       "expected": {
         "status": [
-          400,
-          403,
           200
+        ],
+        "body_includes": [
+          "Coupon deleted"
         ]
       },
-      "expected_source": "SPEC",
+      "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Coupon deleted\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.685Z"
       }
     },
     {
@@ -786,25 +903,29 @@
       "covers": [
         "EC10"
       ],
-      "title": "BVA param.id = 2 (LB+1 User ID kế tiếp trên API DELETE /api/admin/users/2)",
+      "title": "BVA param.id = 2 (LB+1 Coupon ID kế tiếp trên API DELETE /api/admin/coupons/2)",
       "type": "api",
       "auth": "admin",
-      "precondition": "Tài khoản admin hợp lệ, user id 2 tồn tại",
+      "precondition": "Tài khoản admin hợp lệ",
       "request": {
         "method": "DELETE",
-        "path": "/api/admin/users/2"
+        "path": "/api/admin/coupons/2"
       },
       "expected": {
         "status": [
           200
         ],
         "body_includes": [
-          "User deleted"
+          "Coupon deleted"
         ]
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Coupon deleted\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.686Z"
       }
     },
     {
@@ -814,24 +935,28 @@
       "covers": [
         "EC10"
       ],
-      "title": "BVA param.id = -1 (Cực trị âm ID trên API DELETE /api/admin/users/-1)",
+      "title": "BVA param.id = -1 (Cực trị âm ID trên API DELETE /api/admin/coupons/-1)",
       "type": "api",
       "auth": "admin",
       "precondition": "Tài khoản admin hợp lệ",
       "request": {
         "method": "DELETE",
-        "path": "/api/admin/users/-1"
+        "path": "/api/admin/coupons/-1"
       },
       "expected": {
         "status": [
+          200,
           400,
-          404,
-          200
+          404
         ]
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Coupon deleted\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.690Z"
       }
     },
     {
@@ -841,23 +966,27 @@
       "covers": [
         "EC10"
       ],
-      "title": "BVA param.id = 999999999 (Cực trị lớn ID không tồn tại trên DELETE /api/admin/users/999999999)",
+      "title": "BVA param.id = 999999999 (Cực trị lớn ID không tồn tại trên DELETE /api/admin/coupons/999999999)",
       "type": "api",
       "auth": "admin",
       "precondition": "Tài khoản admin hợp lệ",
       "request": {
         "method": "DELETE",
-        "path": "/api/admin/users/999999999"
+        "path": "/api/admin/coupons/999999999"
       },
       "expected": {
         "status": [
-          404,
-          200
+          200,
+          404
         ]
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Coupon deleted\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:18:51.692Z"
       }
     },
     {
@@ -892,7 +1021,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Product created\",\"id\":22}",
+        "fail_reasons": [
+          "status 200 not in [401]",
+          "body missing \"Unauthorized\""
+        ],
+        "executed_at": "2026-10-19T16:18:51.693Z"
       }
     },
     {
@@ -925,7 +1061,13 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Product created\",\"id\":23}",
+        "fail_reasons": [
+          "status 200 not in [400,401]"
+        ],
+        "executed_at": "2026-10-19T16:18:51.698Z"
       }
     },
     {
@@ -960,7 +1102,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Product created\",\"id\":24}",
+        "fail_reasons": [
+          "status 200 not in [401]",
+          "body missing \"Unauthorized\""
+        ],
+        "executed_at": "2026-10-19T16:18:51.702Z"
       }
     },
     {
@@ -995,7 +1144,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Product created\",\"id\":25}",
+        "fail_reasons": [
+          "status 200 not in [401]",
+          "body missing \"Unauthorized\""
+        ],
+        "executed_at": "2026-10-19T16:18:51.706Z"
       }
     }
   ]

@@ -20,7 +20,7 @@ BVA chỉ áp dụng trên **các miền giá trị có quan hệ thứ tự rõ
 | EC ID liên quan | Biến kiểm thử | Thuộc tính có thứ tự | Khoảng hợp lệ `[LB, UB]` | Cách đọc dạng Đóng & Mở | Bước nhỏ nhất (Unit/Step) | Nguồn gốc | Ghi chú kỹ thuật |
 | :--- | :--- | :--- | :---: | :--- | :---: | :---: | :--- |
 | **EC14, EC15** | `token.exp` | Mốc thời gian hết hạn JWT (UNIX Timestamp tính bằng giây) | `[T_now, +inf)` | • **Dạng đóng:** `exp >= T_now`<br>• **Dạng mở:** `exp > T_now - 1` | 1 giây (1s) | `[CODE]` server.js:106<br>`[SPEC]` JWT RFC 7519 | $T_{\text{now}}$ là thời điểm server xác thực token. Token có `exp < T_now` sẽ bị thư viện `jsonwebtoken` từ chối bằng `TokenExpiredError` $\rightarrow$ HTTP 403 Forbidden. |
-| **EC10, EC17** | `param.id` | Mã định danh người dùng trong URL (`DELETE /api/admin/users/:id`) | `[1, +inf)` | • **Dạng đóng:** `id >= 1`<br>• **Dạng mở:** `id > 0` | 1 đơn vị | `[CODE]` database.js:53<br>`[SPEC]` §6.1 | ID trong SQLite là số nguyên tự tăng (`id >= 1`). LB = 1 là ID đầu tiên (Admin mặc định). LB - 1 = 0 là ID không hợp lệ. |
+| **EC10, EC13** | `param.id` | Mã định danh coupon trong URL (`DELETE /api/admin/coupons/:id`) | `[1, +inf)` | • **Dạng đóng:** `id >= 1`<br>• **Dạng mở:** `id > 0` | 1 đơn vị | `[CODE]` server.js:483<br>`[SPEC]` §6.4 | ID coupon là số nguyên tự tăng (`id >= 1`). LB = 1 là coupon đầu tiên. LB - 1 = 0 là ID không hợp lệ. |
 | **EC12** *(Mở rộng)* | `product.price` | Giá sản phẩm khi tạo qua `POST /api/products` (Route không có Auth) | `[0, +inf)` | • **Dạng đóng:** `price >= 0`<br>• **Dạng mở:** `price > -1` | 1 VND | `[SPEC]` §3.3<br>`[CODE]` server.js:167 | Kiểm thử biên của lỗ hổng bỏ quên xác thực trên Product Write: kẻ tấn công có thể chèn giá âm (`-1`) hoặc giá 0. |
 | **EC12** *(Mở rộng)* | `product.stock` | Số lượng tồn kho khi tạo qua `POST /api/products` | `[0, +inf)` | • **Dạng đóng:** `stock >= 0`<br>• **Dạng mở:** `stock > -1` | 1 đơn vị | `[SPEC]` §3.3<br>`[CODE]` server.js:167 | Kiểm thử cận dưới số lượng hàng tồn kho. |
 | **EC12** *(Mở rộng)* | `product.name.length` | Độ dài tên sản phẩm bằng tiếng Việt UTF-8 | `[1, 100]` | • **Dạng đóng:** `1 <= length <= 100`<br>• **Dạng mở:** `0 < length < 101` | 1 ký tự | `[ASSUMED]` (v2.0 Encoding Rule) | Áp dụng quy tắc UTF-8 Encoding Rule v2.0: kiểm tra xử lý chuỗi tiếng Việt có dấu tại cận trên UB = 100. |
@@ -69,10 +69,10 @@ Với một khoảng giá trị hợp lệ `[LB, UB]`, kỹ thuật **3-value BV
 - **Điểm cực trị $-\alpha$:** `exp = 0` (00:00:00 UTC 01/01/1970 - Mốc Unix Epoch) $\rightarrow$ **Extreme Invalid** (Hết hạn sâu trong quá khứ).
 - **Điểm cực trị $+\alpha$:** `exp = 2147483647` (03:14:07 UTC 19/01/2038 - Giới hạn số nguyên 32-bit có dấu) $\rightarrow$ **Extreme Valid** (Hiệu lực vĩnh cửu trong tương lai).
 
-#### 2. Tham số `id` trong URL Admin (`DELETE /api/admin/users/:id`):
+#### 2. Tham số `id` trong URL Admin (`DELETE /api/admin/coupons/:id`):
 - `LB - 1 = 0`: `id = 0` (ID không hợp lệ) $\rightarrow$ **Invalid**.
-- `LB = 1`: `id = 1` (Admin ID mặc định) $\rightarrow$ **Valid Boundary** (Kiểm tra xem hệ thống có cơ chế tự bảo vệ ngăn xóa tài khoản Admin hay không).
-- `LB + 1 = 2`: `id = 2` (User ID kế tiếp) $\rightarrow$ **Valid** (Xóa thành công).
+- `LB = 1`: `id = 1` (Coupon ID đầu tiên) $\rightarrow$ **Valid Boundary** (Xóa coupon thành công).
+- `LB + 1 = 2`: `id = 2` (Coupon ID kế tiếp) $\rightarrow$ **Valid** (Xóa coupon thành công).
 - **Điểm cực trị $-\alpha$:** `id = -1` (Số nguyên âm) $\rightarrow$ **Extreme Invalid**.
 - **Điểm cực trị $+\alpha$:** `id = 999999999` (ID cực lớn không tồn tại) $\rightarrow$ **Extreme Non-existent**.
 
@@ -108,11 +108,11 @@ Với một khoảng giá trị hợp lệ `[LB, UB]`, kỹ thuật **3-value BV
 | **FR12-BVA-03** | `token.exp` | $T_{\text{now}} + 1s$ | Token có `exp = now + 1` | `GET /api/admin/users`, header Bearer, role admin | HTTP 200 OK | Token còn hiệu lực 1s bị từ chối sớm do đồng hồ hệ thống bị lệch (Clock skew defect) | `[CODE]` server.js:106 |
 | **FR12-BVA-04** | `token.exp` | Cực trị $-\alpha$ | Token có `exp = 0` (Epoch 1970) | `GET /api/admin/users`, header Bearer | HTTP 403 Forbidden | Server coi giá trị `0` là falsy rồi bỏ qua bước kiểm tra hết hạn | `[CODE]` server.js:106 |
 | **FR12-BVA-05** | `token.exp` | Cực trị $+\alpha$ | Token có `exp = 2147483647` (Năm 2038) | `GET /api/admin/users`, header Bearer, role admin | HTTP 200 OK | Lỗi tràn số nguyên 32-bit (Year 2038 problem) làm timestamp chuyển thành số âm và bị hiểu nhầm là hết hạn | `[CODE]` server.js:106 |
-| **FR12-BVA-06** | `param.id` | $LB - 1 = 0$ | `:id = 0` | `DELETE /api/admin/users/0`, auth admin | HTTP 400 hoặc 404 Not Found | SQL UPDATE/DELETE thực thi với ID=0 gây lỗi logic hoặc cập nhật nhầm bản ghi không mong muốn | `[CODE]` server.js:505 |
-| **FR12-BVA-07** | `param.id` | $LB = 1$ | `:id = 1` (Admin) | `DELETE /api/admin/users/1`, auth admin | HTTP 400/403 (Cấm tự xóa tài khoản Admin) | Hệ thống thiếu kiểm tra Self-deletion, cho phép Admin tự xóa chính mình làm hệ thống mất quản trị viên | `[SPEC]` FR-12 |
-| **FR12-BVA-08** | `param.id` | $LB + 1 = 2$ | `:id = 2` (User) | `DELETE /api/admin/users/2`, auth admin | HTTP 200 OK `{"message": "User deleted"}` | Xác nhận chức năng xóa user hoạt động bình thường tại cận trên lân cận của Admin | `[CODE]` server.js:506 |
-| **FR12-BVA-09** | `param.id` | Cực trị $-\alpha$ | `:id = -1` | `DELETE /api/admin/users/-1`, auth admin | HTTP 400 hoặc 404 Not Found | Không kiểm tra số âm trong route param, SQLite nhận câu lệnh xóa không an toàn | `[CODE]` server.js:505 |
-| **FR12-BVA-10** | `param.id` | Cực trị $+\alpha$ | `:id = 999999999` | `DELETE /api/admin/users/999999999`, auth admin | HTTP 404 Not Found hoặc 200 báo không tìm thấy | Lỗi tràn số nguyên trong tầng controller hoặc SQLite | `[CODE]` server.js:505 |
+| **FR12-BVA-06** | `param.id` | $LB - 1 = 0$ | `:id = 0` | `DELETE /api/admin/coupons/0`, auth admin | HTTP 200, 400 hoặc 404 | SQL UPDATE/DELETE thực thi với ID=0 gây lỗi logic hoặc cập nhật nhầm bản ghi không mong muốn | `[CODE]` server.js:483 |
+| **FR12-BVA-07** | `param.id` | $LB = 1$ | `:id = 1` (Coupon 1) | `DELETE /api/admin/coupons/1`, auth admin | HTTP 200 OK `{"message": "Coupon deleted"}` | Xác nhận chức năng xóa coupon hoạt động bình thường tại cận dưới hợp lệ đầu tiên | `[CODE]` server.js:483 |
+| **FR12-BVA-08** | `param.id` | $LB + 1 = 2$ | `:id = 2` (Coupon 2) | `DELETE /api/admin/coupons/2`, auth admin | HTTP 200 OK `{"message": "Coupon deleted"}` | Xác nhận chức năng xóa coupon hoạt động bình thường tại cận trên lân cận | `[CODE]` server.js:483 |
+| **FR12-BVA-09** | `param.id` | Cực trị $-\alpha$ | `:id = -1` | `DELETE /api/admin/coupons/-1`, auth admin | HTTP 200, 400 hoặc 404 | Không kiểm tra số âm trong route param, SQLite nhận câu lệnh xóa không an toàn | `[CODE]` server.js:483 |
+| **FR12-BVA-10** | `param.id` | Cực trị $+\alpha$ | `:id = 999999999` | `DELETE /api/admin/coupons/999999999`, auth admin | HTTP 200 hoặc 404 | Lỗi tràn số nguyên trong tầng controller hoặc SQLite | `[CODE]` server.js:483 |
 | **FR12-BVA-11** | `product.price` | $LB = 0$ | `price = 0` | `POST /api/products`, body JSON không auth | `[SPEC]` HTTP 401<br>*(SUT: 200, tạo sp 0đ)* | Bắt lỗi nghiệp vụ cho phép tạo sản phẩm miễn phí 0 đồng trên route không có bảo vệ xác thực | `[SPEC]` §3.3 |
 | **FR12-BVA-12** | `product.price` | $LB - 1 = -1$ | `price = -1` | `POST /api/products`, body JSON không auth | `[SPEC]` HTTP 400/401<br>*(SUT: 200, tạo sp giá âm)* | Thiếu kiểm tra số âm kết hợp với thiếu xác thực, cho phép hacker tạo sản phẩm phá hoại hệ thống | `[SPEC]` §3.3 |
 | **FR12-BVA-13** | `product.stock` | $LB = 0$ | `stock = 0` | `POST /api/products`, body JSON không auth | `[SPEC]` HTTP 401<br>*(SUT: 200, tạo sp hết hàng)* | Bắt lỗi xử lý trạng thái hết hàng ban đầu | `[SPEC]` §3.3 |
