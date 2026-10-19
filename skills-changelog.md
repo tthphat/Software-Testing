@@ -11,6 +11,7 @@ Tài liệu này ghi nhận quá trình cải tiến và tiến hóa của các 
 | **v1.0** | 2026-10-14 | Bộ 4 skills ban đầu | Khởi tạo ban đầu | Quy trình 4 bước kiểm thử miền, BVA và bộ runner cơ bản |
 | **v1.1** | 2026-10-17 | `domain-testing` (Stage 1) | **FR-01 (Account Registration)** | Bổ sung cột **"Domain Value & Constraints"** vào Bảng biến Input/Output/State; làm căn cứ chặt chẽ cho Stage 2 phân hoạch lớp tương đương |
 | **v2.0** | 2026-10-18 | `domain-testing`, `boundary-value-analysis`, `test-execution-and-bugs` | **FR-01 (Account Registration)** | Bổ sung kiểm tra lệch pha đa nền tảng (Web vs Mobile vs Backend), kiểm tra Unicode UTF-8 tiếng Việt, và nguyên tắc Zero-Trust SUT |
+| **v2.1** | 2026-10-19 | `test-execution-and-bugs`, `domain-testing` | **FR-03 (Forgot & Reset Password)** | Bổ sung cơ chế Dynamic Setup Hook cho tính năng stateful, kiểm tra rò rỉ dữ liệu nhạy cảm trong response (CWE-200), và checklist biến trạng thái thời gian (Token Expiration) |
 
 ---
 
@@ -55,10 +56,32 @@ Tài liệu này ghi nhận quá trình cải tiến và tiến hóa của các 
 
 ---
 
-## 3. Kế hoạch áp dụng bản v2
+### 2.3. Nâng cấp v2.1 (2026-10-19): AI Gap Analysis sau khi thực thi kiểm thử và báo cáo lỗi FR-03
 
-Bản nâng cấp v2 sẽ được áp dụng cho tính năng tiếp theo để chứng minh:
+#### Gap 1: Phụ thuộc token động trong tính năng stateful (Dynamic Token Dependency)
+- **Vấn đề phát hiện:** Trong tính năng nhiều bước (Multi-step Stateful Process), ca kiểm thử Bước 2 (`POST /api/reset-password`) cần một token hợp lệ vừa được cấp từ Bước 1 (`POST /api/forgot-password`). Nếu chỉ gửi token tĩnh cố định `"VALID_TOKEN"`, backend từ chối ngay lập tức bằng 400 (`Invalid token or email`), dẫn đến việc che giấu lỗi backend hoàn toàn không kiểm tra độ mạnh của `newPassword` (Masking Defect).
+- **Phân loại nguyên nhân:** `Inherent feature complexity` (Tính chất stateful và token sử dụng một lần single-use).
+- **Cải tiến cụ thể trong Skill v2.1:**
+  - Nâng cấp `test-execution-and-bugs/scripts/run_cases.mjs` với quy tắc **Stateful Flow Dynamic Setup Hook**: Runner tự động nhận diện giá trị token động (`VALID_TOKEN`, `ALREADY_USED`) và thực thi cuộc gọi tiền đề tới endpoint cấp token trong thời gian thực, đồng thời dọn dẹp khôi phục trạng thái tài khoản sau khi bộ test hoàn tất.
+
+#### Gap 2: Thiên kiến chức năng làm mờ mắt trước lỗ hổng bảo mật rò rỉ dữ liệu (Information Disclosure)
+- **Vấn đề phát hiện:** Khi `POST /api/forgot-password` trả về mã OTP 4 số trong response JSON, AI ban đầu xem đây là hành vi bình thường để assert (`body_includes: ["resetToken"]`), bỏ quên nguyên tắc an toàn thông tin cơ bản: mã OTP tuyệt đối không được trả về trong response body của public API.
+- **Phân loại nguyên nhân:** `Tool limitation` & `Inherent feature complexity`.
+- **Cải tiến cụ thể trong Skill v2.1:**
+  - Bổ sung vào `domain-testing` và `test-execution-and-bugs`: **Quy tắc kiểm tra rò rỉ dữ liệu nhạy cảm (Sensitive Field In Response Anti-Pattern)**. Bất cứ khi nào response của public endpoint chứa các trường nhạy cảm (`token`, `otp`, `password`, `hash`), phải lập tức gắn cờ cảnh báo lỗ hổng Information Disclosure (CWE-200 / Broken Authentication) thay vì chỉ kiểm tra tính sẵn có của trường.
+
+#### Gap 3: Bỏ sót biến thời gian ẩn (Temporal Boundary / Token Expiration)
+- **Vấn đề phát hiện:** Do tài liệu API không đề cập đến thời gian hết hạn của OTP và request payload chỉ có các trường chuỗi tĩnh, AI bỏ sót việc thiết kế kiểm thử cho vòng đời của token. Thực tế kiểm tra schema database SQLite cho thấy bảng `users` không hề có cột timestamp lưu thời gian tạo hay hết hạn, khiến OTP có hiệu lực vô thời hạn.
+- **Phân loại nguyên nhân:** `Prompt/input quality` & `Inherent feature complexity`.
+- **Cải tiến cụ thể trong Skill v2.1:**
+  - Bổ sung vào `domain-testing` (Stage 1): **Checklist biến trạng thái thời gian (Temporal/Expiration State Variable Checklist)**. Mọi token, mã xác thực, hoặc phiên làm việc đều phải được khảo sát vòng đời và thời hạn hết hạn (TTL).
+
+---
+
+## 3. Kế hoạch áp dụng tiếp theo
+
+Các nâng cấp v1.1, v2.0 và v2.1 sẽ tiếp tục được áp dụng nhất quán cho các tính năng tiếp theo (FR-08 Checkout, Cart) để:
 1. Xác định chuẩn xác miền giá trị và ràng buộc ngay từ Stage 1.
-2. Phát hiện sớm các lỗi mâu thuẫn giữa Web và Mobile.
-3. Thiết kế bao quát hơn các ca kiểm thử Unicode tiếng Việt.
-4. Dự báo chính xác hơn các lỗi do thiếu kiểm tra dữ liệu ở backend (Zero-Trust SUT).
+2. Xử lý chuẩn xác các luồng kiểm thử phụ thuộc trạng thái phức tạp (Stateful workflows như Giỏ hàng -> Đặt hàng).
+3. Chủ động phát hiện các lỗ hổng an ninh thông tin và các biến trạng thái ngầm.
+

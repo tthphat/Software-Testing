@@ -126,16 +126,28 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
     2. Bảng `users` chỉ có cột `reset_token TEXT`, không có cột lưu thời gian tạo/hết hạn, mã OTP có hiệu lực vô thời hạn cho đến khi được dùng (CWE-613 / Insufficient Session Expiration).
 - **Audit Log**: Thêm entry `A12` vào `HW2/audit/audit-log.jsonl`.
 
+## Phiên 9: Báo cáo lỗi (Stage 4) và Phân tích khoảng trống AI Gap Analysis (Stage 5) cho FR-03
+
+- **Kỹ thuật**: `test-execution-and-bugs` (Stage 4 -> Stage 5)
+- **Hoạt động thực hiện**:
+  - **Stage 4 (Soạn thảo báo cáo lỗi)**:
+    - Bổ sung 4 lỗi phần mềm (`BUG-FR03-01` đến `BUG-FR03-04`) vào tài liệu tổng hợp `HW2/report/bugs.vi.md`.
+    - Tạo 4 tệp dự thảo GitHub Issues trong `HW2/report/issues/`: `BUG-FR03-01.md` (Lộ OTP qua response body - Critical), `BUG-FR03-02.md` (Backend thiếu validation newPassword - Critical), `BUG-FR03-03.md` (Mã OTP vô thời hạn - Major), `BUG-FR03-04.md` (Trả 404 thay vì 400 cho invalid email - Minor).
+  - **Stage 5 (AI Gap Analysis & Nâng cấp kỹ năng)**:
+    - Tạo báo cáo hoàn chỉnh `HW2/report/FR-03/03-execution-and-gap-analysis.vi.md` bao gồm: tóm tắt thiết kế, bảng kết quả 37 ca kiểm thử, bảng phân loại lỗi triage, bảng phân tích 4 khoảng trống AI (Dynamic token dependency, Information disclosure blind spot, Token expiration omission, Spec vs code discrepancy), và phân tích hạn chế kỹ thuật.
+    - Cập nhật nâng cấp kỹ năng v2.1 trong `skills-changelog.md` (Stateful dynamic setup hook, Sensitive field in response anti-pattern, Temporal state checklist).
+- **Audit Log**: Thêm entry `A13` vào `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: Đang **DỪNG LẠI TẠI ĐIỂM KIỂM SOÁT STAGE 5 (STOP FOR REVIEW)** theo đúng yêu cầu bài tập và kỹ năng.
+
 ---
 
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định kết quả thực thi và phân loại lỗi Stage 3 của FR-03.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 test execution and failure triage stage 3`.
-3. Sau khi được duyệt, tiếp tục:
-   - **Stage 4**: Lập báo cáo lỗi chi tiết (`HW2/report/bugs.vi.md`) và dự thảo các GitHub Issues (`HW2/report/issues/BUG-FR03-*.md`).
-   - **Stage 5**: Thực hiện AI Gap Analysis (phân tích khoảng cách giữa ca do AI thiết kế và các góc khuất thực tế tìm thấy) -> Dừng duyệt Stage 5.
-   - **Stage 6**: Cập nhật số liệu kiểm thử và tổng hợp vào Main Report `23120319_HW02_Main_Report.md`.
+1. Sinh viên thẩm định báo cáo lỗi Stage 4 và phân tích khoảng trống AI Stage 5 của FR-03.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 bug reports and AI gap analysis stage 4-5`.
+3. Sau khi được duyệt, chuyển sang **Stage 6 (Tổng hợp số liệu & Cập nhật Main Report)**:
+   - Cập nhật phần FR-03 trong `HW2/23120319_HW02_Main_Report.md`.
+   - Cập nhật bảng tổng hợp số liệu trong `HW2/README.md`.
 
 ---
 
@@ -152,15 +164,21 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `.claude/skills/test-execution-and-bugs/scripts/run_cases.mjs` | Bổ sung cơ chế dynamic token và dọn dẹp state cho feature stateful reset-password |
-| `HW2/testcases/FR-03.json` | Ghi nhận kết quả thực thi thực tế (21 PASS, 16 FAIL) |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A12 (FR-03 Test Execution & Triage Stage 1-3) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 1-3 cho FR-03 |
+| `HW2/report/bugs.vi.md` | Bổ sung 4 lỗi của FR-03 vào bảng tổng hợp và chi tiết lỗi |
+| `HW2/report/issues/BUG-FR03-01.md` | Dự thảo GitHub Issue: Lộ mã OTP trong response |
+| `HW2/report/issues/BUG-FR03-02.md` | Dự thảo GitHub Issue: Backend thiếu validation newPassword |
+| `HW2/report/issues/BUG-FR03-03.md` | Dự thảo GitHub Issue: OTP không có thời hạn hết hạn |
+| `HW2/report/issues/BUG-FR03-04.md` | Dự thảo GitHub Issue: Trả 404 thay vì 400 khi email sai |
+| `HW2/report/FR-03/03-execution-and-gap-analysis.vi.md` | Tạo báo cáo thực thi và phân tích khoảng trống AI cho FR-03 |
+| `skills-changelog.md` | Bổ sung mục 2.3 nâng cấp kỹ năng v2.1 từ bài học FR-03 |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A13 (FR-03 Stage 4-5) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 4-5 cho FR-03 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành Stage 1–3 (`test-execution-and-bugs`) cho FR-03. DỪNG LẠI CHỜ DUYỆT.
+**Phiên hiện tại**: Đã hoàn thành Stage 4 & Stage 5 cho FR-03. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+
 
 
 
