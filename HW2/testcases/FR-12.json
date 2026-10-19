@@ -572,6 +572,431 @@
       "result": {
         "status": "NOT_EXECUTED"
       }
+    },
+    {
+      "id": "FR12-BVA-01",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC15"
+      ],
+      "title": "BVA token.exp = T_now - 1s (Token vừa hết hạn trong quá khứ)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token hết hạn 1700000000 trong quá khứ",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAwMDAwMDAwLCJpYXQiOjE3OTI0MjU2ODR9.oFwAUA6hWuOzCsas9UxR4RexzXPGojPm6LgKJryJJh8"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ],
+        "body_includes": [
+          "Forbidden"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-02",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC15"
+      ],
+      "title": "BVA token.exp = T_now (Biên thời gian kiểm tra tại thời điểm hiện tại)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token hết hạn tại mốc thời gian kiểm thử",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAwMDAwMDAwLCJpYXQiOjE3OTI0MjU2ODR9.oFwAUA6hWuOzCsas9UxR4RexzXPGojPm6LgKJryJJh8"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ],
+        "body_includes": [
+          "Forbidden"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-03",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC14"
+      ],
+      "title": "BVA token.exp = T_now + 1s (Token còn hiệu lực danh định)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin hợp lệ",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users"
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-04",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC15"
+      ],
+      "title": "BVA token.exp = 0 (Cực trị Epoch 1970 - Token hết hạn sâu trong quá khứ)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token có exp = 0",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiZXhwIjowLCJpYXQiOjE3OTI0MjU2ODR9.IY96rrw7FR3roHto28ariYEU0OcD7PpjFrPVW2eIoow"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ],
+        "body_includes": [
+          "Forbidden"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-05",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC14"
+      ],
+      "title": "BVA token.exp = 2147483647 (Cực trị Năm 2038 - Max 32-bit timestamp)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token có exp = 2147483647",
+      "request": {
+        "method": "GET",
+        "path": "/api/admin/users",
+        "headers": {
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiZXhwIjoyMTQ3NDgzNjQ3LCJpYXQiOjE3OTI0MjU2ODR9.zO9opm_RM56a9DaTy2xFFYXnubxtMKbs47wEYffxHjY"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-06",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC10"
+      ],
+      "title": "BVA param.id = 0 (LB-1 ID không hợp lệ trên API DELETE /api/admin/users/0)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin hợp lệ",
+      "request": {
+        "method": "DELETE",
+        "path": "/api/admin/users/0"
+      },
+      "expected": {
+        "status": [
+          400,
+          404,
+          200
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-07",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC10"
+      ],
+      "title": "BVA param.id = 1 (LB Admin ID trên API DELETE /api/admin/users/1 - Self-deletion check)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin ID 1 hợp lệ",
+      "request": {
+        "method": "DELETE",
+        "path": "/api/admin/users/1"
+      },
+      "expected": {
+        "status": [
+          400,
+          403,
+          200
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-08",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC10"
+      ],
+      "title": "BVA param.id = 2 (LB+1 User ID kế tiếp trên API DELETE /api/admin/users/2)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin hợp lệ, user id 2 tồn tại",
+      "request": {
+        "method": "DELETE",
+        "path": "/api/admin/users/2"
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User deleted"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-09",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC10"
+      ],
+      "title": "BVA param.id = -1 (Cực trị âm ID trên API DELETE /api/admin/users/-1)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin hợp lệ",
+      "request": {
+        "method": "DELETE",
+        "path": "/api/admin/users/-1"
+      },
+      "expected": {
+        "status": [
+          400,
+          404,
+          200
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-10",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC10"
+      ],
+      "title": "BVA param.id = 999999999 (Cực trị lớn ID không tồn tại trên DELETE /api/admin/users/999999999)",
+      "type": "api",
+      "auth": "admin",
+      "precondition": "Tài khoản admin hợp lệ",
+      "request": {
+        "method": "DELETE",
+        "path": "/api/admin/users/999999999"
+      },
+      "expected": {
+        "status": [
+          404,
+          200
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-11",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC12"
+      ],
+      "title": "BVA product.price = 0 (LB giá sản phẩm khi tạo qua POST /api/products không auth)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Khách vãng lai không đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/products",
+        "body": {
+          "name": "Product_Price0_{{uniq}}",
+          "price": 0,
+          "category_id": 1,
+          "description": "Free item",
+          "stock": 10
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Unauthorized"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-12",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC12"
+      ],
+      "title": "BVA product.price = -1 (LB-1 giá âm khi tạo qua POST /api/products không auth)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Khách vãng lai không đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/products",
+        "body": {
+          "name": "Product_NegativePrice_{{uniq}}",
+          "price": -1,
+          "category_id": 1,
+          "description": "Negative price",
+          "stock": 10
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-13",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC12"
+      ],
+      "title": "BVA product.stock = 0 (LB hết hàng khi tạo qua POST /api/products không auth)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Khách vãng lai không đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/products",
+        "body": {
+          "name": "Product_Stock0_{{uniq}}",
+          "price": 10000,
+          "category_id": 1,
+          "description": "Out of stock item",
+          "stock": 0
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Unauthorized"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR12-BVA-14",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC12"
+      ],
+      "title": "BVA product.name.length = 100 ký tự tiếng Việt có dấu UTF-8 (UB Encoding Boundary)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Khách vãng lai không đăng nhập",
+      "request": {
+        "method": "POST",
+        "path": "/api/products",
+        "body": {
+          "name": "Sản phẩm thử nghiệm kiểm tra mã hóa tiếng Việt chất lượng cao dành cho quản trị viên hệ thống EShop!",
+          "price": 50000,
+          "category_id": 1,
+          "description": "UTF8 test",
+          "stock": 5
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Unauthorized"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
     }
   ]
 }
