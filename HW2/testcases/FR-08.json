@@ -1,0 +1,708 @@
+{
+  "feature": "FR-08",
+  "cases": [
+    {
+      "id": "FR08-DT-01",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC05",
+        "EC14",
+        "EC20",
+        "EC22",
+        "EC24",
+        "EC28"
+      ],
+      "title": "Checkout thành công với tất cả dữ liệu hợp lệ chuẩn (không dùng coupon)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập tài khoản test@eshop.com, giỏ hàng có 1 sản phẩm 200,000 VNĐ, đủ tồn kho",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-02",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC05",
+        "EC14",
+        "EC20",
+        "EC22",
+        "EC25",
+        "EC28"
+      ],
+      "title": "Checkout thành công khi áp dụng mã giảm giá hợp lệ (-10%)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập, giỏ hàng có sản phẩm 200,000 VNĐ, áp dụng coupon hợp lệ tính đúng số tiền 180,000 VNĐ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 180000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM",
+          "coupon_id": 1
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Checkout successful",
+          "orderId"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-03",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC02",
+        "EC29"
+      ],
+      "title": "Từ chối checkout khi thiếu hoàn toàn header Authorization (khách vãng lai)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Khách vãng lai chưa đăng nhập hệ thống",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Unauthorized"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-04",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC03",
+        "EC30"
+      ],
+      "title": "Từ chối checkout khi token Authorization sai chữ ký / bị giả mạo",
+      "type": "api",
+      "auth": "none",
+      "auth_token_override": "invalid.jwt.token.signature",
+      "precondition": "Header Authorization chứa Bearer token không đúng định dạng HMAC SHA256",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ],
+        "body_includes": [
+          "Forbidden"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-05",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC04",
+        "EC29"
+      ],
+      "title": "Từ chối checkout khi header Authorization gửi token rỗng ('Bearer ')",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Header Authorization gửi chuỗi rỗng sau tiền tố Bearer",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "headers": {
+          "Authorization": "Bearer "
+        },
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Unauthorized"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-06",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC06",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi total_amount = 0 (đặt hàng miễn phí trái phép)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập, giỏ hàng có hàng trị giá 200,000 VNĐ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 0,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-07",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC07",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi total_amount là số âm (-50,000 VNĐ)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập, giỏ hàng có hàng trị giá 200,000 VNĐ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": -50000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-08",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC08",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi total_amount bị can thiệp sửa giá sai lệch giỏ hàng (Web editableTotal)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Giỏ hàng thực tế trị giá 200,000 VNĐ nhưng client gửi 1,000 VNĐ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 1000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-09",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC09",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi total_amount có kiểu dữ liệu chuỗi ký tự ('free')",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": "free",
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-10",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC10",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi total_amount có kiểu Boolean (true)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": true,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-11",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC11",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi total_amount là số thực dấu phẩy động (199999.5)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 199999.5,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-12",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC12",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi thiếu hoàn toàn trường total_amount trong body",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ, request body thiếu trường bắt buộc",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-13",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC13",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi total_amount có giá trị null",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": null,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-14",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC15",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi shipping_address là chuỗi rỗng ('')",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-15",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC16",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi shipping_address chỉ chứa ký tự khoảng trắng ('   ')",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "   "
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-16",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC17",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi thiếu trường shipping_address trong body (hành vi thực tế Web & Mobile)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ, mô phỏng request thực tế từ Web/Mobile không có ô nhập địa chỉ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-17",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC18",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi shipping_address sai kiểu dữ liệu (Number: 12345)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": 12345
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-18",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC19",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi shipping_address vượt quá độ dài tối đa hợp lý (> 1,000 ký tự)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng đăng nhập hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem. Dia chi giao hang rat dai can kiem tra tran bo dem."
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-19",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC21",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi giỏ hàng người dùng hoàn toàn rỗng (cart = [])",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng chưa thêm sản phẩm nào vào giỏ hàng hoặc giỏ hàng trống",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-20",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC23",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi số lượng sản phẩm đặt mua vượt quá tồn kho (Overselling)",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Giỏ hàng có sản phẩm đặt mua với số lượng vượt tồn kho trong database",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-21",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC26",
+        "EC31"
+      ],
+      "title": "Từ chối checkout khi áp dụng mã coupon không tồn tại hoặc hết hạn",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Người dùng gửi kèm coupon_id không hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM",
+          "coupon_id": 999999
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR08-DT-22",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC27",
+        "EC31"
+      ],
+      "title": "Kiểm tra dị biệt Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng (cart.slice(0, -1))",
+      "type": "api",
+      "auth": "user",
+      "precondition": "Giỏ hàng có 2 món, Mobile cố tình cắt bỏ phần tử cuối cùng",
+      "request": {
+        "method": "POST",
+        "path": "/api/checkout",
+        "body": {
+          "items": [
+            {
+              "id": 1,
+              "quantity": 1
+            }
+          ],
+          "total_amount": 200000,
+          "shipping_address": "123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    }
+  ]
+}

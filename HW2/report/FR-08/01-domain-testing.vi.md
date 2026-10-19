@@ -200,6 +200,154 @@ Tuân thủ nguyên tắc Domain Testing (slide bài giảng S04) và cải ti�
 
 ---
 
-### DỪNG LẠI TẠI CHECKPOINT STAGE 2 (STOP FOR REVIEW)
-*Bảng 31 lớp tương đương trên đã phân loại đầy đủ các điều kiện hợp lệ và không hợp lệ dựa trên toàn bộ 6 kỹ thuật phân hoạch của CSC13003 S04 kèm các phát hiện dị biệt mã nguồn. Vui lòng thẩm định trước khi tôi chuyển sang Stage 3 (Chọn giá trị đại diện) và Stage 4 (Thiết kế ca kiểm thử tối thiểu).*
+## Stage 3 — Chọn giá trị đại diện cho từng lớp tương đương (Representative Values)
+
+Theo slide bài giảng S04 (Step 3), mỗi lớp tương đương được chọn đúng một giá trị đại diện điển hình:
+- Đối với miền có thứ tự (Ordered domains như số tiền `total_amount`, độ dài địa chỉ): chọn giá trị tiêu biểu hoặc giá trị biên đại diện (ghi chú chuyển tiếp sang BVA cho các giá trị biên chi tiết).
+- Đối với miền không có thứ tự (Unordered domains như token, trạng thái giỏ, coupon): chọn giá trị thực tế, mô phỏng đúng ngữ cảnh hoạt động.
+
+### Bảng giá trị đại diện cho 31 lớp tương đương của FR-08
+
+| Mã lớp (EC) | Biến / Trạng thái kiểm thử | Giá trị đại diện được chọn | Lý do lựa chọn (One-line justification) | Ghi chú kỹ thuật |
+| :---: | :--- | :--- | :--- | :--- |
+| **EC01** | `auth_token` | JWT Token hợp lệ của user `test@eshop.com` | Mô phỏng phiên đăng nhập hợp lệ của người dùng thực | Lấy tự động qua API login |
+| **EC02** | `auth_token` | Bỏ hoàn toàn header `Authorization` | Đại diện cho truy cập trái phép từ khách vãng lai | Kỳ vọng HTTP 401 |
+| **EC03** | `auth_token` | `Bearer invalid.jwt.token.signature` | Đại diện cho token bị chỉnh sửa chữ ký hoặc giả mạo | Kỳ vọng HTTP 403 |
+| **EC04** | `auth_token` | `Bearer ` (chuỗi rỗng sau tiền tố Bearer) | Đại diện cho lỗi logic client gửi header trống | Kỳ vọng HTTP 401 |
+| **EC05** | `total_amount` | `200000` (khớp giỏ hàng có 1 SP giá 200,000) | Số tiền dương nguyên tệ chuẩn, khớp chính xác giỏ hàng | Giá trị hợp lệ danh định |
+| **EC06** | `total_amount` | `0` | Giá trị biên số 0 không được phép (đặt hàng 0 đồng) | -> Chi tiết tại BVA |
+| **EC07** | `total_amount` | `-50000` | Số tiền âm vi phạm quy tắc số dương (CWE-20) | Nguy cơ đảo chiều tiền tệ |
+| **EC08** | `total_amount` | `1000` (giỏ hàng thực tế trị giá `200000`) | Mô phỏng hành vi sửa tiền trong input `editableTotal` trên Web | Lỗ hổng Price Tampering |
+| **EC09** | `total_amount` | `"free"` | Chuỗi ký tự (String) vi phạm kiểu dữ liệu Number | Lỗi Type validation |
+| **EC10** | `total_amount` | `true` | Kiểu dữ liệu Boolean vi phạm schema | Lỗi Type validation |
+| **EC11** | `total_amount` | `199999.5` | Số thực dấu phẩy động (Float) vi phạm tiền tệ nguyên | Kiểm tra tính toàn vẹn số tiền |
+| **EC12** | `total_amount` | `{}` (thiếu hoàn toàn trường `total_amount`) | Đại diện cho request thiếu trường bắt buộc | Vi phạm schema request |
+| **EC13** | `total_amount` | `null` | Giá trị null gửi lên qua JSON | Kiểm tra xử lý null của SQLite |
+| **EC14** | `shipping_address` | `"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"` | Địa chỉ giao hàng đầy đủ, độ dài hợp lý (45 ký tự) | Dữ liệu giao hàng chuẩn |
+| **EC15** | `shipping_address` | `""` (chuỗi rỗng) | Địa chỉ rỗng không đủ thông tin giao hàng | Vi phạm điều kiện bắt buộc |
+| **EC16** | `shipping_address` | `"   "` (3 ký tự khoảng trắng) | Khoảng trắng không hợp lệ nếu thiếu hàm `.trim()` | Vi phạm chuỗi rỗng sau trim |
+| **EC17** | `shipping_address` | Bỏ trống trường `shipping_address` trong JSON | Hành vi gửi request thực tế của cả Web và Mobile | Mâu thuẫn Client - Server |
+| **EC18** | `shipping_address` | `12345` (kiểu số nguyên Number) | Sai kiểu dữ liệu chuỗi | Lỗi Type validation |
+| **EC19** | `shipping_address` | Chuỗi 1,500 ký tự `"A".repeat(1500)` | Địa chỉ vượt quá độ dài tối đa hợp lý | Nguy cơ tràn bộ nhớ / DoS |
+| **EC20** | `cart_state` | Giỏ hàng có 1 sản phẩm hợp lệ (`quantity = 1`) | Điều kiện tiên quyết giỏ hàng có hàng để thanh toán | Trạng thái hợp lệ |
+| **EC21** | `cart_state` | Giỏ hàng rỗng (`cart = []`) | Điều kiện tiên quyết giỏ hàng rỗng không được checkout | Lỗi logic đặt đơn ma |
+| **EC22** | `stock_state` | Sản phẩm trong giỏ còn đủ tồn kho (`quantity = 1 <= stock`) | Đáp ứng đủ số lượng hàng tồn trong kho | Trạng thái kho hợp lệ |
+| **EC23** | `stock_state` | Sản phẩm đặt mua vượt quá tồn kho (`quantity = 999 > stock`) | Đặt mua vượt quá tồn kho thực tế | Nguy cơ Overselling |
+| **EC24** | `coupon_state` | `coupon_id = null` (không áp dụng coupon) | Đơn hàng thông thường không sử dụng mã giảm giá | Luồng chuẩn |
+| **EC25** | `coupon_state` | Áp dụng mã coupon hợp lệ (ví dụ: `DISCOUNT10`) | Đơn hàng áp dụng mã giảm giá hợp lệ còn lượt dùng | Luồng giảm giá thành công |
+| **EC26** | `coupon_state` | Áp dụng mã coupon giả/hết hạn (`FAKECOUPON99`) | Mã coupon không tồn tại hoặc đã hết lượt/hết hạn | Kỳ vọng báo lỗi coupon |
+| **EC27** | `mobile_skew` | Giỏ có 2 món, Mobile gửi `cart.slice(0, -1)` | Dị biệt mã nguồn Mobile cắt xén sản phẩm cuối cùng | Lỗi logic đa nền tảng |
+| **EC28** | `system_output` | `HTTP 200 OK` kèm `orderId` | Đặt hàng thành công, tạo bản ghi `orders` (pending) | `[CODE: server.js:306]` |
+| **EC29** | `system_output` | `HTTP 401 Unauthorized` | Từ chối truy cập khi thiếu token đăng nhập | `[CODE: server.js:103]` |
+| **EC30** | `system_output` | `HTTP 403 Forbidden` | Từ chối truy cập khi token không hợp lệ | `[CODE: server.js:106]` |
+| **EC31** | `system_output` | `HTTP 400 Bad Request` | Từ chối request sai dữ liệu (tiền âm, thiếu địa chỉ, giỏ rỗng) | `[SPEC: api_spec:38-40]` |
+
+---
+
+## Stage 4 — Thiết kế bộ ca kiểm thử tối thiểu (Minimum Test Cases) và Ma trận bao phủ
+
+Tuân thủ nguyên tắc tối ưu hóa số ca kiểm thử của CSC13003 S04:
+1. **Các lớp hợp lệ (Valid Classes):** Kết hợp tối đa các lớp hợp lệ vào cùng một ca kiểm thử cho đến khi toàn bộ các lớp hợp lệ được bao phủ ít nhất một lần.
+   - `FR08-DT-01`: Bao phủ luồng checkout chuẩn không dùng coupon (`EC01, EC05, EC14, EC20, EC22, EC24, EC28`).
+   - `FR08-DT-02`: Bao phủ luồng checkout có dùng coupon hợp lệ (`EC01, EC05, EC14, EC20, EC22, EC25, EC28`).
+2. **Các lớp không hợp lệ (Invalid Classes):** Áp dụng nguyên tắc **Cô lập lỗi đơn (Single-fault isolation)**: Mỗi ca kiểm thử chỉ chứa duy nhất 1 lớp không hợp lệ, tất cả các trường/trạng thái còn lại đều phải ở trạng thái hợp lệ. Điều này đảm bảo khi ca kiểm thử thất bại, ta xác định được chính xác 100% nguyên nhân gây ra lỗi.
+3. **Các lớp kết quả đầu ra (Output Classes):** Được bao phủ trực tiếp qua các ca kiểm thử tương ứng.
+
+### 1. Bảng 22 ca kiểm thử miền tối thiểu cho FR-08 (`FR08-DT-01` đến `FR08-DT-22`)
+
+| Mã TC | Lớp tương đương bao phủ | Token (`auth`) | `total_amount` | `shipping_address` | Trạng thái giỏ / Tiền đề | Kết quả kỳ vọng (`expected`) | Nguồn kỳ vọng |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **FR08-DT-01** | EC01, EC05, EC14, EC20, EC22, EC24, EC28 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ có 1 SP (200k), đủ kho, không coupon | HTTP 200, `Checkout successful`, có `orderId` | `[CODE: server.js:306]` `[SPEC]` |
+| **FR08-DT-02** | EC01, EC05, EC14, EC20, EC22, EC25, EC28 | User hợp lệ | `180000` | `"123 Le Loi, TP.HCM"` | Giỏ có 1 SP (200k), áp dụng coupon hợp lệ -10% | HTTP 200, `Checkout successful`, có `orderId` | `[CODE: server.js:306]` `[SPEC]` |
+| **FR08-DT-03** | EC02, EC29 | Không gửi header | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng bình thường | HTTP 401 Unauthorized | `[CODE: server.js:103]` |
+| **FR08-DT-04** | EC03, EC30 | Token sai chữ ký | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng bình thường | HTTP 403 Forbidden | `[CODE: server.js:106]` |
+| **FR08-DT-05** | EC04, EC29 | Token rỗng (`Bearer `) | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng bình thường | HTTP 401 Unauthorized | `[CODE: server.js:103]` |
+| **FR08-DT-06** | EC06, EC31 | User hợp lệ | `0` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (tiền = 0) | `[ASSUMED]` (Chặn thanh toán 0đ) |
+| **FR08-DT-07** | EC07, EC31 | User hợp lệ | `-50000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (tiền âm) | `[ASSUMED]` (Chặn tiền âm) |
+| **FR08-DT-08** | EC08, EC31 | User hợp lệ | `1000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k (Web editableTotal) | HTTP 400 Bad Request (sai lệch giá giỏ) | `[ASSUMED]` (Chống sửa giá Web) |
+| **FR08-DT-09** | EC09, EC31 | User hợp lệ | `"free"` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (sai type chuỗi) | `[ASSUMED]` (Validate kiểu số) |
+| **FR08-DT-10** | EC10, EC31 | User hợp lệ | `true` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (sai type boolean) | `[ASSUMED]` (Validate kiểu số) |
+| **FR08-DT-11** | EC11, EC31 | User hợp lệ | `199999.5` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (số thực float) | `[ASSUMED]` (Số nguyên tiền tệ) |
+| **FR08-DT-12** | EC12, EC31 | User hợp lệ | Bỏ trường | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (thiếu total_amount) | `[ASSUMED]` (Schema bắt buộc) |
+| **FR08-DT-13** | EC13, EC31 | User hợp lệ | `null` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (null total_amount) | `[ASSUMED]` (Không nhận null) |
+| **FR08-DT-14** | EC15, EC31 | User hợp lệ | `200000` | `""` (chuỗi rỗng) | Giỏ hàng bình thường | HTTP 400 Bad Request (địa chỉ rỗng) | `[ASSUMED]` (Bắt buộc địa chỉ) |
+| **FR08-DT-15** | EC16, EC31 | User hợp lệ | `200000` | `"   "` (khoảng trắng) | Giỏ hàng bình thường | HTTP 400 Bad Request (khoảng trắng) | `[ASSUMED]` (Trim địa chỉ) |
+| **FR08-DT-16** | EC17, EC31 | User hợp lệ | `200000` | Bỏ trường | Giỏ hàng bình thường (Client Web/Mobile) | HTTP 400 Bad Request (thiếu address) | `[SPEC: api_spec:135]` |
+| **FR08-DT-17** | EC18, EC31 | User hợp lệ | `200000` | `12345` (Number) | Giỏ hàng bình thường | HTTP 400 Bad Request (sai kiểu địa chỉ) | `[ASSUMED]` (Địa chỉ là chuỗi) |
+| **FR08-DT-18** | EC19, EC31 | User hợp lệ | `200000` | Chuỗi 1,500 ký tự | Giỏ hàng bình thường | HTTP 400 Bad Request (địa chỉ quá dài) | `[ASSUMED]` (Giới hạn độ dài) |
+| **FR08-DT-19** | EC21, EC31 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | **Giỏ hàng rỗng (`cart = []`)** | HTTP 400 Bad Request (giỏ hàng rỗng) | `[ASSUMED]` (Chặn giỏ rỗng) |
+| **FR08-DT-20** | EC23, EC31 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | **Giỏ hàng đặt vượt tồn kho** (`qty > stock`) | HTTP 400 Bad Request (vượt tồn kho) | `[ASSUMED]` (Kiểm tra kho) |
+| **FR08-DT-21** | EC26, EC31 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | Áp dụng mã coupon giả `FAKECOUPON99` | HTTP 400 Bad Request (coupon sai) | `[SPEC: api_spec:163]` |
+| **FR08-DT-22** | EC27, EC31 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ có 2 SP, Mobile gửi `cart.slice(0, -1)` | HTTP 400 hoặc Cảnh báo lệch giỏ hàng | `[CODE: App.js:391]` |
+
+---
+
+### 2. Ma trận bao phủ 100% lớp tương đương (Coverage Matrix)
+
+Bảng ma trận đối chiếu 31 lớp tương đương (EC01 – EC31) với 22 ca kiểm thử:
+
+| Mã lớp | Mô tả lớp tương đương | Phân loại | Ca kiểm thử bao phủ (TC IDs) | Trạng thái bao phủ |
+| :---: | :--- | :---: | :--- | :---: |
+| **EC01** | Token JWT hợp lệ của người dùng | Valid | FR08-DT-01, FR08-DT-02, FR08-DT-06 đến FR08-DT-22 | ✅ Đã bao phủ |
+| **EC02** | Thiếu header Authorization | Invalid | FR08-DT-03 | ✅ Đã bao phủ |
+| **EC03** | Token sai chữ ký / giả mạo | Invalid | FR08-DT-04 | ✅ Đã bao phủ |
+| **EC04** | Token rỗng (`Bearer `) | Invalid | FR08-DT-05 | ✅ Đã bao phủ |
+| **EC05** | `total_amount` nguyên dương hợp lệ khớp giỏ | Valid | FR08-DT-01, FR08-DT-02, FR08-DT-03..05, 14..22 | ✅ Đã bao phủ |
+| **EC06** | `total_amount = 0` | Invalid | FR08-DT-06 | ✅ Đã bao phủ |
+| **EC07** | `total_amount < 0` (số âm) | Invalid | FR08-DT-07 | ✅ Đã bao phủ |
+| **EC08** | `total_amount` sai lệch giỏ hàng (Web tampering) | Invalid | FR08-DT-08 | ✅ Đã bao phủ |
+| **EC09** | `total_amount` là chuỗi (String) | Invalid | FR08-DT-09 | ✅ Đã bao phủ |
+| **EC10** | `total_amount` là Boolean | Invalid | FR08-DT-10 | ✅ Đã bao phủ |
+| **EC11** | `total_amount` là số thực (Float) | Invalid | FR08-DT-11 | ✅ Đã bao phủ |
+| **EC12** | Thiếu hoàn toàn trường `total_amount` | Invalid | FR08-DT-12 | ✅ Đã bao phủ |
+| **EC13** | `total_amount = null` | Invalid | FR08-DT-13 | ✅ Đã bao phủ |
+| **EC14** | `shipping_address` hợp lệ | Valid | FR08-DT-01 đến FR08-DT-13, FR08-DT-19 đến FR08-DT-22 | ✅ Đã bao phủ |
+| **EC15** | `shipping_address = ""` (chuỗi rỗng) | Invalid | FR08-DT-14 | ✅ Đã bao phủ |
+| **EC16** | `shipping_address = "   "` (khoảng trắng) | Invalid | FR08-DT-15 | ✅ Đã bao phủ |
+| **EC17** | Thiếu trường `shipping_address` (Web & Mobile) | Invalid | FR08-DT-16 | ✅ Đã bao phủ |
+| **EC18** | `shipping_address` sai kiểu (Number) | Invalid | FR08-DT-17 | ✅ Đã bao phủ |
+| **EC19** | `shipping_address` vượt 1,000 ký tự | Invalid | FR08-DT-18 | ✅ Đã bao phủ |
+| **EC20** | Giỏ hàng có sản phẩm hợp lệ ($quantity \ge 1$) | Valid | FR08-DT-01 đến FR08-DT-18, FR08-DT-21, FR08-DT-22 | ✅ Đã bao phủ |
+| **EC21** | Giỏ hàng rỗng ($cart = []$) | Invalid | FR08-DT-19 | ✅ Đã bao phủ |
+| **EC22** | Tồn kho đủ để bán | Valid | FR08-DT-01 đến FR08-DT-19, FR08-DT-21, FR08-DT-22 | ✅ Đã bao phủ |
+| **EC23** | Đặt mua vượt quá tồn kho | Invalid | FR08-DT-20 | ✅ Đã bao phủ |
+| **EC24** | Không dùng coupon (`coupon_id = null`) | Valid | FR08-DT-01, FR08-DT-03 đến FR08-DT-20, FR08-DT-22 | ✅ Đã bao phủ |
+| **EC25** | Dùng coupon hợp lệ | Valid | FR08-DT-02 | ✅ Đã bao phủ |
+| **EC26** | Dùng coupon không hợp lệ / hết hạn | Invalid | FR08-DT-21 | ✅ Đã bao phủ |
+| **EC27** | Dị biệt Mobile tự cắt sản phẩm cuối giỏ | Invalid | FR08-DT-22 | ✅ Đã bao phủ |
+| **EC28** | Output: `HTTP 200 OK` + `orderId` | Valid Output | FR08-DT-01, FR08-DT-02 | ✅ Đã bao phủ |
+| **EC29** | Output: `HTTP 401 Unauthorized` | Invalid Output | FR08-DT-03, FR08-DT-05 | ✅ Đã bao phủ |
+| **EC30** | Output: `HTTP 403 Forbidden` | Invalid Output | FR08-DT-04 | ✅ Đã bao phủ |
+| **EC31** | Output: `HTTP 400 Bad Request` | Invalid Output | FR08-DT-06 đến FR08-DT-22 | ✅ Đã bao phủ |
+
+**Tổng hợp định lượng:**
+- Tổng số lớp tương đương (Equivalence Classes): **31**
+  - Lớp hợp lệ (Valid Classes): **8** (EC01, EC05, EC14, EC20, EC22, EC24, EC25, EC28)
+  - Lớp không hợp lệ (Invalid Classes): **23** (EC02-04, EC06-13, EC15-19, EC21, EC23, EC26, EC27, EC29-31)
+- Tổng số ca kiểm thử tối thiểu (Minimum Test Cases): **22 ca kiểm thử** (`FR08-DT-01` đến `FR08-DT-22`).
+- Tỷ lệ bao phủ (Coverage rate): **100% (31/31 ECs)**. Không có lớp tương đương nào bị bỏ sót.
+
+---
+
+## Stage 5 — Thẩm định (Self-check) và Đánh giá hạn chế kỹ thuật (Blind Spots)
+
+### 1. Danh sách kiểm tra chất lượng (Self-check Checklist)
+- [x] **Nguyên tắc cô lập lỗi đơn (Single-fault isolation):** Mỗi ca kiểm thử không hợp lệ (từ DT-03 đến DT-22) chỉ chứa duy nhất 1 lớp không hợp lệ; tất cả các trường và trạng thái còn lại đều giữ ở giá trị hợp lệ danh định.
+- [x] **Không trùng lặp dư thừa:** Không có hai ca kiểm thử nào rơi vào cùng một lớp tương đương mà không có lý do đối chiếu đặc biệt.
+- [x] **Nguồn gốc rõ ràng (Source tags):** Tất cả các kỳ vọng đều được gắn nhãn minh bạch (`[CODE]`, `[SPEC]`, `[ASSUMED]`). Mọi kỳ vọng `[ASSUMED]` đều được giải trình trong danh mục câu hỏi mở.
+- [x] **Không lạm dụng kiểm thử biên:** Các giá trị trong bộ DT tập trung vào phân hoạch miền; các giá trị biên chi tiết (on-the-boundary, off-the-boundary) được dành riêng cho kỹ thuật BVA tiếp theo.
+- [x] **Ngôn ngữ chuẩn mực:** Báo cáo trình bày hoàn toàn bằng tiếng Việt có dấu; mã định danh, phương thức HTTP, endpoint, mã nguồn giữ nguyên tiếng Anh.
+
+### 2. Điểm mù và hạn chế của kỹ thuật Kiểm thử miền (Blind Spots & Limitations)
+1. **Bỏ qua hành vi tại biên (Boundary Blind Spots):**
+   - Phân hoạch tương đương chỉ chọn 1 giá trị đại diện trong khoảng (ví dụ: `total_amount = 200000`). Kỹ thuật này hoàn toàn bỏ qua các giá trị tại biên nhạy cảm như $1$ VNĐ, số lớn $2^{31}-1$, hoặc giới hạn độ dài chuỗi địa chỉ (4 ký tự vs 5 ký tự, 255 vs 256 ký tự). Hạn chế này bắt buộc phải được giải quyết bằng kỹ thuật **Boundary Value Analysis (BVA)** ở giai đoạn tiếp theo.
+2. **Không phát hiện lỗi tương tranh (Concurrency / Race Conditions):**
+   - Domain Testing giả định hệ thống hoạt động tuần tự đơn tuyến (Single-threaded). Khi có 2 người dùng cùng lúc bấm thanh toán mua sản phẩm chỉ còn 1 món trong kho, Domain Testing không thể phát hiện lỗi tranh chấp trừ tồn kho nếu không có bài test tương tranh riêng.
+3. **Lỗ hổng bảo mật phi nghiệp vụ (Security Injections):**
+   - Kỹ thuật phân hoạch kiểm tra kiểu chuỗi nhưng không phát hiện các vector tấn công chuyên sâu như Stored XSS trong `shipping_address` hoặc SQL Injection nâng cao nếu backend nối chuỗi truy vấn trực tiếp.
+
+---
+
+### DỪNG LẠI TẠI CHECKPOINT STAGE 4 & 5 (STOP FOR REVIEW)
+*Tôi đã hoàn thành Stage 3, Stage 4 và Stage 5 của Kiểm thử miền (Domain Testing) cho FR-08, thiết kế hoàn chỉnh 22 ca kiểm thử tối thiểu với ma trận bao phủ 100% (31/31 ECs) và xuất tệp `HW2/testcases/FR-08.json`. Xin kính mời bạn thẩm định trước khi tôi chuyển sang kỹ thuật Phân tích giá trị biên (BVA).*
 

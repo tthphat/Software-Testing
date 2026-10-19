@@ -2,12 +2,12 @@
   "base_url": "http://localhost:3000",
   "users": {
     "user": {
-      "email": "user@domain.com",
+      "email": "test@eshop.com",
       "password": "Password123!"
     },
     "admin": {
       "email": "admin@eshop.com",
-      "password": "admin123"
+      "password": "Admin123!"
     }
   }
 }
