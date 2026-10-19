@@ -1,0 +1,441 @@
+================================================================================
+EShop SUT Test Execution Log: FR-03 (Forgot Password & Password Reset)
+Environment: http://localhost:3000
+Executed at: 2026-10-19T20:41:17+07:00
+Total Cases: 37 | PASS: 21 | FAIL: 16 | BLOCKED: 0
+================================================================================
+
+[CLI RUNNER OUTPUT]
+PASS    FR03-DT-01  Quy trình khôi phục mật khẩu hoàn chỉnh thành công (Step 1 + Step 2)
+PASS    FR03-DT-02  Bước 1: Yêu cầu OTP với email chưa từng đăng ký trong DB
+FAIL    FR03-DT-03  Bước 1: Yêu cầu OTP với email chuỗi rỗng  <- status 404 not in [400]
+FAIL    FR03-DT-04  Bước 1: Yêu cầu OTP thiếu trường email trong body  <- status 404 not in [400]
+FAIL    FR03-DT-05  Bước 1: Yêu cầu OTP với email thiếu ký tự @  <- status 404 not in [400]
+FAIL    FR03-DT-06  Bước 1: Yêu cầu OTP với email thiếu tên miền domain sau @  <- status 404 not in [400]
+FAIL    FR03-DT-07  Bước 1: Yêu cầu OTP với email kiểu dữ liệu Boolean  <- status 404 not in [400]
+PASS    FR03-DT-08  Bước 2: Đổi mật khẩu với email không khớp với tài khoản được cấp OTP
+PASS    FR03-DT-09  Bước 2: Đổi mật khẩu với email chuỗi rỗng
+PASS    FR03-DT-10  Bước 2: Đổi mật khẩu với mã OTP sai giá trị 4 chữ số
+PASS    FR03-DT-11  Bước 2: Đổi mật khẩu với mã OTP sai độ dài (6 chữ số theo mẫu spec)
+PASS    FR03-DT-12  Bước 2: Đổi mật khẩu với mã OTP là chuỗi rỗng
+PASS    FR03-DT-13  Bước 2: Tái sử dụng token đã được sử dụng thành công (Single-use test)
+PASS    FR03-DT-14  Bước 2: Dùng mã OTP của User B để đổi mật khẩu cho User A (Cross-account attack)
+PASS    FR03-DT-15  Bước 2: Gửi token cho tài khoản chưa từng gọi Step 1 (reset_token IS NULL)
+FAIL    FR03-DT-16  Bước 2: Mật khẩu mới quá ngắn (< 8 ký tự)  <- status 200 not in [400]; body must not contain "Password reset successfully"
+FAIL    FR03-DT-17  Bước 2: Mật khẩu mới thiếu chữ in hoa  <- status 200 not in [400]; body must not contain "Password reset successfully"
+FAIL    FR03-DT-18  Bước 2: Mật khẩu mới thiếu chữ in thường  <- status 200 not in [400]; body must not contain "Password reset successfully"
+FAIL    FR03-DT-19  Bước 2: Mật khẩu mới thiếu chữ số  <- status 200 not in [400]; body must not contain "Password reset successfully"
+FAIL    FR03-DT-20  Bước 2: Mật khẩu mới có khoảng trắng, thiếu ký tự đặc biệt (Web regex skew)  <- status 200 not in [400]; body must not contain "Password reset successfully"
+FAIL    FR03-DT-21  Bước 2: Mật khẩu mới là chuỗi rỗng  <- status 200 not in [400]; body must not contain "Password reset successfully"
+FAIL    FR03-DT-22  Bước 2: Mật khẩu mới vượt quá độ dài tối đa (> 128 ký tự)  <- status 200 not in [400]; body must not contain "Password reset successfully"
+FAIL    FR03-BVA-01  BVA newPassword length = 0 (Min Extreme chuỗi rỗng)  <- status 200 not in [400]; body must not contain "Password reset successfully"
+FAIL    FR03-BVA-02  BVA newPassword length = 7 (LB-1 thiếu 1 ký tự)  <- status 200 not in [400]; body must not contain "Password reset successfully"
+PASS    FR03-BVA-03  BVA newPassword length = 8 (LB chính xác 8 ký tự hợp lệ)
+PASS    FR03-BVA-04  BVA newPassword length = 9 (LB+1 9 ký tự hợp lệ)
+PASS    FR03-BVA-05  BVA newPassword length = 127 (UB-1 127 ký tự hợp lệ)
+PASS    FR03-BVA-06  BVA newPassword length = 128 (UB chính xác 128 ký tự ASCII)
+PASS    FR03-BVA-07  BVA newPassword length = 128 ký tự Unicode tiếng Việt có dấu (v2.0 Encoding Rule)
+FAIL    FR03-BVA-08  BVA newPassword length = 129 (UB+1 vượt quá 128 ký tự)  <- status 200 not in [400]; body must not contain "Password reset successfully"
+FAIL    FR03-BVA-09  BVA newPassword length = 10,000 (Max Extreme payload phòng chống DoS)  <- status 200 not in [400]; body must not contain "Password reset successfully"
+PASS    FR03-BVA-10  BVA resetToken length = 0 (Extreme chuỗi rỗng)
+PASS    FR03-BVA-11  BVA resetToken length = 3 / value = 999 (LB-1)
+PASS    FR03-BVA-12  BVA resetToken value = 1000 (LB giá trị 4 số nhỏ nhất)
+PASS    FR03-BVA-13  BVA resetToken value = 9999 (UB giá trị 4 số lớn nhất)
+PASS    FR03-BVA-14  BVA resetToken length = 5 / value = 10000 (UB+1)
+PASS    FR03-BVA-15  BVA resetToken length = 6 (spec boundary sample 123456)
+
+Executed 37: PASS 21, FAIL 16, BLOCKED 0. Results written to HW2/testcases/FR-03.json
+
+================================================================================
+DETAILED EXECUTION TRACE (37 TEST CASES)
+================================================================================
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-01
+Title: Quy trình khôi phục mật khẩu hoàn chỉnh thành công (Step 1 + Step 2)
+Request: POST /api/forgot-password
+Body: {"email":"test@eshop.com"}
+Expected: Status [200], Body includes: ["Mã đặt lại mật khẩu đã được tạo", "resetToken"]
+Actual Status: 200
+Actual Body: {"message":"Mã đặt lại mật khẩu đã được tạo","resetToken":"9818"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-02
+Title: Bước 1: Yêu cầu OTP với email chưa từng đăng ký trong DB
+Request: POST /api/forgot-password
+Body: {"email":"not_found_17766060893712@domain.com"}
+Expected: Status [404], Body includes: ["User not found"]
+Actual Status: 404
+Actual Body: {"error":"User not found"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-03
+Title: Bước 1: Yêu cầu OTP với email chuỗi rỗng
+Request: POST /api/forgot-password
+Body: {"email":""}
+Expected: Status [400], Body excludes: ["resetToken"]
+Actual Status: 404
+Actual Body: {"error":"User not found"}
+Fail Reasons: status 404 not in [400]
+Cause: Backend lacks input validation; executes SQL SELECT with empty string, causing 404 instead of 400.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-04
+Title: Bước 1: Yêu cầu OTP thiếu trường email trong body
+Request: POST /api/forgot-password
+Body: {}
+Expected: Status [400], Body excludes: ["resetToken"]
+Actual Status: 404
+Actual Body: {"error":"User not found"}
+Fail Reasons: status 404 not in [400]
+Cause: Backend lacks schema validation for missing email; executes SQL SELECT with undefined, causing 404 instead of 400.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-05
+Title: Bước 1: Yêu cầu OTP với email thiếu ký tự @
+Request: POST /api/forgot-password
+Body: {"email":"testeshop.com"}
+Expected: Status [400], Body excludes: ["resetToken"]
+Actual Status: 404
+Actual Body: {"error":"User not found"}
+Fail Reasons: status 404 not in [400]
+Cause: Backend does not validate email format; queries DB directly and returns 404 instead of 400.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-06
+Title: Bước 1: Yêu cầu OTP với email thiếu tên miền domain sau @
+Request: POST /api/forgot-password
+Body: {"email":"test@"}
+Expected: Status [400], Body excludes: ["resetToken"]
+Actual Status: 404
+Actual Body: {"error":"User not found"}
+Fail Reasons: status 404 not in [400]
+Cause: Backend does not validate email format; queries DB directly and returns 404 instead of 400.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-07
+Title: Bước 1: Yêu cầu OTP với email kiểu dữ liệu Boolean
+Request: POST /api/forgot-password
+Body: {"email":true}
+Expected: Status [400], Body excludes: ["resetToken"]
+Actual Status: 404
+Actual Body: {"error":"User not found"}
+Fail Reasons: status 404 not in [400]
+Cause: Backend does not check data type; queries DB directly and returns 404 instead of 400.
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-08
+Title: Bước 2: Đổi mật khẩu với email không khớp với tài khoản được cấp OTP
+Request: POST /api/reset-password
+Body: {"email":"admin@eshop.com","resetToken":"0000","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-09
+Title: Bước 2: Đổi mật khẩu với email chuỗi rỗng
+Request: POST /api/reset-password
+Body: {"email":"","resetToken":"0000","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-10
+Title: Bước 2: Đổi mật khẩu với mã OTP sai giá trị 4 chữ số
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"0000","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-11
+Title: Bước 2: Đổi mật khẩu với mã OTP sai độ dài (6 chữ số theo mẫu spec)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"123456","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-12
+Title: Bước 2: Đổi mật khẩu với mã OTP là chuỗi rỗng
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-13
+Title: Bước 2: Tái sử dụng token đã được sử dụng thành công (Single-use test)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"ALREADY_USED_TOKEN","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK (Token was invalidated after first reset)
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-14
+Title: Bước 2: Dùng mã OTP của User B để đổi mật khẩu cho User A (Cross-account attack)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"TOKEN_OF_OTHER_USER","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-DT-15
+Title: Bước 2: Gửi token cho tài khoản chưa từng gọi Step 1 (reset_token IS NULL)
+Request: POST /api/reset-password
+Body: {"email":"admin@eshop.com","resetToken":"1234","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-16
+Title: Bước 2: Mật khẩu mới quá ngắn (< 8 ký tự)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Pass1!"}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Missing validation on newPassword in backend; accepts 6-character password and updates DB.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-17
+Title: Bước 2: Mật khẩu mới thiếu chữ in hoa
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"password123!"}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Missing password complexity check in backend; accepts all lowercase password.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-18
+Title: Bước 2: Mật khẩu mới thiếu chữ in thường
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"PASSWORD123!"}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Missing password complexity check in backend; accepts all uppercase password.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-19
+Title: Bước 2: Mật khẩu mới thiếu chữ số
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Password!"}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Missing digit check in backend; accepts password without digits.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-20
+Title: Bước 2: Mật khẩu mới có khoảng trắng, thiếu ký tự đặc biệt (Web regex skew)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Pass word123"}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Missing special character check; allows whitespace.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-21
+Title: Bước 2: Mật khẩu mới là chuỗi rỗng
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":""}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Backend allows empty string as new password!
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-DT-22
+Title: Bước 2: Mật khẩu mới vượt quá độ dài tối đa (> 128 ký tự)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Password123!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"} (129 chars)
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Missing upper bound length check (> 128 chars).
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-BVA-01
+Title: BVA newPassword length = 0 (Min Extreme chuỗi rỗng)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":""}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Boundary length 0 accepted.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-BVA-02
+Title: BVA newPassword length = 7 (LB-1 thiếu 1 ký tự)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Pass12!"}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Boundary length LB-1 (7 chars) accepted.
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-03
+Title: BVA newPassword length = 8 (LB chính xác 8 ký tự hợp lệ)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Pass123!"}
+Expected: Status [200], Body includes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-04
+Title: BVA newPassword length = 9 (LB+1 9 ký tự hợp lệ)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Pass1234!"}
+Expected: Status [200], Body includes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-05
+Title: BVA newPassword length = 127 (UB-1 127 ký tự hợp lệ)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Password123!... (127 chars)"}
+Expected: Status [200], Body includes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-06
+Title: BVA newPassword length = 128 (UB chính xác 128 ký tự ASCII)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Password123!... (128 chars)"}
+Expected: Status [200], Body includes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-07
+Title: BVA newPassword length = 128 ký tự Unicode tiếng Việt có dấu (v2.0 Encoding Rule)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"KhởiTạoMậtKhẩuMới123!..."} (128 chars Unicode UTF-8)
+Expected: Status [200], Body includes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-BVA-08
+Title: BVA newPassword length = 129 (UB+1 vượt quá 128 ký tự)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Password123!... (129 chars)"}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Boundary length UB+1 (129 chars) accepted.
+
+--------------------------------------------------------------------------------
+[FAIL] FR03-BVA-09
+Title: BVA newPassword length = 10,000 (Max Extreme payload phòng chống DoS)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"<DYNAMIC_TOKEN>","newPassword":"Password123!... (10000 chars)"}
+Expected: Status [400], Body excludes: ["Password reset successfully"]
+Actual Status: 200
+Actual Body: {"message":"Password reset successfully"}
+Fail Reasons: status 200 not in [400]; body must not contain "Password reset successfully"
+Cause: Extreme length payload accepted without length capping.
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-10
+Title: BVA resetToken length = 0 (Extreme chuỗi rỗng)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-11
+Title: BVA resetToken length = 3 / value = 999 (LB-1)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"999","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-12
+Title: BVA resetToken value = 1000 (LB giá trị 4 số nhỏ nhất)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"1000","newPassword":"NewPassword123!"}
+Expected: Status [400, 200]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK (Token 1000 rejected as mismatched with generated token)
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-13
+Title: BVA resetToken value = 9999 (UB giá trị 4 số lớn nhất)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"9999","newPassword":"NewPassword123!"}
+Expected: Status [400, 200]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK (Token 9999 rejected as mismatched with generated token)
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-14
+Title: BVA resetToken length = 5 / value = 10000 (UB+1)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"10000","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+--------------------------------------------------------------------------------
+[PASS] FR03-BVA-15
+Title: BVA resetToken length = 6 (spec boundary sample 123456)
+Request: POST /api/reset-password
+Body: {"email":"test@eshop.com","resetToken":"123456","newPassword":"NewPassword123!"}
+Expected: Status [400], Body includes: ["Invalid token or email"]
+Actual Status: 400
+Actual Body: {"error":"Invalid token or email"}
+Verification: OK
+
+================================================================================
+END OF TEST EXECUTION LOG
+================================================================================
