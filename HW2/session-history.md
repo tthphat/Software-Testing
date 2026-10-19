@@ -346,6 +346,9 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
+| `HW2/evidence/FR-08/BUG-FR08-01.png` → `07.png` | Tạo mới 7 ảnh minh chứng GitHub Issues (#10 → #16) cho FR-08 |
+| `HW2/evidence/FR-01/test-execution.log` | Tạo mới log thực thi chi tiết 30 ca kiểm thử cho FR-01 |
+| `HW2/evidence/FR-08/test-execution.log` | Nâng cấp log thực thi chi tiết 42 ca kiểm thử cho FR-08 |
 | `HW2/23120319_HW02_Main_Report.md` | Tích hợp hoàn tất FR-08 (Section 3.4), 16 bugs (Section 3.6), 109 TCs (Section 4) |
 | `HW2/audit/audit-log.jsonl` | Thêm entry A22 (FR-08 Main Report Update) |
 | `HW2/session-history.md` | Cập nhật Phiên 18 hoàn tất Stage 6 và tính năng FR-08 |
@@ -353,7 +356,8 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành 100% tính năng FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW) trước khi sang FR-12.
+**Phiên hiện tại**: Đã hoàn thành 100% tính năng FR-08 và đầy đủ toàn bộ Evidence (Logs & Screenshots). Sẵn sàng chuyển sang FR-12.
+
 
 
 
