@@ -157,12 +157,33 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 ---
 
+## Phiên 11: Khởi động tính năng FR-08 (Checkout — Pool B) với Domain Testing (Stage 0 & 1)
+
+- **Tính năng**: **FR-08 — Checkout (Thanh toán & Đặt hàng — Pool B)**
+- **Kỹ thuật**: `domain-testing` (Stage 0 -> Stage 1)
+- **Hoạt động thực hiện**:
+  - **Stage 0 (Thu thập sự thật & Khảo sát SUT)**:
+    - Khảo sát endpoint `POST /api/checkout` (yêu cầu header `Authorization: Bearer <token>`).
+    - Đối chiếu chéo 3 tầng (Backend, Web, Mobile) theo checklist v2.0, phát hiện nhiều dị biệt và lỗ hổng bảo mật cực kỳ nghiêm trọng:
+      1. *Lỗ hổng thao túng giá thanh toán (Price Tampering)*: Web (`Checkout.jsx:93-102`) cho phép người dùng tự do nhập/sửa ô input `editableTotal`! Backend hoàn toàn không tự tính lại tiền từ giỏ hàng mà tin tưởng tuyệt đối số tiền client gửi lên.
+      2. *Lỗi Mobile cắt bỏ sản phẩm cuối cùng*: Mobile (`App.js:391`) cài đặt logic `cart.length > 1 ? cart.slice(0, -1) : cart` khiến đơn hàng luôn bị mất món đồ cuối cùng!
+      3. *Mâu thuẫn trường `shipping_address`*: Đặc tả và DB có trường địa chỉ giao hàng, nhưng cả giao diện Web và Mobile đều không có ô nhập địa chỉ này.
+      4. *Hệ thống không lưu chi tiết món hàng (`order_items`)*: Bảng `orders` chỉ lưu tổng tiền, không lưu danh sách sản phẩm hay số lượng đã mua.
+      5. *Backend thiếu hoàn toàn validation*: Không kiểm tra tiền âm, 0, chuỗi, không kiểm tra giỏ hàng rỗng, không trừ tồn kho.
+    - Lập danh sách 4 câu hỏi mở.
+  - **Stage 1 (Bảng biến và miền giá trị)**:
+    - Xây dựng bảng 7 biến (Inputs, State/Context, Outputs) kèm cột Domain value & constraints (cải tiến v1.1).
+    - Lưu báo cáo tiếng Việt tại `HW2/report/FR-08/01-domain-testing.vi.md`.
+- **Audit Log**: Thêm entry `A15` vào `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: **DỪNG LẠI TẠI CHECKPOINT STAGE 0 & 1 CHỜ DUYỆT (STOP FOR REVIEW)** theo đúng yêu cầu bài tập.
+
+---
+
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định toàn bộ kết quả cập nhật của FR-03 và thực hiện Git commit:
-   `feat(HW2): complete FR-03 test execution, main report and readme update`
-2. Bắt đầu tính năng tiếp theo: **FR-08 — Checkout (Pool B)**:
-   - Kỹ thuật 1: `domain-testing` cho FR-08 (Bắt đầu với Stage 0 và Stage 1 -> DỪNG LẠI CHỜ DUYỆT).
+1. Sinh viên thẩm định kết quả khảo sát Stage 0 và Bảng biến Stage 1 của FR-08.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 domain testing stage 0 and 1`.
+3. Sau khi được duyệt, chuyển sang **Stage 2 (Phân hoạch các lớp tương đương Equivalence Partitioning)** cho FR-08 -> DỪNG LẠI CHỜ DUYỆT.
 
 ---
 
@@ -179,15 +200,15 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/23120319_HW02_Main_Report.md` | Hoàn thiện mục 3.3 (FR-03), cập nhật mục 3.6 và mục 4 |
-| `HW2/README.md` | Cập nhật bảng tổng kết số liệu 67 TCs và checklist kiểm thử |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A14 (FR-03 Stage 6) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành 100% tính năng FR-03 |
+| `HW2/report/FR-08/01-domain-testing.vi.md` | Tạo báo cáo Stage 0 và Stage 1 cho FR-08 Checkout |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A15 (FR-08 Stage 0-1) |
+| `HW2/session-history.md` | Cập nhật tiến độ bắt đầu FR-08 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn tất 100% FR-01 và FR-03. Sẵn sàng cho FR-08 (Checkout).
+**Phiên hiện tại**: Đã hoàn thành Stage 0 & Stage 1 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+
 
 
 
