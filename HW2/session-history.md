@@ -209,11 +209,32 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 ---
 
+## Phiên 14: Phân tích giá trị biên (Stage 1-2) cho tính năng FR-08 (Checkout)
+
+- **Tính năng**: **FR-08 — Checkout (Thanh toán & Đặt hàng — Pool B)**
+- **Kỹ thuật**: `boundary-value-analysis` (Stage 1 & Stage 2)
+- **Hoạt động thực hiện**:
+  - **Stage 1 (Ordered Partitions)**:
+    - Xác định 3 miền có thứ tự: `total_amount` ($1 \le \text{amount} \le 2,147,483,647$), `shipping_address` ($5 \le \text{length} \le 255$), `cart_items_count` ($1 \le \text{items} \le 100$).
+    - Nêu rõ bước nhảy nhỏ nhất (1 VNĐ, 1 ký tự, 1 sản phẩm).
+    - Lập bảng loại trừ 5 trường không áp dụng BVA (`auth_token`, `user_id`, `status`, `coupon_id`, `items array`) kèm lý do kỹ thuật chi tiết.
+  - **Stage 2 (Variant & Test Model)**:
+    - Lựa chọn biến thể **3-value BVA** ($LB-1, LB, LB+1, UB-1, UB, UB+1$) khớp chuẩn giáo trình CSC13003 S04.
+    - Mở rộng mô hình 9 điểm: Giá trị danh định (Nominal), Cực trị vật lý ($-\alpha, +\alpha$ như số âm `-50,000`, `MAX_SAFE_INT`, chuỗi rỗng `""`, payload 10,000 ký tự).
+    - Tích hợp **Encoding Boundary Rule (v2.0)**: Ca kiểm thử địa chỉ tiếng Việt UTF-8 có dấu tại cận trên 255 ký tự để kiểm tra lỗi đo độ dài `Buffer.byteLength` vs `string.length`.
+    - Tích hợp **Cross-Platform Skew Boundary**: Điểm biên `cart.length = 1` vs `2` kích hoạt bug cắt bỏ sản phẩm trên Mobile (`App.js:391`).
+    - Lập bảng tổng hợp các điểm biên dự kiến cho Stage 3.
+  - **Tài liệu tạo mới**: `HW2/report/FR-08/02-boundary-value-analysis.vi.md`.
+- **Audit Log**: Thêm entry `A18` vào `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: **DỪNG LẠI TẠI CHECKPOINT STAGE 1 & 2 CHỜ DUYỆT (STOP FOR REVIEW)**.
+
+---
+
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định bộ 22 ca kiểm thử miền và ma trận bao phủ Stage 3-5 của FR-08.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 domain testing test cases and report stage 3-5`.
-3. Sau khi được duyệt, chuyển sang kỹ thuật **Boundary Value Analysis (BVA)** cho FR-08 (`HW2/report/FR-08/02-boundary-value-analysis.vi.md`).
+1. Sinh viên thẩm định bảng miền có thứ tự và lựa chọn biến thể BVA Stage 1-2 của FR-08.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-08 boundary value analysis stage 1-2`.
+3. Sau khi được duyệt, chuyển sang **Stage 3 (Sinh giá trị biên & thiết kế ca kiểm thử BVA)** và **Stage 4 (Tự kiểm tra Self-check & Bổ sung testcases JSON)** cho FR-08 -> DỪNG LẠI CHỜ DUYỆT.
 
 ---
 
@@ -230,16 +251,14 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/testcases/config.json` | Cập nhật email user chuẩn `test@eshop.com` và password admin `Admin123!` |
-| `HW2/report/FR-08/01-domain-testing.vi.md` | Bổ sung Stage 3, 4, 5 (Bảng giá trị đại diện, 22 TCs, ma trận bao phủ 100%, blind spots) |
-| `HW2/testcases/FR-08.json` | Tạo tệp test suite 22 test cases cho FR-08 |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A17 (FR-08 Stage 3-5) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 3-5 cho FR-08 |
+| `HW2/report/FR-08/02-boundary-value-analysis.vi.md` | Tạo mới báo cáo BVA Stage 1 & 2 cho FR-08 |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A18 (FR-08 BVA Stage 1-2) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 1-2 cho FR-08 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã hoàn thành Stage 3-5 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
+**Phiên hiện tại**: Đã hoàn thành BVA Stage 1-2 cho FR-08. DỪNG LẠI CHỜ DUYỆT (STOP FOR REVIEW).
 
 
 
