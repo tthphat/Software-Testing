@@ -1,0 +1,1503 @@
+{
+  "feature": "FR-03",
+  "cases": [
+    {
+      "id": "FR03-DT-01",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC08",
+        "EC11",
+        "EC18",
+        "EC26",
+        "EC28"
+      ],
+      "title": "Quy trình khôi phục mật khẩu hoàn chỉnh thành công (Step 1 + Step 2)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại trong database",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": "test@eshop.com"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Mã đặt lại mật khẩu đã được tạo",
+          "resetToken"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Mã đặt lại mật khẩu đã được tạo\",\"resetToken\":\"9570\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.434Z"
+      }
+    },
+    {
+      "id": "FR03-DT-02",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC02",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email chưa từng đăng ký trong DB",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email không tồn tại trong hệ thống",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": "not_found_{{uniq}}@domain.com"
+        }
+      },
+      "expected": {
+        "status": [
+          404
+        ],
+        "body_includes": [
+          "User not found"
+        ],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.503Z"
+      }
+    },
+    {
+      "id": "FR03-DT-03",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC03",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.508Z"
+      }
+    },
+    {
+      "id": "FR03-DT-04",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC04",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP thiếu trường email trong body",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {}
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.512Z"
+      }
+    },
+    {
+      "id": "FR03-DT-05",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC05",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email thiếu ký tự @",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": "testeshop.com"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.515Z"
+      }
+    },
+    {
+      "id": "FR03-DT-06",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC06",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email thiếu tên miền domain sau @",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": "test@"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.518Z"
+      }
+    },
+    {
+      "id": "FR03-DT-07",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC07",
+        "EC27"
+      ],
+      "title": "Bước 1: Yêu cầu OTP với email kiểu dữ liệu Boolean",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/forgot-password",
+        "body": {
+          "email": true
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "resetToken"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.521Z"
+      }
+    },
+    {
+      "id": "FR03-DT-08",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC09",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với email không khớp với tài khoản được cấp OTP",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com đã được cấp token ở Step 1",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "admin@eshop.com",
+          "resetToken": "0000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.523Z"
+      }
+    },
+    {
+      "id": "FR03-DT-09",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC10",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với email chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "None",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "",
+          "resetToken": "0000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.525Z"
+      }
+    },
+    {
+      "id": "FR03-DT-10",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC12",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với mã OTP sai giá trị 4 chữ số",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "0000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.529Z"
+      }
+    },
+    {
+      "id": "FR03-DT-11",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC13",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với mã OTP sai độ dài (6 chữ số theo mẫu spec)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "123456",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.532Z"
+      }
+    },
+    {
+      "id": "FR03-DT-12",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC14",
+        "EC29"
+      ],
+      "title": "Bước 2: Đổi mật khẩu với mã OTP là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.534Z"
+      }
+    },
+    {
+      "id": "FR03-DT-13",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC15",
+        "EC29"
+      ],
+      "title": "Bước 2: Tái sử dụng token đã được sử dụng thành công (Single-use test)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token đã được dùng ở lần reset trước (đã xóa về NULL)",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "ALREADY_USED",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.536Z"
+      }
+    },
+    {
+      "id": "FR03-DT-14",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC16",
+        "EC29"
+      ],
+      "title": "Bước 2: Dùng mã OTP của User B để đổi mật khẩu cho User A (Cross-account attack)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản User A và User B cùng tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "TOKEN_OF_OTHER_USER",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.555Z"
+      }
+    },
+    {
+      "id": "FR03-DT-15",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC17",
+        "EC29"
+      ],
+      "title": "Bước 2: Gửi token cho tài khoản chưa từng gọi Step 1 (reset_token IS NULL)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản chưa từng yêu cầu quên mật khẩu",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "admin@eshop.com",
+          "resetToken": "1234",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.557Z"
+      }
+    },
+    {
+      "id": "FR03-DT-16",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC19",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới quá ngắn (< 8 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.559Z"
+      }
+    },
+    {
+      "id": "FR03-DT-17",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC20",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới thiếu chữ in hoa",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.577Z"
+      }
+    },
+    {
+      "id": "FR03-DT-18",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC21",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới thiếu chữ in thường",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "PASSWORD123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.593Z"
+      }
+    },
+    {
+      "id": "FR03-DT-19",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC22",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới thiếu chữ số",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Password!@#"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.610Z"
+      }
+    },
+    {
+      "id": "FR03-DT-20",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC23",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới có khoảng trắng, thiếu ký tự đặc biệt (Web regex skew)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "NewPassword 123"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.627Z"
+      }
+    },
+    {
+      "id": "FR03-DT-21",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC24",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.644Z"
+      }
+    },
+    {
+      "id": "FR03-DT-22",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC25",
+        "EC30"
+      ],
+      "title": "Bước 2: Mật khẩu mới vượt quá độ dài tối đa (> 128 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "A1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.660Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-01",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC24"
+      ],
+      "title": "BVA newPassword length = 0 (Min Extreme chuỗi rỗng)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.676Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-02",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC19"
+      ],
+      "title": "BVA newPassword length = 7 (LB-1 thiếu 1 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!a"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.693Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-03",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 8 (LB chính xác 8 ký tự hợp lệ)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!ab"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.710Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-04",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 9 (LB+1 9 ký tự hợp lệ)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!abc"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.727Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-05",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 127 (UB-1 127 ký tự hợp lệ)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.744Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-06",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 128 (UB chính xác 128 ký tự ASCII)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.761Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-07",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 128 ký tự Unicode tiếng Việt có dấu (v2.0 Encoding Rule)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Nguyễn1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.778Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-08",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC25"
+      ],
+      "title": "BVA newPassword length = 129 (UB+1 vượt quá 128 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.795Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-09",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC25"
+      ],
+      "title": "BVA newPassword length = 10,000 (Max Extreme payload phòng chống DoS)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.812Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-10",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC14"
+      ],
+      "title": "BVA resetToken length = 0 (Extreme chuỗi rỗng)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.829Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-11",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC13"
+      ],
+      "title": "BVA resetToken length = 3 / value = 999 (LB-1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "999",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.831Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-12",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC11",
+        "EC12"
+      ],
+      "title": "BVA resetToken value = 1000 (LB giá trị 4 số nhỏ nhất)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "1000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          200
+        ],
+        "body_includes": [],
+        "body_excludes": []
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.833Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-13",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC11",
+        "EC12"
+      ],
+      "title": "BVA resetToken value = 9999 (UB giá trị 4 số lớn nhất)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "9999",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          200
+        ],
+        "body_includes": [],
+        "body_excludes": []
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.834Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-14",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC13"
+      ],
+      "title": "BVA resetToken length = 5 / value = 10000 (UB+1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "10000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.836Z"
+      }
+    },
+    {
+      "id": "FR03-BVA-15",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC13"
+      ],
+      "title": "BVA resetToken length = 6 (spec boundary sample 123456)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "123456",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.838Z"
+      }
+    }
+  ]
+}

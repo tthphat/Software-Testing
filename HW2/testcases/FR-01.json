@@ -1,0 +1,1243 @@
+{
+  "feature": "FR-01",
+  "cases": [
+    {
+      "id": "FR01-DT-01",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC05",
+        "EC10",
+        "EC18",
+        "EC20"
+      ],
+      "title": "Đăng ký thành công với tất cả dữ liệu hợp lệ",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại trong hệ thống",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":3}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:52.923Z"
+      }
+    },
+    {
+      "id": "FR01-DT-02",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC02",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi name là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":4}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:52.991Z"
+      }
+    },
+    {
+      "id": "FR01-DT-03",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC03",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi thiếu trường name",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":5}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:52.998Z"
+      }
+    },
+    {
+      "id": "FR01-DT-04",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC04",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi name sai kiểu dữ liệu (số nguyên)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": 12345,
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":6}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.004Z"
+      }
+    },
+    {
+      "id": "FR01-DT-05",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC06",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi email sai định dạng (thiếu @)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "invalid_email_domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":7}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.010Z"
+      }
+    },
+    {
+      "id": "FR01-DT-06",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC07",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi email là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":8}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.016Z"
+      }
+    },
+    {
+      "id": "FR01-DT-07",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC08",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi thiếu trường email",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":9}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.022Z"
+      }
+    },
+    {
+      "id": "FR01-DT-08",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC09",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi email sai kiểu dữ liệu (boolean)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": true,
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":10}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.027Z"
+      }
+    },
+    {
+      "id": "FR01-DT-09",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC11",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu quá ngắn (< 8 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Pass1!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":11}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.031Z"
+      }
+    },
+    {
+      "id": "FR01-DT-10",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC12",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu thiếu chữ in hoa",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":12}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.038Z"
+      }
+    },
+    {
+      "id": "FR01-DT-11",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC13",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu thiếu chữ in thường",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "PASSWORD123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":13}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.044Z"
+      }
+    },
+    {
+      "id": "FR01-DT-12",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC14",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu thiếu chữ số",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":14}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.048Z"
+      }
+    },
+    {
+      "id": "FR01-DT-13",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC15",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu thiếu ký tự đặc biệt",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":15}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.053Z"
+      }
+    },
+    {
+      "id": "FR01-DT-14",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC16",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi mật khẩu là chuỗi rỗng",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":16}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.057Z"
+      }
+    },
+    {
+      "id": "FR01-DT-15",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC17",
+        "EC21"
+      ],
+      "title": "Đăng ký không thành công khi thiếu trường password",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":17}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.061Z"
+      }
+    },
+    {
+      "id": "FR01-DT-16",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC19",
+        "EC22"
+      ],
+      "title": "Đăng ký không thành công khi email đã tồn tại trong hệ thống (Duplicate)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản admin@eshop.com đã tồn tại trong cơ sở dữ liệu",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "admin@eshop.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          409
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":18}",
+        "fail_reasons": [
+          "status 200 not in [400,409]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.066Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-01",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB(name.length=1)"
+      ],
+      "title": "BVA: Đăng ký với name độ dài tối thiểu 1 ký tự (LB)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":19}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:53.070Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-02",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB+1(name.length=2)"
+      ],
+      "title": "BVA: Đăng ký với name độ dài 2 ký tự (LB+1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "An",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":20}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:53.074Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-03",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB-1(name.length=99)"
+      ],
+      "title": "BVA: Đăng ký với name độ dài 99 ký tự (UB-1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":21}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:53.078Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-04",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB(name.length=100)"
+      ],
+      "title": "BVA: Đăng ký với name độ dài 100 ký tự (UB)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":22}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:53.082Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-05",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB+1(name.length=101)"
+      ],
+      "title": "BVA: Đăng ký với name độ dài 101 ký tự vượt giới hạn (UB+1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":23}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.086Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-06",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "Extreme(name.length=1000)"
+      ],
+      "title": "BVA: Đăng ký với name cực lớn 1.000 ký tự (Extreme)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          413,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":24}",
+        "fail_reasons": [
+          "status 200 not in [400,413,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.090Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-07",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB-1(password.length=7)"
+      ],
+      "title": "BVA: Đăng ký với password 7 ký tự dưới ngưỡng tối thiểu (LB-1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Pass1!a"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":25}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.095Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-08",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB(password.length=8)"
+      ],
+      "title": "BVA: Đăng ký với password đúng 8 ký tự đủ điều kiện (LB)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Pass12!a"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":26}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:53.100Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-09",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "LB+1(password.length=9)"
+      ],
+      "title": "BVA: Đăng ký với password 9 ký tự sát biên trong (LB+1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Pass123!a"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":27}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:53.104Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-10",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB-1(password.length=127)"
+      ],
+      "title": "BVA: Đăng ký với password dài 127 ký tự (UB-1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":28}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:53.108Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-11",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB(password.length=128)"
+      ],
+      "title": "BVA: Đăng ký với password dài đúng 128 ký tự (UB)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":29}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:53.112Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-12",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "UB+1(password.length=129)"
+      ],
+      "title": "BVA: Đăng ký với password 129 ký tự vượt giới hạn (UB+1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":30}",
+        "fail_reasons": [
+          "status 200 not in [400,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.116Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-13",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "Extreme(password.length=1000)"
+      ],
+      "title": "BVA: Đăng ký với password cực dài 1.000 ký tự (Extreme DoS Hash test)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Không có",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyen Van A",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          413,
+          422
+        ],
+        "body_excludes": [
+          "User registered successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":31}",
+        "fail_reasons": [
+          "status 200 not in [400,413,422]",
+          "body must not contain \"User registered successfully\""
+        ],
+        "executed_at": "2026-10-19T16:28:53.120Z"
+      }
+    },
+    {
+      "id": "FR01-BVA-14",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "Encoding(UTF-8-name=100chars)"
+      ],
+      "title": "BVA: Đăng ký với name tiếng Việt có dấu đúng 100 ký tự (Biên UTF-8)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Email chưa tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/register",
+        "body": {
+          "name": "Nguyễn aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "email": "user_{{uniq}}@domain.com",
+          "password": "Password123!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "User registered successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"User registered successfully\",\"id\":32}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T16:28:53.124Z"
+      }
+    }
+  ]
+}
