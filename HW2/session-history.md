@@ -97,19 +97,28 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
   - **Stage 4 (Minimum Test Cases & Coverage Matrix)**: ✅ Thiết kế bộ 22 ca kiểm thử tối thiểu (`FR03-DT-01` đến `FR03-DT-22`), ma trận bao phủ 100%. Xuất tệp máy đọc `HW2/testcases/FR-03.json`.
   - **Stage 5 (Self-Check & Blind Spots)**: ✅ Phân tích blind spot (token expiry) và áp dụng nguyên tắc Zero-Trust SUT.
   - **Audit Log**: ✅ Đã ghi các entries A08, A09, A10 trong `HW2/audit/audit-log.jsonl`.
-- **Tình trạng hiện tại**: Đã hoàn thành 100% kỹ thuật **Domain Testing** cho **FR-03**. Đang dừng ở điểm kiểm soát **STOP FOR REVIEW** để sinh viên thẩm định trước khi chuyển sang kỹ thuật **Boundary Value Analysis (BVA)**.
+- **FR-03 (Forgot Password & Password Reset)**:
+  - **Domain Testing (Stage 0 - 5)**: ✅ Hoàn thành trọn vẹn (22 test cases: `FR03-DT-01` đến `FR03-DT-22`, ma trận bao phủ 100%, ghi entries A08-A10).
+  - **Boundary Value Analysis (Stage 1 - 4)**: ✅ Hoàn thành trọn vẹn:
+    - Stage 1: Xác định 2 miền có thứ tự (`newPassword.length` [8, 128] và `resetToken.length/value`), giải thích rõ lý do không áp dụng cho email/boolean/complexity.
+    - Stage 2: Biến thể 3-value BVA ($LB-1, LB, LB+1, UB-1, UB, UB+1$) kết hợp mô hình 9 điểm và quy tắc Encoding Boundary UTF-8 tiếng Việt (v2.0).
+    - Stage 3: Thiết kế 15 ca kiểm thử BVA (`FR03-BVA-01` đến `FR03-BVA-15`) kèm cột "Lỗi code sẽ bắt được".
+    - Stage 4: Tự kiểm tra và phân tích hạn chế.
+    - Testcases JSON: Cập nhật `HW2/testcases/FR-03.json` (tổng cộng 37 test cases: 22 DT + 15 BVA).
+    - Audit Log: Đã ghi entry A11 trong `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: Đã hoàn thành cả 2 kỹ thuật thiết kế kiểm thử (Domain Testing & BVA) cho **FR-03**. Đang dừng ở điểm kiểm soát **STOP FOR REVIEW** để sinh viên thẩm định trước khi chuyển sang kỹ thuật thực thi `test-execution-and-bugs`.
 
 ---
 
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định bộ test case và ma trận bao phủ của FR-03 Domain Testing.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 domain testing stage 3-5 test cases and coverage`.
-3. Chuyển sang kỹ thuật: **Boundary Value Analysis (BVA)** cho FR-03:
-   - Stage 1: Xác định các miền có thứ tự (`newPassword.length` [8, 128], `resetToken.length` [4, 4]).
-   - Stage 2: Biến thể 3-value BVA kết hợp mô hình 9 điểm và biên UTF-8 tiếng Việt (v2.0).
-   - Stage 3: Sinh bộ ca kiểm thử biên và cập nhật vào `HW2/testcases/FR-03.json`.
-   - Stage 4: Tự kiểm tra và blind spots.
+1. Sinh viên thẩm định kết quả BVA của FR-03.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 BVA 3-value test cases and report`.
+3. Chuyển sang kỹ thuật: **test-execution-and-bugs** cho FR-03:
+   - Chạy kiểm thử tự động với runner đối chiếu SUT: `node .claude/skills/test-execution-and-bugs/scripts/run_cases.mjs --file HW2/testcases/FR-03.json`.
+   - Phân loại lỗi (Triage: Defect vs Wrong expectation vs Spec gap).
+   - Lập báo cáo lỗi chi tiết và dự thảo các GitHub Issues cho FR-03.
+   - Cập nhật số liệu kiểm thử vào báo cáo.
 
 ---
 
@@ -125,15 +134,16 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/FR-03/01-domain-testing.vi.md` | Hoàn thành trọn vẹn Stage 0 đến Stage 5 |
-| `HW2/testcases/FR-03.json` | Tạo tệp dữ liệu kiểm thử máy đọc (22 TCs Domain Testing) |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A10 (FR-03 Stage 3-5) |
-| `HW2/session-history.md` | Cập nhật hoàn thành Domain Testing cho FR-03 |
+| `HW2/report/FR-03/02-boundary-value-analysis.vi.md` | Tạo mới toàn bộ báo cáo BVA Stage 1 đến Stage 4 |
+| `HW2/testcases/FR-03.json` | Cập nhật thêm 15 TCs BVA (nâng tổng số lên 37 TCs) |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A11 (FR-03 BVA Stage 1-4) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành BVA cho FR-03 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã xong Domain Testing FR-03. Chờ duyệt để chuyển sang BVA.
+**Phiên hiện tại**: Đã xong BVA FR-03. Chờ duyệt để thực thi kiểm thử (`test-execution-and-bugs`).
+
 
 
 

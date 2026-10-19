@@ -779,6 +779,534 @@
       "result": {
         "status": "NOT_EXECUTED"
       }
+    },
+    {
+      "id": "FR03-BVA-01",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC24"
+      ],
+      "title": "BVA newPassword length = 0 (Min Extreme chuỗi rỗng)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-02",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC19"
+      ],
+      "title": "BVA newPassword length = 7 (LB-1 thiếu 1 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!a"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-03",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 8 (LB chính xác 8 ký tự hợp lệ)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!ab"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-04",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 9 (LB+1 9 ký tự hợp lệ)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!abc"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-05",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 127 (UB-1 127 ký tự hợp lệ)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-06",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 128 (UB chính xác 128 ký tự ASCII)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-07",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC18"
+      ],
+      "title": "BVA newPassword length = 128 ký tự Unicode tiếng Việt có dấu (v2.0 Encoding Rule)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Nguyễn1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_includes": [
+          "Password reset successfully"
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-08",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC25"
+      ],
+      "title": "BVA newPassword length = 129 (UB+1 vượt quá 128 ký tự)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-09",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC25"
+      ],
+      "title": "BVA newPassword length = 10,000 (Max Extreme payload phòng chống DoS)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Token và email hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "VALID_TOKEN",
+          "newPassword": "Pass1!aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [],
+        "body_excludes": [
+          "Password reset successfully"
+        ]
+      },
+      "expected_source": "ASSUMED",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-10",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC14"
+      ],
+      "title": "BVA resetToken length = 0 (Extreme chuỗi rỗng)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-11",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC13"
+      ],
+      "title": "BVA resetToken length = 3 / value = 999 (LB-1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "999",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-12",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC11",
+        "EC12"
+      ],
+      "title": "BVA resetToken value = 1000 (LB giá trị 4 số nhỏ nhất)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "1000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          200
+        ],
+        "body_includes": [],
+        "body_excludes": []
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-13",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC11",
+        "EC12"
+      ],
+      "title": "BVA resetToken value = 9999 (UB giá trị 4 số lớn nhất)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "9999",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          200
+        ],
+        "body_includes": [],
+        "body_excludes": []
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-14",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC13"
+      ],
+      "title": "BVA resetToken length = 5 / value = 10000 (UB+1)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "10000",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
+    },
+    {
+      "id": "FR03-BVA-15",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC13"
+      ],
+      "title": "BVA resetToken length = 6 (spec boundary sample 123456)",
+      "type": "api",
+      "auth": "none",
+      "precondition": "Tài khoản test@eshop.com tồn tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/reset-password",
+        "body": {
+          "email": "test@eshop.com",
+          "resetToken": "123456",
+          "newPassword": "NewPassword123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400
+        ],
+        "body_includes": [
+          "Invalid token or email"
+        ],
+        "body_excludes": [
+          "successfully"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "NOT_EXECUTED"
+      }
     }
   ]
 }
