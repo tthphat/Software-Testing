@@ -92,23 +92,24 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 - **FR-03 (Forgot Password & Password Reset)**:
   - **Stage 0 (Facts Collection)**: ✅ Hoàn thành khảo sát đối chiếu 3 tầng (Backend, Web, Mobile). Phát hiện lỗi rò rỉ OTP qua response, token không có thời hạn, lệch pha regex password Web vs Mobile, lệch pha OTP 4 số vs 6 số.
   - **Stage 1 (Variables & Domains)**: ✅ Lập bảng biến Input / Output / State kèm miền giá trị chi tiết (Domains) tại `HW2/report/FR-03/01-domain-testing.vi.md`.
-  - **Audit Log**: ✅ Đã ghi entry A08 trong `HW2/audit/audit-log.jsonl`.
-- **Tình trạng hiện tại**: Đang dừng ở điểm kiểm soát **STOP FOR REVIEW** sau Stage 0 & Stage 1 của FR-03 để sinh viên thẩm định và phê duyệt trước khi sang Stage 2 (Equivalence Partitioning).
+  - **Stage 2 (Equivalence Partitioning)**: ✅ Xây dựng bảng 31 lớp tương đương (`EC01` đến `EC31`) bao quát toàn diện quy trình 2 bước và các điều kiện Range, Must be, Type, Missing/Empty, State conflict, Cross-platform skew, Output classes.
+  - **Audit Log**: ✅ Đã ghi entries A08, A09 trong `HW2/audit/audit-log.jsonl`.
+- **Tình trạng hiện tại**: Đang dừng ở điểm kiểm soát **STOP FOR REVIEW** sau Stage 2 của FR-03 để sinh viên thẩm định và phê duyệt các lớp tương đương trước khi sang Stage 3 & 4 (Chọn đại diện & Sinh test cases).
 
 ---
 
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định kết quả Stage 0 và Stage 1 của FR-03.
-2. Tiến hành **Stage 2: Phân hoạch tương đương (Equivalence Partitioning)** cho FR-03 theo slide S04 (phân hoạch cho cả 2 bước: yêu cầu OTP và đặt lại mật khẩu).
-3. Đề xuất commit Git sau khi hoàn thành các chặng được duyệt.
+1. Sinh viên thẩm định bảng phân hoạch tương đương (EC01 - EC31) của FR-03.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 equivalence partitions stage 2`.
+3. Tiến hành **Stage 3 (Chọn đại diện)** và **Stage 4 (Thiết kế bộ test case tối thiểu & Ma trận bao phủ 100%)** cho FR-03.
 
 ---
 
 ## Ghi chú
 - Sử dụng skill `domain-testing` -> `boundary-value-analysis` -> `test-execution-and-bugs`
 - Sau mỗi artifact, chạy skill `ai-audit-log`
-- Commit sau mỗi stage được duyệt
+- Commit sau mỗi stage được duyệt theo format `feat(HW2): ...`
 - Báo cáo bằng tiếng Việt có dấu
 
 ---
@@ -117,15 +118,15 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/FR-03/01-domain-testing.vi.md` | Tạo báo cáo Stage 0 và Stage 1 cho FR-03 |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A08 (FR-03 Stage 0-1) |
-| `HW2/session-history.md` | Cập nhật tiến độ bắt đầu FR-03 |
-| `HW2/23120319_HW02_Main_Report.md` | Hoàn thiện toàn bộ nội dung FR-01 trong Báo cáo chính |
+| `HW2/report/FR-03/01-domain-testing.vi.md` | Bổ sung Stage 2 (31 lớp tương đương EC01 - EC31) |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A09 (FR-03 Stage 2) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 2 cho FR-03 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đang chờ sinh viên duyệt Stage 0 & Stage 1 của FR-03.
+**Phiên hiện tại**: Đang chờ sinh viên duyệt Stage 2 của FR-03.
+
 
 
 
