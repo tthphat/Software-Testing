@@ -110,15 +110,32 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 ---
 
+## Phiên 8: Thực thi kiểm thử (Stage 1-2) và Phân loại lỗi Triage (Stage 3) cho FR-03
+
+- **Kỹ thuật**: `test-execution-and-bugs` (Stage 1 -> Stage 3)
+- **Môi trường**: SUT backend đang chạy tại `http://localhost:3000` (Node.js/Express + SQLite3).
+- **Kết quả thực thi**: Chạy thành công toàn bộ 37 ca kiểm thử API trong `HW2/testcases/FR-03.json`:
+  - **PASS**: 21 ca.
+  - **FAIL**: 16 ca.
+  - **BLOCKED**: 0 ca.
+- **Phân loại lỗi (Stage 3 Triage)**:
+  - **11 ca thất bại do Backend hoàn toàn thiếu validation cho `newPassword`** (`FR03-DT-16` đến `FR03-DT-22`, `FR03-BVA-01`, `FR03-BVA-02`, `FR03-BVA-08`, `FR03-BVA-09`): Backend chấp nhận bất kỳ mật khẩu nào (kể cả chuỗi rỗng `""`, 1 ký tự, 10,000 ký tự payload), hash và lưu vào DB, trả về HTTP 200 `Password reset successfully` thay vì HTTP 400 Bad Request.
+  - **5 ca thất bại do Backend thiếu validation dữ liệu đầu vào trên `POST /api/forgot-password`** (`FR03-DT-03` đến `FR03-DT-07`): Khi gửi email rỗng `""`, thiếu trường email, email sai format hoặc kiểu Boolean, backend không kiểm tra dữ liệu mà truy vấn thẳng SQLite `SELECT * FROM users WHERE email = ?` dẫn đến trả về HTTP 404 `User not found` thay vì HTTP 400 Bad Request.
+  - **Lỗ hổng bảo mật nghiêm trọng phát hiện thêm**:
+    1. Endpoint `POST /api/forgot-password` trả thẳng `resetToken` trong response body (CWE-200 / Information Disclosure), cho phép kẻ tấn công chiếm đoạt tài khoản mà không cần đọc email nạn nhân!
+    2. Bảng `users` chỉ có cột `reset_token TEXT`, không có cột lưu thời gian tạo/hết hạn, mã OTP có hiệu lực vô thời hạn cho đến khi được dùng (CWE-613 / Insufficient Session Expiration).
+- **Audit Log**: Thêm entry `A12` vào `HW2/audit/audit-log.jsonl`.
+
+---
+
 ## Kế hoạch tiếp theo
 
-1. Sinh viên thẩm định kết quả BVA của FR-03.
-2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 BVA 3-value test cases and report`.
-3. Chuyển sang kỹ thuật: **test-execution-and-bugs** cho FR-03:
-   - Chạy kiểm thử tự động với runner đối chiếu SUT: `node .claude/skills/test-execution-and-bugs/scripts/run_cases.mjs --file HW2/testcases/FR-03.json`.
-   - Phân loại lỗi (Triage: Defect vs Wrong expectation vs Spec gap).
-   - Lập báo cáo lỗi chi tiết và dự thảo các GitHub Issues cho FR-03.
-   - Cập nhật số liệu kiểm thử vào báo cáo.
+1. Sinh viên thẩm định kết quả thực thi và phân loại lỗi Stage 3 của FR-03.
+2. Thực hiện Git commit theo định dạng: `feat(HW2): FR-03 test execution and failure triage stage 3`.
+3. Sau khi được duyệt, tiếp tục:
+   - **Stage 4**: Lập báo cáo lỗi chi tiết (`HW2/report/bugs.vi.md`) và dự thảo các GitHub Issues (`HW2/report/issues/BUG-FR03-*.md`).
+   - **Stage 5**: Thực hiện AI Gap Analysis (phân tích khoảng cách giữa ca do AI thiết kế và các góc khuất thực tế tìm thấy) -> Dừng duyệt Stage 5.
+   - **Stage 6**: Cập nhật số liệu kiểm thử và tổng hợp vào Main Report `23120319_HW02_Main_Report.md`.
 
 ---
 
@@ -127,6 +144,7 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 - Sau mỗi artifact, chạy skill `ai-audit-log`
 - Commit sau mỗi stage được duyệt theo format `feat(HW2): ...`
 - Báo cáo bằng tiếng Việt có dấu
+- **QUY TẮC BẮT BUỘC**: Dừng lại duyệt tại từng stage checkpoint (Stage 3 Triage và Stage 5 Gap Analysis).
 
 ---
 
@@ -134,15 +152,16 @@ Bắt đầu thực hiện HW02 - Domain Testing trên hệ thống EShop SUT.
 
 | File | Hành động |
 |------|-----------|
-| `HW2/report/FR-03/02-boundary-value-analysis.vi.md` | Tạo mới toàn bộ báo cáo BVA Stage 1 đến Stage 4 |
-| `HW2/testcases/FR-03.json` | Cập nhật thêm 15 TCs BVA (nâng tổng số lên 37 TCs) |
-| `HW2/audit/audit-log.jsonl` | Thêm entry A11 (FR-03 BVA Stage 1-4) |
-| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành BVA cho FR-03 |
+| `.claude/skills/test-execution-and-bugs/scripts/run_cases.mjs` | Bổ sung cơ chế dynamic token và dọn dẹp state cho feature stateful reset-password |
+| `HW2/testcases/FR-03.json` | Ghi nhận kết quả thực thi thực tế (21 PASS, 16 FAIL) |
+| `HW2/audit/audit-log.jsonl` | Thêm entry A12 (FR-03 Test Execution & Triage Stage 1-3) |
+| `HW2/session-history.md` | Cập nhật tiến độ hoàn thành Stage 1-3 cho FR-03 |
 
 ---
 
 **Ngày cập nhật**: 19/10/2026  
-**Phiên hiện tại**: Đã xong BVA FR-03. Chờ duyệt để thực thi kiểm thử (`test-execution-and-bugs`).
+**Phiên hiện tại**: Đã hoàn thành Stage 1–3 (`test-execution-and-bugs`) cho FR-03. DỪNG LẠI CHỜ DUYỆT.
+
 
 
 

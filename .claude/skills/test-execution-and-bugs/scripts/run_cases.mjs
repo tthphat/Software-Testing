@@ -66,6 +66,35 @@ for (const tc of suite.cases) {
   const started = new Date().toISOString();
   try {
     const req = fill(tc.request);
+    // Dynamic token injection for stateful reset-password cases
+    if (req.body && req.body.resetToken === "VALID_TOKEN") {
+      const emailForToken = req.body.email || "test@eshop.com";
+      const fpRes = await fetch(`${baseUrl}/api/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailForToken }),
+      });
+      const fpData = await fpRes.json().catch(() => ({}));
+      if (fpData.resetToken) {
+        req.body.resetToken = fpData.resetToken;
+      }
+    } else if (req.body && req.body.resetToken === "ALREADY_USED") {
+      const emailForToken = req.body.email || "test@eshop.com";
+      const fpRes = await fetch(`${baseUrl}/api/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailForToken }),
+      });
+      const fpData = await fpRes.json().catch(() => ({}));
+      if (fpData.resetToken) {
+        await fetch(`${baseUrl}/api/reset-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: emailForToken, resetToken: fpData.resetToken, newPassword: "Password123!" }),
+        });
+        req.body.resetToken = fpData.resetToken;
+      }
+    }
     const headers = { "Content-Type": "application/json", ...(req.headers || {}) };
     const token = tc.auth_token_override ?? (await tokenFor(tc.auth || "none"));
     if (token) headers.Authorization = `Bearer ${token}`;
@@ -96,6 +125,23 @@ for (const tc of suite.cases) {
 }
 
 if (!dry) {
+  // Cleanup/Restore test@eshop.com password
+  try {
+    const fp = await fetch(`${baseUrl}/api/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "test@eshop.com" }),
+    });
+    const fpData = await fp.json().catch(() => ({}));
+    if (fpData.resetToken) {
+      await fetch(`${baseUrl}/api/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "test@eshop.com", resetToken: fpData.resetToken, newPassword: "Password123!" }),
+      });
+    }
+  } catch (_) {}
+
   fs.writeFileSync(file, JSON.stringify(suite, null, 2) + "\n");
   const n = (s) => results.filter((t) => t.result.status === s).length;
   console.log(`\nExecuted ${results.length}: PASS ${n("PASS")}, FAIL ${n("FAIL")}, BLOCKED ${n("BLOCKED")}. Results written to ${file}`);

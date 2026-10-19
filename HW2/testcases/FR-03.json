@@ -38,7 +38,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Mã đặt lại mật khẩu đã được tạo\",\"resetToken\":\"9570\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.434Z"
       }
     },
     {
@@ -73,7 +77,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.503Z"
       }
     },
     {
@@ -106,7 +114,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.508Z"
       }
     },
     {
@@ -137,7 +151,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.512Z"
       }
     },
     {
@@ -170,7 +190,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.515Z"
       }
     },
     {
@@ -203,7 +229,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.518Z"
       }
     },
     {
@@ -236,7 +268,13 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 404,
+        "actual_body": "{\"error\":\"User not found\"}",
+        "fail_reasons": [
+          "status 404 not in [400]"
+        ],
+        "executed_at": "2026-10-19T13:42:49.521Z"
       }
     },
     {
@@ -273,7 +311,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.523Z"
       }
     },
     {
@@ -310,7 +352,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.525Z"
       }
     },
     {
@@ -347,7 +393,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.529Z"
       }
     },
     {
@@ -384,7 +434,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.532Z"
       }
     },
     {
@@ -421,7 +475,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.534Z"
       }
     },
     {
@@ -458,7 +516,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.536Z"
       }
     },
     {
@@ -495,7 +557,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.555Z"
       }
     },
     {
@@ -532,7 +598,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.557Z"
       }
     },
     {
@@ -567,7 +637,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.559Z"
       }
     },
     {
@@ -602,7 +679,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.577Z"
       }
     },
     {
@@ -637,7 +721,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.593Z"
       }
     },
     {
@@ -672,7 +763,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.610Z"
       }
     },
     {
@@ -707,7 +805,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.627Z"
       }
     },
     {
@@ -742,7 +847,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.644Z"
       }
     },
     {
@@ -777,7 +889,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.660Z"
       }
     },
     {
@@ -811,7 +930,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.676Z"
       }
     },
     {
@@ -845,7 +971,14 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.693Z"
       }
     },
     {
@@ -881,7 +1014,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.710Z"
       }
     },
     {
@@ -917,7 +1054,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.727Z"
       }
     },
     {
@@ -953,7 +1094,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.744Z"
       }
     },
     {
@@ -989,7 +1134,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.761Z"
       }
     },
     {
@@ -1025,7 +1174,11 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.778Z"
       }
     },
     {
@@ -1059,7 +1212,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.795Z"
       }
     },
     {
@@ -1093,7 +1253,14 @@
       },
       "expected_source": "ASSUMED",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Password reset successfully\"}",
+        "fail_reasons": [
+          "status 200 not in [400]",
+          "body must not contain \"Password reset successfully\""
+        ],
+        "executed_at": "2026-10-19T13:42:49.812Z"
       }
     },
     {
@@ -1129,7 +1296,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.829Z"
       }
     },
     {
@@ -1165,7 +1336,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.831Z"
       }
     },
     {
@@ -1199,7 +1374,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.833Z"
       }
     },
     {
@@ -1233,7 +1412,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.834Z"
       }
     },
     {
@@ -1269,7 +1452,11 @@
       },
       "expected_source": "CODE",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.836Z"
       }
     },
     {
@@ -1305,7 +1492,11 @@
       },
       "expected_source": "SPEC",
       "result": {
-        "status": "NOT_EXECUTED"
+        "status": "PASS",
+        "actual_status": 400,
+        "actual_body": "{\"error\":\"Invalid token or email\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-19T13:42:49.838Z"
       }
     }
   ]
