@@ -1,0 +1,215 @@
+================================================================================
+                    TEST EXECUTION RUNNER: FR-20 (MOBILE LOGIN & LOGOUT)        
+================================================================================
+Base URL: http://localhost:3000
+Start Time: 2026-10-20T05:06:32.984Z
+Total Test Cases to Execute: 34
+--------------------------------------------------------------------------------
+
+[1/34] Running FR20-DT-01: Đăng nhập thành công với tài khoản User hợp lệ
+  Request: POST http://localhost:3000/api/login
+  Response Status: 200
+  Response Body Snippet: {"message":"Login successful","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3OTI0NzI3OTN9.MLugLbNrOkNy0NoBV0pby...
+  Result: PASS
+
+[2/34] Running FR20-DT-02: Đăng nhập thành công với tài khoản Admin hợp lệ
+  Request: POST http://localhost:3000/api/login
+  Response Status: 200
+  Response Body Snippet: {"message":"Login successful","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzkyNDcyNzkzfQ.RUxDBY4CAJZDCqhMW6C...
+  Result: PASS
+
+[3/34] Running FR20-DT-03: Đăng nhập thất bại với email chưa từng đăng ký
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[4/34] Running FR20-DT-04: Đăng nhập với email là chuỗi rỗng
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[5/34] Running FR20-DT-05: Đăng nhập với email chỉ chứa khoảng trắng
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[6/34] Running FR20-DT-06: Đăng nhập với email sai quy cách định dạng
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[7/34] Running FR20-DT-07: Đăng nhập khi thiếu trường email trong payload
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[8/34] Running FR20-DT-08: Đăng nhập khi trường email sai kiểu dữ liệu số
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[9/34] Running FR20-DT-09: Đăng nhập thất bại do mật khẩu không chính xác
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[10/34] Running FR20-DT-10: Đăng nhập với mật khẩu là chuỗi rỗng
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[11/34] Running FR20-DT-11: Đăng nhập với mật khẩu chỉ chứa khoảng trắng
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[12/34] Running FR20-DT-12: Đăng nhập khi thiếu trường password trong payload
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[13/34] Running FR20-DT-13: Đăng nhập khi trường password sai kiểu Boolean
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[14/34] Running FR20-DT-14: Kiểm tra cơ chế khóa tài khoản khi gõ sai lần thứ 2 liên tiếp
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[15/34] Running FR20-DT-15: Đăng nhập bị từ chối khi tài khoản đang trong trạng thái bị khóa
+  Request: POST http://localhost:3000/api/login
+  Response Status: 403
+  Response Body Snippet: {"error":"Tài khoản đã bị khóa. Vui lòng thử lại sau."}...
+  Result: PASS
+
+[16/34] Running FR20-DT-16: Kiểm tra bảo mật an toàn thông tin: Không rò rỉ mật khẩu trong phản hồi đăng nhập
+  Request: POST http://localhost:3000/api/login
+  Response Status: 200
+  Response Body Snippet: {"message":"Login successful","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3OTI0NzI3OTN9.MLugLbNrOkNy0NoBV0pby...
+  Result: FAIL -> Body contains forbidden string: ""password":"
+
+[17/34] Running FR20-DT-17: Mobile Logout: Đăng xuất người dùng bình thường khi giỏ hàng rỗng
+  Type: Mobile UI / Client Logic Evaluation
+  Result: PASS - User session and tokens successfully purged.
+
+[18/34] Running FR20-DT-18: Mobile Logout: Kiểm tra dọn dẹp giỏ hàng khi người dùng có sản phẩm (Cross-user Cart Retention)
+  Type: Mobile UI / Client Logic Evaluation
+  Result: FAIL - Frontend Mobile App.js:161-169 omits setCart([]) during logout; Cart items from logged-out user persist in mobile state for subsequent users (Session Bleed Defect)
+
+[19/34] Running FR20-DT-19: Mobile UI: Kiểm tra nhãn trường Email và ngôn ngữ nút bấm theo chuẩn FR-21 tiếng Việt
+  Type: Mobile UI / Client Logic Evaluation
+  Result: FAIL - App.js:763 displays label "Username" instead of "Email"; App.js:783 button label is English "Sign In" violating FR-21 (Vietnamese Language Consistency); App.js:790 errorBoxText is rendered below submit button violating FR-22
+
+[20/34] Running FR20-DT-20: Mobile Logout: Thao tác đăng xuất khi chưa có phiên đăng nhập (Guest Calling Logout)
+  Type: Mobile UI / Client Logic Evaluation
+  Result: PASS - Safe execution, no crash.
+
+[21/34] Running FR20-BVA-01: BVA Cận dưới mật khẩu LB-1: Độ dài 7 ký tự (Invalid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[22/34] Running FR20-BVA-02: BVA Cận dưới mật khẩu LB: Độ dài chuẩn 8 ký tự (Valid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 200
+  Response Body Snippet: {"message":"Login successful","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3OTI0NzI3OTN9.MLugLbNrOkNy0NoBV0pby...
+  Result: PASS
+
+[23/34] Running FR20-BVA-03: BVA Cận dưới mật khẩu LB+1: Độ dài 9 ký tự (Valid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[24/34] Running FR20-BVA-04: BVA Cận trên mật khẩu UB-1: Độ dài 127 ký tự (Valid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[25/34] Running FR20-BVA-05: BVA Cận trên mật khẩu UB: Độ dài 128 ký tự (Valid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[26/34] Running FR20-BVA-06: BVA Cận trên mật khẩu UB+1: Độ dài 129 ký tự (Invalid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[27/34] Running FR20-BVA-07: BVA Encoding Rule v2.0: Mật khẩu chứa chuỗi tiếng Việt có dấu đa byte UTF-8
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[28/34] Running FR20-BVA-08: BVA Physical Extreme (+alpha): Chuỗi mật khẩu cực lớn 10,000 ký tự DoS payload
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[29/34] Running FR20-BVA-09: BVA Cận dưới Email LB-1: Độ dài 5 ký tự (Invalid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[30/34] Running FR20-BVA-10: BVA Cận dưới Email LB: Độ dài tối thiểu 6 ký tự (Valid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[31/34] Running FR20-BVA-11: BVA Cận trên Email UB: Chuỗi Email chuẩn RFC 254 ký tự (Valid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[32/34] Running FR20-BVA-12: BVA Cận trên Email UB+1: Chuỗi Email 255 ký tự vượt giới hạn RFC (Invalid)
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[33/34] Running FR20-BVA-13: BVA Ngưỡng số lần gõ sai: Kiểm tra chuyển đổi trạng thái khi gõ sai lần 1 và lần 2
+  Request: POST http://localhost:3000/api/login
+  Response Status: 401
+  Response Body Snippet: {"error":"Invalid email or password"}...
+  Result: PASS
+
+[34/34] Running FR20-BVA-14: BVA Biên thời gian khóa locked_until: Đăng nhập sau khi hết hạn khóa 1 giây
+  Request: POST http://localhost:3000/api/login
+  Response Status: 200
+  Response Body Snippet: {"message":"Login successful","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3OTI0NzI3OTN9.MLugLbNrOkNy0NoBV0pby...
+  Result: PASS
+
+================================================================================
+                           EXECUTION SUMMARY REPORT                             
+================================================================================
+Total Designed: 34
+Total Executed: 34
+Total PASSED:   31
+Total FAILED:   3
+Total BLOCKED:  0
+Execution Pass Rate: 91.2%
+Execution Finish Time: 2026-10-20T05:06:33.482Z
+================================================================================

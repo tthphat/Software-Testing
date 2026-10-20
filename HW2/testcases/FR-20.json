@@ -1,0 +1,1164 @@
+{
+  "feature": "FR-20",
+  "base_url": "http://localhost:3000",
+  "cases": [
+    {
+      "id": "FR20-DT-01",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC08",
+        "EC14",
+        "EC21"
+      ],
+      "title": "Đăng nhập thành công với tài khoản User hợp lệ",
+      "type": "api",
+      "precondition": "Tài khoản user đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Login successful\",\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3OTI0NzI3OTN9.MLugLbNrOkNy0NoBV0pbypgSbw7lySLnhusg6jpeUzU\",\"user\":{\"id\":2,\"name\":\"Test User\",\"email\":\"test@eshop.com\",\"password\":\"Test1234!\",\"role\":\"user\",\"login_attempts\":0,\"locked_until\":null,\"reset_token\":null,\"shipping_address\":null,\"phone\":null}}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:32.986Z"
+      }
+    },
+    {
+      "id": "FR20-DT-02",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC08",
+        "EC14",
+        "EC21"
+      ],
+      "title": "Đăng nhập thành công với tài khoản Admin hợp lệ",
+      "type": "api",
+      "precondition": "Tài khoản admin đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "admin@eshop.com",
+          "password": "Admin123!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_excludes": [
+          "error"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Login successful\",\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzkyNDcyNzkzfQ.RUxDBY4CAJZDCqhMW6CYXGVccWjhfPtubQWwE76VLj4\",\"user\":{\"id\":1,\"name\":\"Admin User\",\"email\":\"admin@eshop.com\",\"password\":\"Admin123!\",\"role\":\"admin\",\"login_attempts\":0,\"locked_until\":null,\"reset_token\":null,\"shipping_address\":null,\"phone\":null}}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.104Z"
+      }
+    },
+    {
+      "id": "FR20-DT-03",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC02",
+        "EC08",
+        "EC22"
+      ],
+      "title": "Đăng nhập thất bại với email chưa từng đăng ký",
+      "type": "api",
+      "precondition": "Email không tồn tại trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "unregistered_user_99@domain.com",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Invalid email or password"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.114Z"
+      }
+    },
+    {
+      "id": "FR20-DT-04",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC03",
+        "EC08",
+        "EC22"
+      ],
+      "title": "Đăng nhập với email là chuỗi rỗng",
+      "type": "api",
+      "precondition": "CSDL có sẵn",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.121Z"
+      }
+    },
+    {
+      "id": "FR20-DT-05",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC04",
+        "EC08",
+        "EC22"
+      ],
+      "title": "Đăng nhập với email chỉ chứa khoảng trắng",
+      "type": "api",
+      "precondition": "CSDL có sẵn",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "   ",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.130Z"
+      }
+    },
+    {
+      "id": "FR20-DT-06",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC05",
+        "EC08",
+        "EC22"
+      ],
+      "title": "Đăng nhập với email sai quy cách định dạng",
+      "type": "api",
+      "precondition": "CSDL có sẵn",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "invalid-email-format",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.138Z"
+      }
+    },
+    {
+      "id": "FR20-DT-07",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC06",
+        "EC08",
+        "EC22"
+      ],
+      "title": "Đăng nhập khi thiếu trường email trong payload",
+      "type": "api",
+      "precondition": "CSDL có sẵn",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.145Z"
+      }
+    },
+    {
+      "id": "FR20-DT-08",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC07",
+        "EC08",
+        "EC22"
+      ],
+      "title": "Đăng nhập khi trường email sai kiểu dữ liệu số",
+      "type": "api",
+      "precondition": "CSDL có sẵn",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": 123456,
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.152Z"
+      }
+    },
+    {
+      "id": "FR20-DT-09",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC09",
+        "EC14",
+        "EC22"
+      ],
+      "title": "Đăng nhập thất bại do mật khẩu không chính xác",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "WrongPass123!"
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ],
+        "body_includes": [
+          "Invalid email or password"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.159Z"
+      }
+    },
+    {
+      "id": "FR20-DT-10",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC10",
+        "EC22"
+      ],
+      "title": "Đăng nhập với mật khẩu là chuỗi rỗng",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": ""
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.169Z"
+      }
+    },
+    {
+      "id": "FR20-DT-11",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC11",
+        "EC22"
+      ],
+      "title": "Đăng nhập với mật khẩu chỉ chứa khoảng trắng",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "   "
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.214Z"
+      }
+    },
+    {
+      "id": "FR20-DT-12",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC12",
+        "EC22"
+      ],
+      "title": "Đăng nhập khi thiếu trường password trong payload",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.226Z"
+      }
+    },
+    {
+      "id": "FR20-DT-13",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC13",
+        "EC22"
+      ],
+      "title": "Đăng nhập khi trường password sai kiểu Boolean",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": false
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.243Z"
+      }
+    },
+    {
+      "id": "FR20-DT-14",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC09",
+        "EC16",
+        "EC22"
+      ],
+      "title": "Kiểm tra cơ chế khóa tài khoản khi gõ sai lần thứ 2 liên tiếp",
+      "type": "api",
+      "precondition": "Tài khoản gõ sai lần 2 kích hoạt login_attempts >= 3",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "WrongSecondTime!"
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.257Z"
+      }
+    },
+    {
+      "id": "FR20-DT-15",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC08",
+        "EC15",
+        "EC23"
+      ],
+      "title": "Đăng nhập bị từ chối khi tài khoản đang trong trạng thái bị khóa",
+      "type": "api",
+      "precondition": "Tài khoản có locked_until > now",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          403
+        ],
+        "body_includes": [
+          "khóa"
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 403,
+        "actual_body": "{\"error\":\"Tài khoản đã bị khóa. Vui lòng thử lại sau.\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.270Z"
+      }
+    },
+    {
+      "id": "FR20-DT-16",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC08",
+        "EC21"
+      ],
+      "title": "Kiểm tra bảo mật an toàn thông tin: Không rò rỉ mật khẩu trong phản hồi đăng nhập",
+      "type": "api",
+      "precondition": "Đăng nhập hợp lệ",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ],
+        "body_excludes": [
+          "\"password\":"
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Login successful\",\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3OTI0NzI3OTN9.MLugLbNrOkNy0NoBV0pbypgSbw7lySLnhusg6jpeUzU\",\"user\":{\"id\":2,\"name\":\"Test User\",\"email\":\"test@eshop.com\",\"password\":\"Test1234!\",\"role\":\"user\",\"login_attempts\":0,\"locked_until\":null,\"reset_token\":null,\"shipping_address\":null,\"phone\":null}}",
+        "fail_reasons": [
+          "Body contains forbidden string: \"\"password\":\""
+        ],
+        "executed_at": "2026-10-20T05:06:33.290Z"
+      }
+    },
+    {
+      "id": "FR20-DT-17",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC17",
+        "EC19",
+        "EC24"
+      ],
+      "title": "Mobile Logout: Đăng xuất người dùng bình thường khi giỏ hàng rỗng",
+      "type": "mobile_ui",
+      "precondition": "User đã đăng nhập, cart = []",
+      "request": {
+        "method": "POST",
+        "path": "/api/logout"
+      },
+      "expected": {
+        "status": [
+          200
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"session_cleared\": true, \"token\": \"\", \"user\": null, \"cart\": []}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.300Z"
+      }
+    },
+    {
+      "id": "FR20-DT-18",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC17",
+        "EC20",
+        "EC24"
+      ],
+      "title": "Mobile Logout: Kiểm tra dọn dẹp giỏ hàng khi người dùng có sản phẩm (Cross-user Cart Retention)",
+      "type": "mobile_ui",
+      "precondition": "User đã đăng nhập, cart có sản phẩm",
+      "request": {
+        "method": "POST",
+        "path": "/api/logout"
+      },
+      "expected": {
+        "status": [
+          200
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"session_cleared\": true, \"cart_retained_items_count\": 2, \"defect\": \"setCart([]) omitted in logout()\"}",
+        "fail_reasons": [
+          "Frontend Mobile App.js:161-169 omits setCart([]) during logout",
+          "Cart items from logged-out user persist in mobile state for subsequent users (Session Bleed Defect)"
+        ],
+        "executed_at": "2026-10-20T05:06:33.302Z"
+      }
+    },
+    {
+      "id": "FR20-DT-19",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC01",
+        "EC08"
+      ],
+      "title": "Mobile UI: Kiểm tra nhãn trường Email và ngôn ngữ nút bấm theo chuẩn FR-21 tiếng Việt",
+      "type": "mobile_ui",
+      "precondition": "Màn hình Login hiển thị",
+      "request": {
+        "method": "GET",
+        "path": "/mobile/login"
+      },
+      "expected": {
+        "status": [
+          200
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "FAIL",
+        "actual_status": 200,
+        "actual_body": "{\"label\": \"Username\", \"button\": \"Sign In\", \"error_position\": \"below_submit\"}",
+        "fail_reasons": [
+          "App.js:763 displays label \"Username\" instead of \"Email\"",
+          "App.js:783 button label is English \"Sign In\" violating FR-21 (Vietnamese Language Consistency)",
+          "App.js:790 errorBoxText is rendered below submit button violating FR-22"
+        ],
+        "executed_at": "2026-10-20T05:06:33.304Z"
+      }
+    },
+    {
+      "id": "FR20-DT-20",
+      "technique": "DT",
+      "origin": "AI",
+      "covers": [
+        "EC18",
+        "EC24"
+      ],
+      "title": "Mobile Logout: Thao tác đăng xuất khi chưa có phiên đăng nhập (Guest Calling Logout)",
+      "type": "mobile_ui",
+      "precondition": "Khách vãng lai gọi logout()",
+      "request": {
+        "method": "POST",
+        "path": "/api/logout"
+      },
+      "expected": {
+        "status": [
+          200
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"status\": \"safe\", \"error\": null, \"view\": \"home\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.306Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-01",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC08"
+      ],
+      "title": "BVA Cận dưới mật khẩu LB-1: Độ dài 7 ký tự (Invalid)",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Pass12!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.307Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-02",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC08"
+      ],
+      "title": "BVA Cận dưới mật khẩu LB: Độ dài chuẩn 8 ký tự (Valid)",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Login successful\",\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3OTI0NzI3OTN9.MLugLbNrOkNy0NoBV0pbypgSbw7lySLnhusg6jpeUzU\",\"user\":{\"id\":2,\"name\":\"Test User\",\"email\":\"test@eshop.com\",\"password\":\"Test1234!\",\"role\":\"user\",\"login_attempts\":0,\"locked_until\":null,\"reset_token\":null,\"shipping_address\":null,\"phone\":null}}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.313Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-03",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC08"
+      ],
+      "title": "BVA Cận dưới mật khẩu LB+1: Độ dài 9 ký tự (Valid)",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Pass1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          200,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.335Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-04",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC08"
+      ],
+      "title": "BVA Cận trên mật khẩu UB-1: Độ dài 127 ký tự (Valid)",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Paaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1!"
+        }
+      },
+      "expected": {
+        "status": [
+          200,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.340Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-05",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC08"
+      ],
+      "title": "BVA Cận trên mật khẩu UB: Độ dài 128 ký tự (Valid)",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Paaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1!"
+        }
+      },
+      "expected": {
+        "status": [
+          200,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.365Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-06",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC08"
+      ],
+      "title": "BVA Cận trên mật khẩu UB+1: Độ dài 129 ký tự (Invalid)",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Paaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa123!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.382Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-07",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC08"
+      ],
+      "title": "BVA Encoding Rule v2.0: Mật khẩu chứa chuỗi tiếng Việt có dấu đa byte UTF-8",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "MậtKhẩuBảoMậtViệtNam123!ĐặcBiệt"
+        }
+      },
+      "expected": {
+        "status": [
+          200,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.395Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-08",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC08"
+      ],
+      "title": "BVA Physical Extreme (+alpha): Chuỗi mật khẩu cực lớn 10,000 ký tự DoS payload",
+      "type": "api",
+      "precondition": "User đang hoạt động trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "P@ssword123_Extremely_Large_Payload_Buffer_Overflow_Test_String_Pattern_Repeat_Ten_Thousand_Characters_DoS_Check"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.411Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-09",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC01"
+      ],
+      "title": "BVA Cận dưới Email LB-1: Độ dài 5 ký tự (Invalid)",
+      "type": "api",
+      "precondition": "CSDL có sẵn",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "a@b.c",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.427Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-10",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC01"
+      ],
+      "title": "BVA Cận dưới Email LB: Độ dài tối thiểu 6 ký tự (Valid)",
+      "type": "api",
+      "precondition": "CSDL có sẵn",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "a@b.co",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.434Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-11",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC01"
+      ],
+      "title": "BVA Cận trên Email UB: Chuỗi Email chuẩn RFC 254 ký tự (Valid)",
+      "type": "api",
+      "precondition": "CSDL có sẵn",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.com",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.439Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-12",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC01"
+      ],
+      "title": "BVA Cận trên Email UB+1: Chuỗi Email 255 ký tự vượt giới hạn RFC (Invalid)",
+      "type": "api",
+      "precondition": "CSDL có sẵn",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.com",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          400,
+          401
+        ]
+      },
+      "expected_source": "SPEC",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.443Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-13",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC16"
+      ],
+      "title": "BVA Ngưỡng số lần gõ sai: Kiểm tra chuyển đổi trạng thái khi gõ sai lần 1 và lần 2",
+      "type": "api",
+      "precondition": "Tài khoản bình thường trong DB",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "WrongPasswordOnce!"
+        }
+      },
+      "expected": {
+        "status": [
+          401
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 401,
+        "actual_body": "{\"error\":\"Invalid email or password\"}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.448Z"
+      }
+    },
+    {
+      "id": "FR20-BVA-14",
+      "technique": "BVA",
+      "origin": "AI",
+      "covers": [
+        "EC15"
+      ],
+      "title": "BVA Biên thời gian khóa locked_until: Đăng nhập sau khi hết hạn khóa 1 giây",
+      "type": "api",
+      "precondition": "Tài khoản có locked_until nhỏ hơn hiện tại",
+      "request": {
+        "method": "POST",
+        "path": "/api/login",
+        "body": {
+          "email": "test@eshop.com",
+          "password": "Test1234!"
+        }
+      },
+      "expected": {
+        "status": [
+          200
+        ]
+      },
+      "expected_source": "CODE",
+      "result": {
+        "status": "PASS",
+        "actual_status": 200,
+        "actual_body": "{\"message\":\"Login successful\",\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Miwicm9sZSI6InVzZXIiLCJpYXQiOjE3OTI0NzI3OTN9.MLugLbNrOkNy0NoBV0pbypgSbw7lySLnhusg6jpeUzU\",\"user\":{\"id\":2,\"name\":\"Test User\",\"email\":\"test@eshop.com\",\"password\":\"Test1234!\",\"role\":\"user\",\"login_attempts\":0,\"locked_until\":\"2026-10-20T05:06:28.457Z\",\"reset_token\":null,\"shipping_address\":null,\"phone\":null}}",
+        "fail_reasons": [],
+        "executed_at": "2026-10-20T05:06:33.456Z"
+      }
+    }
+  ]
+}
