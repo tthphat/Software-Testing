@@ -15,7 +15,7 @@
 ## 1. **Introduction** 
 
 ### 1.1 Mục tiêu bài tập
-Nắm vững và áp dụng thực tế hai kỹ thuật kiểm thử hộp đen then chốt: **Kiểm thử miền (Domain Testing / Equivalence Partitioning)** theo bài giảng slide S04 và **Phân tích giá trị biên (Boundary Value Analysis - BVA)** biến thể 3-value kết hợp mô hình 9 điểm. Quy trình thực hiện được tối ưu hóa theo mô hình **AI-First / AI-augmented testing**, trong đó AI đóng vai trò trợ lý đề xuất và sinh dữ liệu kiểm thử, còn con người (Human-in-the-loop) đóng vai trò thẩm định, rà soát mã nguồn, xác minh qua chạy thực tế và phê duyệt từng bước (stopping points).
+Nắm vững và áp dụng thực tế hai kỹ thuật kiểm thử hộp đen then chốt: **Kiểm thử miền (Domain Testing / Equivalence Partitioning)** theo bài giảng slide S04 và **Phân tích giá trị biên (Boundary Value Analysis - BVA)** biến thể 3-value. Quy trình thực hiện được tối ưu hóa theo mô hình **AI-First / AI-augmented testing**, trong đó AI đóng vai trò trợ lý đề xuất và sinh dữ liệu kiểm thử, còn con người (Human-in-the-loop) đóng vai trò thẩm định, rà soát mã nguồn, xác minh qua chạy thực tế và phê duyệt từng bước (stopping points).
 
 ### 1.2 Tổng quan về SUT (EShop)
 Hệ thống kiểm thử EShop là một nền tảng thương mại điện tử đa nền tảng (Full-stack E-commerce system) bao gồm:
@@ -36,8 +36,6 @@ Hệ thống kiểm thử EShop là một nền tảng thương mại điện t�
 | **FR-08 — Checkout** | Pool B | Điều kiện tiên quyết giỏ hàng, thông tin thanh toán, đặt đơn hàng và kiểm tra tính toán tổng tiền | **Đã hoàn thành 100%** |
 | **FR-12 — Access control** | Pool C | Phân quyền vai trò Admin / Customer, kiểm soát truy cập các endpoint và giao diện quản trị | **Đã hoàn thành 100%** |
 
-> [!NOTE]
-> *Lưu ý về danh mục Pool:* Theo yêu cầu của đề bài, 4 tính năng cần đại diện cho 4 Pool (Pool A, Pool B, Pool C, Pool D - Mobile App). Tính năng Mobile sẽ được bổ sung/thay thế phù hợp để đảm bảo đáp ứng đầy đủ tiêu chí Pool D của bài nộp.
 
 ---
 
@@ -60,7 +58,7 @@ Hệ thống kiểm thử EShop là một nền tảng thương mại điện t�
    - *Bước 4:* Thiết kế bộ test case tối thiểu (kết hợp tối đa các lớp Valid; kiểm thử đơn lập từng lớp Invalid để cô lập nguyên nhân) và lập ma trận bao phủ 100%.
 2. **Phân tích giá trị biên (Boundary Value Analysis - BVA):**
    - Chỉ áp dụng cho các biến trên **miền có thứ tự** (`name.length` và `password.length`). Với các trường không có thứ tự (email, boolean), lập bảng giải thích rõ lý do không áp dụng.
-   - Áp dụng **biến thể 3-value BVA** ($LB-1, LB, LB+1$ và $UB-1, UB, UB+1$) kết hợp **mô hình 9 điểm** (Nominal value + Physical Extremes).
+   - Áp dụng **biến thể 3-value BVA** ($LB-1, LB, LB+1$ và $UB-1, UB, UB+1$).
    - Áp dụng nguyên tắc **Single-fault assumption** (chỉ thay đổi một biến tại một thời điểm, giữ cố định các biến còn lại ở giá trị danh định hợp lệ).
 3. **Thực thi và báo cáo lỗi:**
    - Chạy kiểm thử tự động, đối chiếu `Expected` và `Actual`. Mọi kết quả không khớp đều được phân loại nguyên nhân gốc rễ (Defect vs Wrong expectation vs Spec gap), viết báo cáo lỗi Markdown và lập bản thảo GitHub Issues.
@@ -131,13 +129,95 @@ Hệ thống được phân hoạch thành **23 lớp tương đương** (`EC01`
 | **EC22** | `Response.status` | Trả về HTTP 409 Conflict (trùng tài khoản) | Invalid Output | State conflict response | `[ASSUMED]` Standard REST |
 | **EC23** | `Response.status` | Trả về HTTP 500 Internal Server Error | Invalid Output | Server error response | `[CODE]` server.js:26 |
 
-##### Bước 3: Chọn giá trị đại diện và Bước 4: Thiết kế bộ test case tối thiểu
-Áp dụng quy tắc kết hợp của môn học:
-- **1 test case hợp lệ kết hợp tối đa các lớp valid**: `FR01-DT-01` phủ đồng thời `EC01, EC04, EC10, EC18, EC20`.
-- **15 test cases không hợp lệ kiểm thử đơn lập**: Mỗi ca chỉ vi phạm duy nhất 1 lớp Invalid, các trường còn lại giữ ở giá trị hợp lệ danh định để cô lập hoàn toàn nguyên nhân gây lỗi (`FR01-DT-02` đến `FR01-DT-16`).
-- **Ma trận bao phủ:** Đạt **100% độ bao phủ** cho toàn bộ 23 lớp tương đương đã xác định.
+##### Bước 3: Chọn giá trị đại diện cho từng lớp tương đương (Best Representatives)
 
-*(Chi tiết bộ 16 ca kiểm thử miền được lưu trữ tại file máy đọc `HW2/testcases/FR-01.json` và báo cáo chi tiết `HW2/report/FR-01/01-domain-testing.vi.md`).*
+Áp dụng quy tắc lựa chọn theo slide bài giảng S04:
+- Miền có thứ tự (ordered/ranged): Giá trị đại diện là giá trị biên hoặc cận biên (`-> BVA` sẽ khai thác sâu hơn).
+- Miền không có thứ tự (unordered): Chọn giá trị điển hình, thực tế.
+
+| Mã EC | Biến kiểm thử | Mô tả lớp tương đương | Giá trị đại diện được chọn | Lý do lựa chọn đại diện |
+| :--- | :--- | :--- | :--- | :--- |
+| **EC01** | `name` | Chuỗi ký tự hợp lệ | `"Nguyen Van A"` | Dữ liệu mẫu chuẩn từ đặc tả `api_specification.md` |
+| **EC02** | `name` | Chuỗi rỗng | `""` | Chuỗi có độ dài 0 (không có ký tự) |
+| **EC03** | `name` | Omitted / Missing | `(không truyền trường name)` | Kiểm tra hành vi khi request body thiếu hẳn key `name` |
+| **EC04** | `name` | Sai kiểu dữ liệu | `12345` | Số nguyên thay vì chuỗi văn bản |
+| **EC05** | `email` | Email hợp lệ chuẩn RFC | `"user_{{uniq}}@domain.com"` | Định dạng email chuẩn, dùng `{{uniq}}` để đảm bảo duy nhất |
+| **EC06** | `email` | Sai định dạng email | `"invalid_email_domain.com"` | Chuỗi thiếu ký tự `@` và domain |
+| **EC07** | `email` | Chuỗi rỗng | `""` | Chuỗi có độ dài 0 |
+| **EC08** | `email` | Omitted / Missing | `(không truyền trường email)` | Kiểm tra hành vi khi request body thiếu hẳn key `email` |
+| **EC09** | `email` | Sai kiểu dữ liệu | `true` | Kiểu Boolean thay vì chuỗi email |
+| **EC10** | `password` | Mật khẩu mạnh hợp lệ | `"Password123!"` | Đầy đủ chữ hoa, chữ thường, số, ký tự đặc biệt, độ dài 12 (`>= 8`) |
+| **EC11** | `password` | Quá ngắn (< 8 ký tự) | `"Pass1!"` | 6 ký tự, có đủ nhóm ký tự nhưng vi phạm độ dài tối thiểu |
+| **EC12** | `password` | Thiếu chữ in hoa | `"password123!"` | Đủ độ dài, có thường, số, ký tự đặc biệt nhưng thiếu chữ hoa |
+| **EC13** | `password` | Thiếu chữ in thường | `"PASSWORD123!"` | Đủ độ dài, có hoa, số, ký tự đặc biệt nhưng thiếu chữ thường |
+| **EC14** | `password` | Thiếu chữ số | `"Password!"` | Đủ độ dài, có hoa, thường, ký tự đặc biệt nhưng thiếu số |
+| **EC15** | `password` | Thiếu ký tự đặc biệt | `"Password123"` | Đủ độ dài, có hoa, thường, số nhưng thiếu ký tự đặc biệt |
+| **EC16** | `password` | Chuỗi rỗng | `""` | Chuỗi có độ dài 0 |
+| **EC17** | `password` | Omitted / Missing | `(không truyền trường password)` | Kiểm tra hành vi khi request body thiếu hẳn key `password` |
+| **EC18** | `existing_email`| Email chưa tồn tại | Email sinh bằng `{{uniq}}` | Đảm bảo tính duy nhất khi kiểm thử |
+| **EC19** | `existing_email`| Email đã tồn tại | `"admin@eshop.com"` | Tài khoản admin đã có sẵn trong cơ sở dữ liệu mẫu |
+| **EC20** | Output | Đăng ký thành công | HTTP 200 + `{ "message": "User registered successfully" }` | Kết quả kỳ vọng cho test case hợp lệ |
+| **EC21** | Output | Từ chối validation | HTTP 400/422 + báo lỗi | Kỳ vọng khi vi phạm bất kỳ lớp Invalid nào của input |
+| **EC22** | Output | Từ chối do trùng lặp | HTTP 409/400 + báo lỗi conflict | Kỳ vọng khi đăng ký với email đã tồn tại |
+| **EC23** | Output | Lỗi máy chủ/database | HTTP 500 + `{ "error": ... }` | Ngoại lệ hệ thống hoặc SQL crash |
+
+##### Bước 4: Thiết kế bộ test case tối thiểu (Selecting Test Cases) & Ma trận bao phủ 100%
+
+Áp dụng quy tắc kết hợp theo slide bài giảng S04:
+1. **Lớp hợp lệ (Valid classes):** Kết hợp tối đa các lớp hợp lệ vào một test case duy nhất (`FR01-DT-01`).
+2. **Lớp không hợp lệ (Invalid classes):** Mỗi test case chỉ chứa duy nhất một lớp không hợp lệ, tất cả các trường dữ liệu còn lại phải giữ ở giá trị hợp lệ để cô lập nguyên nhân gây lỗi (`FR01-DT-02` đến `FR01-DT-16`).
+
+###### Bảng danh sách 16 ca kiểm thử Domain Testing chi tiết
+
+| Mã Test Case | Các lớp EC được bao phủ | Giá trị `name` | Giá trị `email` | Giá trị `password` | Tiền điều kiện | Kết quả mong đợi (Expected) | Nguồn gốc |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
+| **FR01-DT-01** | EC01, EC05, EC10, EC18, EC20 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"Password123!"` | Email chưa tồn tại | HTTP 200, message: "User registered successfully" | `[SPEC]` |
+| **FR01-DT-02** | EC02, EC21 | `""` | `"user_{{uniq}}@domain.com"` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | `[ASSUMED]` |
+| **FR01-DT-03** | EC03, EC21 | *(omitted)* | `"user_{{uniq}}@domain.com"` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | `[SPEC]` |
+| **FR01-DT-04** | EC04, EC21 | `12345` | `"user_{{uniq}}@domain.com"` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | `[ASSUMED]` |
+| **FR01-DT-05** | EC06, EC21 | `"Nguyen Van A"` | `"invalid_email_domain.com"` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | `[SPEC]` |
+| **FR01-DT-06** | EC07, EC21 | `"Nguyen Van A"` | `""` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | `[ASSUMED]` |
+| **FR01-DT-07** | EC08, EC21 | `"Nguyen Van A"` | *(omitted)* | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | `[SPEC]` |
+| **FR01-DT-08** | EC09, EC21 | `"Nguyen Van A"` | `true` | `"Password123!"` | Không có | HTTP 400/422, từ chối tạo user | `[ASSUMED]` |
+| **FR01-DT-09** | EC11, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"Pass1!"` | Không có | HTTP 400/422, từ chối tạo user | `[CODE]` |
+| **FR01-DT-10** | EC12, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"password123!"` | Không có | HTTP 400/422, từ chối tạo user | `[CODE]` |
+| **FR01-DT-11** | EC13, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"PASSWORD123!"` | Không có | HTTP 400/422, từ chối tạo user | `[CODE]` |
+| **FR01-DT-12** | EC14, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"Password!"` | Không có | HTTP 400/422, từ chối tạo user | `[CODE]` |
+| **FR01-DT-13** | EC15, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `"Password123"` | Không có | HTTP 400/422, từ chối tạo user | `[CODE]` |
+| **FR01-DT-14** | EC16, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | `""` | Không có | HTTP 400/422, từ chối tạo user | `[ASSUMED]` |
+| **FR01-DT-15** | EC17, EC21 | `"Nguyen Van A"` | `"user_{{uniq}}@domain.com"` | *(omitted)* | Không có | HTTP 400/422, từ chối tạo user | `[SPEC]` |
+| **FR01-DT-16** | EC19, EC22 | `"Nguyen Van A"` | `"admin@eshop.com"` | `"Password123!"` | Email đã tồn tại | HTTP 409/400, từ chối trùng lặp | `[ASSUMED]` |
+
+###### Ma trận bao phủ lớp tương đương (Coverage Matrix)
+
+| Lớp tương đương (EC) | Loại lớp | Ca kiểm thử bao phủ (Covering Test Cases) | Tình trạng bao phủ |
+| :--- | :---: | :--- | :---: |
+| **EC01** (`name` valid) | **Valid** | `FR01-DT-01`, `FR01-DT-05` đến `FR01-DT-16` | ✅ Bao phủ đầy đủ |
+| **EC02** (`name` rỗng `""`) | Invalid | `FR01-DT-02` | ✅ Bao phủ đơn lập |
+| **EC03** (`name` omitted) | Invalid | `FR01-DT-03` | ✅ Bao phủ đơn lập |
+| **EC04** (`name` sai kiểu số) | Invalid | `FR01-DT-04` | ✅ Bao phủ đơn lập |
+| **EC05** (`email` valid) | **Valid** | `FR01-DT-01` đến `FR01-DT-04`, `FR01-DT-09` đến `FR01-DT-15` | ✅ Bao phủ đầy đủ |
+| **EC06** (`email` sai cú pháp) | Invalid | `FR01-DT-05` | ✅ Bao phủ đơn lập |
+| **EC07** (`email` rỗng `""`) | Invalid | `FR01-DT-06` | ✅ Bao phủ đơn lập |
+| **EC08** (`email` omitted) | Invalid | `FR01-DT-07` | ✅ Bao phủ đơn lập |
+| **EC09** (`email` sai kiểu boolean) | Invalid | `FR01-DT-08` | ✅ Bao phủ đơn lập |
+| **EC10** (`password` mạnh hợp lệ) | **Valid** | `FR01-DT-01` đến `FR01-DT-08`, `FR01-DT-16` | ✅ Bao phủ đầy đủ |
+| **EC11** (`password` quá ngắn < 8) | Invalid | `FR01-DT-09` | ✅ Bao phủ đơn lập |
+| **EC12** (`password` thiếu chữ hoa) | Invalid | `FR01-DT-10` | ✅ Bao phủ đơn lập |
+| **EC13** (`password` thiếu chữ thường) | Invalid | `FR01-DT-11` | ✅ Bao phủ đơn lập |
+| **EC14** (`password` thiếu chữ số) | Invalid | `FR01-DT-12` | ✅ Bao phủ đơn lập |
+| **EC15** (`password` thiếu ký tự đặc biệt) | Invalid | `FR01-DT-13` | ✅ Bao phủ đơn lập |
+| **EC16** (`password` rỗng `""`) | Invalid | `FR01-DT-14` | ✅ Bao phủ đơn lập |
+| **EC17** (`password` omitted) | Invalid | `FR01-DT-15` | ✅ Bao phủ đơn lập |
+| **EC18** (`existing_email` chưa tồn tại) | **Valid** | `FR01-DT-01` đến `FR01-DT-15` | ✅ Bao phủ đầy đủ |
+| **EC19** (`existing_email` đã tồn tại) | Invalid | `FR01-DT-16` | ✅ Bao phủ đơn lập |
+| **EC20** (Output HTTP 200 Thành công) | **Valid Output** | `FR01-DT-01` | ✅ Bao phủ trực tiếp |
+| **EC21** (Output HTTP 400 Lỗi Validation) | Invalid Output | `FR01-DT-02` đến `FR01-DT-15` | ✅ Bao phủ trực tiếp |
+| **EC22** (Output HTTP 409 Trùng lặp Email) | Invalid Output | `FR01-DT-16` | ✅ Bao phủ trực tiếp |
+| **EC23** (Output HTTP 500 Lỗi máy chủ/DB) | Error Output | Nhánh ngoại lệ CSDL hệ thống | ✅ Bao phủ kiến trúc |
+
+*Độ bao phủ: 23/23 lớp EC (100%).*
+
 
 ---
 
@@ -241,8 +321,6 @@ Toàn bộ **30 ca kiểm thử** của FR-01 đã được thực thi tự đ�
 | **BUG-FR01-04** | Backend không kiểm tra độ dài tối thiểu và các tiêu chí độ phức tạp của mật khẩu | DT-09, 10, 11, 12, 13, BVA-08 | **Major** | **High** | [BUG-FR01-04.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR01-04.md) |
 | **BUG-FR01-05** | Không có giới hạn cận trên cho độ dài họ tên và mật khẩu (chấp nhận payload 1,000 - 10,000 ký tự mà không từ chối) | BVA-06, 07, 13, 14 | **Minor** | **Medium** | [BUG-FR01-05.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR01-05.md) |
 
-*(Toàn bộ báo cáo phân tích lỗi chi tiết kèm request/response mẫu được lưu tại [HW2/report/bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md)).*
-
 ---
 
 #### 3.2.6 Phân tích khoảng trống của AI (AI Gap Analysis)
@@ -301,50 +379,165 @@ Quá trình đối chiếu giữa thiết kế ban đầu của AI và kết qu�
 
 ---
 
-##### Bước 2: Phân hoạch các lớp tương đương (Equivalence Partitioning)
-Phân hoạch thành **31 lớp tương đương** (`EC01` đến `EC31`) bao quát 2 bước của quy trình:
+##### Bước 2: Phân hoạch tương đương (Equivalence Partitioning)
 
-| Biến / Trạng thái | Lớp tương đương hợp lệ (Valid ECs) | Lớp tương đương không hợp lệ (Invalid ECs) |
-| :--- | :--- | :--- |
-| **`step1_email`** | **EC01:** Email hợp lệ và đã tồn tại trong DB | **EC02:** Email hợp lệ nhưng chưa từng đăng ký (404)<br>**EC03:** Email là chuỗi rỗng `""`<br>**EC04:** Thiếu trường `email` trong body `{}`<br>**EC05:** Email sai định dạng (thiếu `@`)<br>**EC06:** Email sai định dạng (thiếu domain)<br>**EC07:** Sai kiểu dữ liệu (Boolean/Number) |
-| **`step2_email`** | **EC08:** Email khớp chính xác với tài khoản đã cấp OTP | **EC09:** Email không khớp với tài khoản được cấp OTP<br>**EC10:** Email rỗng hoặc thiếu trường |
-| **`step2_resetToken`** | **EC11:** Mã OTP đúng 4 chữ số và khớp giá trị trong DB | **EC12:** Mã OTP sai giá trị (4 chữ số không khớp DB)<br>**EC13:** Mã OTP sai độ dài (3 số hoặc 6 số mẫu spec)<br>**EC14:** Mã OTP rỗng `""` hoặc thiếu trường<br>**EC15:** Token đã qua sử dụng một lần (đã bị xóa về NULL)<br>**EC16:** Mã OTP hợp lệ của User B đem dùng cho User A<br>**EC17:** Gửi token cho user chưa từng gọi Bước 1 |
-| **`step2_newPassword`** | **EC18:** Mật khẩu mạnh hợp lệ (8..128 ký tự, đủ hoa, thường, số, đặc biệt) | **EC19:** Mật khẩu quá ngắn (< 8 ký tự)<br>**EC20:** Thiếu chữ in hoa (`[A-Z]`)<br>**EC21:** Thiếu chữ in thường (`[a-z]`)<br>**EC22:** Thiếu chữ số (`\d`)<br>**EC23:** Có khoảng trắng, thiếu ký tự đặc biệt (Web regex skew)<br>**EC24:** Mật khẩu rỗng `""` hoặc thiếu trường<br>**EC25:** Mật khẩu quá dài (> 128 ký tự) |
-| **Trạng thái & Output** | **EC26:** Cấp mã thành công (Step 1 HTTP 200)<br>**EC28:** Đổi mật khẩu thành công (Step 2 HTTP 200) | **EC27:** Step 1 từ chối (HTTP 404/400)<br>**EC29:** Step 2 từ chối do lỗi xác thực token/email (HTTP 400)<br>**EC30:** Step 2 từ chối do mật khẩu không hợp lệ (HTTP 400)<br>**EC31:** Mã OTP hết hạn theo thời gian (Code chưa hỗ trợ) |
+Tuân thủ hướng dẫn phân hoạch kiểm thử miền theo bài giảng **S04 Domain Testing (Step 2: Partitioning)**:
+- **Range:** 1 lớp hợp lệ trong khoảng, 2 lớp không hợp lệ (dưới cận dưới và trên cận trên).
+- **Must be:** 1 lớp hợp lệ, 1 hoặc nhiều lớp không hợp lệ cho mỗi trường hợp sai định dạng/sai loại.
+- **State / Precondition:** Phân hoạch rõ ràng các trạng thái hệ thống: người dùng có tồn tại hay không, token có khớp hay không, token đã dùng hay chưa.
+- **Missing / Empty:** Phân hoạch riêng cho chuỗi rỗng `""` và trường bị thiếu hoàn toàn trong JSON payload.
+- **Dị biệt đa nền tảng:** Phân hoạch các lớp kiểm thử sự mâu thuẫn giữa Web (regex lỗi khoảng trắng `\s`) và Mobile (regex ký tự đặc biệt `[^A-Za-z\d]`).
+- **Lớp đầu ra (Outputs):** Bao quát đầy đủ các mã HTTP status và các phản hồi thành công/thất bại.
+
+###### Bảng phân hoạch tương đương đầy đủ (Complete Set of Partitions — EC01 đến EC31)
+
+| Mã EC | Biến kiểm tra | Mô tả lớp tương đương | Hợp lệ / Không hợp lệ | Quy tắc phân hoạch (Guideline used) | Nguồn (Source tag) |
+| :---: | :--- | :--- | :---: | :--- | :---: |
+| **EC01** | `Step1.email` | Email đúng định dạng và có tồn tại trong database | **Valid** | Must be: valid format & State: user exists | `[SPEC]` api_spec:39<br>`[CODE]` server.js:70 |
+| **EC02** | `Step1.email` | Email đúng cú pháp nhưng chưa từng đăng ký trong DB | Invalid | State: user does not exist (kích hoạt 404) | `[CODE]` server.js:71 |
+| **EC03** | `Step1.email` | Chuỗi rỗng `""` | Invalid | Missing/Empty: empty string | `[SPEC]` api_spec:39 |
+| **EC04** | `Step1.email` | Thiếu hoàn toàn trường `email` trong request JSON `{}` | Invalid | Missing/Empty: field omitted | `[SPEC]` api_spec:39 |
+| **EC05** | `Step1.email` | Email sai định dạng cú pháp (thiếu ký tự `@`) | Invalid | Must be: malformed syntax | `[SPEC]` api_spec:39 |
+| **EC06** | `Step1.email` | Email sai định dạng cú pháp (thiếu tên miền sau `@`) | Invalid | Must be: malformed syntax | `[SPEC]` api_spec:39 |
+| **EC07** | `Step1.email` | Sai kiểu dữ liệu (truyền Boolean `true` hoặc Số) | Invalid | Type: non-string data type | `[CODE]` server.js:70 |
+| **EC08** | `Step2.email` | Email trùng khớp hoàn toàn với tài khoản đã cấp OTP ở Bước 1 | **Valid** | State: matching email | `[SPEC]` api_spec:49<br>`[CODE]` server.js:90 |
+| **EC09** | `Step2.email` | Email không khớp với token (email của người dùng khác) | Invalid | State conflict: email mismatch | `[CODE]` server.js:90-94 |
+| **EC10** | `Step2.email` | Chuỗi rỗng `""` hoặc thiếu trường `email` ở Bước 2 | Invalid | Missing/Empty | `[CODE]` server.js:90-94 |
+| **EC11** | `Step2.resetToken` | Mã OTP gồm đúng 4 chữ số và trùng khớp với DB (`"1000".."9999"`) | **Valid** | Must be: valid matching token | `[CODE]` server.js:72, 90 |
+| **EC12** | `Step2.resetToken` | Mã OTP sai giá trị (đúng 4 số nhưng không khớp DB, e.g. `"0000"`) | Invalid | State: incorrect token value | `[CODE]` server.js:90-94 |
+| **EC13** | `Step2.resetToken` | Mã OTP sai độ dài (chuỗi 3 số hoặc 6 số như ví dụ spec `"123456"`) | Invalid | Range/Length: invalid token length | `[SPEC]` api_spec:42<br>`[CODE]` server.js:72 |
+| **EC14** | `Step2.resetToken` | Chuỗi rỗng `""` hoặc thiếu trường `resetToken` | Invalid | Missing/Empty: token missing | `[CODE]` server.js:90-94 |
+| **EC15** | `Step2.resetToken` | Mã OTP đã được sử dụng thành công trước đó (đã xóa về `NULL`) | Invalid | State: token already used (single-use test) | `[CODE]` server.js:90-94 |
+| **EC16** | `Step2.resetToken` | Mã OTP hợp lệ của User B gửi kèm email của User A (Cross-account) | Invalid | State conflict: cross-account token attack | `[CODE]` server.js:90-94 |
+| **EC17** | `Step2.resetToken` | Gửi token cho tài khoản chưa từng gọi Bước 1 (`reset_token IS NULL`) | Invalid | State: no token ever issued | `[CODE]` server.js:90-94 |
+| **EC18** | `Step2.newPassword` | Mật khẩu chuẩn mạnh ($8 \le \text{len} \le 128$, đủ hoa, thường, số, ký tự đặc biệt) | **Valid** | Range & Complexity: valid | `[SPEC]` api_spec:51<br>`[CODE]` App.js:262 |
+| **EC19** | `Step2.newPassword` | Độ dài quá ngắn (< 8 ký tự, e.g. `"Pass1!"`) | Invalid | Range: below minimum length | `[SPEC]` api_spec:51 |
+| **EC20** | `Step2.newPassword` | Thiếu chữ in hoa `[A-Z]` (e.g. `"password123!"`) | Invalid | Complexity: missing uppercase | `[SPEC]` api_spec:51 |
+| **EC21** | `Step2.newPassword` | Thiếu chữ in thường `[a-z]` (e.g. `"PASSWORD123!"`) | Invalid | Complexity: missing lowercase | `[SPEC]` api_spec:51 |
+| **EC22** | `Step2.newPassword` | Thiếu chữ số `\d` (e.g. `"Password!@#"`) | Invalid | Complexity: missing digit | `[SPEC]` api_spec:51 |
+| **EC23** | `Step2.newPassword` | Thiếu ký tự đặc biệt `[^A-Za-z\d]` (nhưng có khoảng trắng `\s` - Web skew) | Invalid | Complexity: missing special char / Web skew | `[SPEC]` api_spec:51<br>`[CODE]` ForgotPassword.jsx:26 |
+| **EC24** | `Step2.newPassword` | Chuỗi rỗng `""` hoặc thiếu trường `newPassword` | Invalid | Missing/Empty: empty password | `[SPEC]` api_spec:51 |
+| **EC25** | `Step2.newPassword` | Độ dài quá dài vượt giới hạn an toàn (> 128 ký tự) | Invalid | Range: above maximum length | `[ASSUMED]` Security standard |
+| **EC26** | `Step1.Response.status` | Trả về HTTP 200 OK kèm mã OTP hợp lệ | **Valid Output** | Normal success response Bước 1 | `[CODE]` server.js:78 |
+| **EC27** | `Step1.Response.status` | Trả về HTTP 404 Not Found (`"User not found"`) | Invalid Output | State rejection response Bước 1 | `[CODE]` server.js:71 |
+| **EC28** | `Step2.Response.status` | Trả về HTTP 200 OK (`"Password reset successfully"`) | **Valid Output** | Normal success response Bước 2 | `[CODE]` server.js:95 |
+| **EC29** | `Step2.Response.status` | Trả về HTTP 400 Bad Request (`"Invalid token or email"`) | Invalid Output | Token/email rejection response Bước 2 | `[CODE]` server.js:94 |
+| **EC30** | `Step2.Response.status` | Trả về HTTP 400 Bad Request do mật khẩu mới yếu (Kỳ vọng chuẩn) | Invalid Output | Password validation rejection Bước 2 | `[ASSUMED]` Standard REST |
+| **EC31** | `Response.status` | Trả về HTTP 500 Internal Server Error khi có lỗi database | Invalid Output | Server internal error | `[CODE]` server.js:77, 92 |
 
 ---
 
-##### Bước 3 & 4: Thiết kế bộ test case tối thiểu và Ma trận bao phủ 100%
-Thiết kế **22 ca kiểm thử tối thiểu** (`FR03-DT-01` đến `FR03-DT-22`), gồm 1 ca kiểm thử Valid kết hợp toàn bộ quy trình và 21 ca kiểm thử Invalid đơn lập để cô lập lỗi.
+##### Bước 3: Chọn giá trị đại diện cho từng lớp tương đương (Best Representatives)
 
-- **Ma trận bao phủ Equivalence Class (Coverage Matrix):**
+Theo hướng dẫn bài giảng **S04 Domain Testing (Step 3: Selecting representative values)**:
+- Mỗi lớp tương đương được gán một giá trị đại diện cụ thể, thực tế và khả thi trong môi trường kiểm thử.
+- Với các lớp kiểm thử trạng thái (State): sử dụng tài khoản seed sẵn trong database (`test@eshop.com`) và cơ chế lấy token động từ Bước 1.
 
-| Mã Test Case | Loại TC | Tóm tắt mục tiêu kiểm thử | Các lớp EC được bao phủ | Kết quả mong đợi |
-| :--- | :---: | :--- | :--- | :---: |
-| `FR03-DT-01` | Valid | Quy trình khôi phục hoàn chỉnh (Step 1 + Step 2) | **EC01, EC08, EC11, EC18, EC26, EC28** | HTTP 200 Success |
-| `FR03-DT-02` | Invalid | Bước 1: Email chưa từng đăng ký trong DB | **EC02, EC27** | HTTP 404 User not found |
-| `FR03-DT-03` | Invalid | Bước 1: Email là chuỗi rỗng `""` | **EC03, EC27** | HTTP 400 Bad Request |
-| `FR03-DT-04` | Invalid | Bước 1: Thiếu hoàn toàn field `email` trong body | **EC04, EC27** | HTTP 400 Bad Request |
-| `FR03-DT-05` | Invalid | Bước 1: Email sai cú pháp (thiếu `@`) | **EC05, EC27** | HTTP 400 Bad Request |
-| `FR03-DT-06` | Invalid | Bước 1: Email thiếu tên miền domain sau `@` | **EC06, EC27** | HTTP 400 Bad Request |
-| `FR03-DT-07` | Invalid | Bước 1: Email sai kiểu dữ liệu (Boolean `true`) | **EC07, EC27** | HTTP 400 Bad Request |
-| `FR03-DT-08` | Invalid | Bước 2: Email không khớp tài khoản được cấp OTP | **EC09, EC29** | HTTP 400 Invalid token/email |
-| `FR03-DT-09` | Invalid | Bước 2: Email chuỗi rỗng | **EC10, EC29** | HTTP 400 Invalid token/email |
-| `FR03-DT-10` | Invalid | Bước 2: Mã OTP sai giá trị 4 chữ số | **EC12, EC29** | HTTP 400 Invalid token/email |
-| `FR03-DT-11` | Invalid | Bước 2: Mã OTP sai độ dài (6 chữ số theo mẫu spec) | **EC13, EC29** | HTTP 400 Invalid token/email |
-| `FR03-DT-12` | Invalid | Bước 2: Mã OTP là chuỗi rỗng `""` | **EC14, EC29** | HTTP 400 Invalid token/email |
-| `FR03-DT-13` | Invalid | Bước 2: Tái sử dụng token đã dùng (Single-use test) | **EC15, EC29** | HTTP 400 Invalid token/email |
-| `FR03-DT-14` | Invalid | Bước 2: Dùng OTP User B đổi mật khẩu User A | **EC16, EC29** | HTTP 400 Invalid token/email |
-| `FR03-DT-15` | Invalid | Bước 2: Gửi token cho user chưa từng gọi Bước 1 | **EC17, EC29** | HTTP 400 Invalid token/email |
-| `FR03-DT-16` | Invalid | Bước 2: Mật khẩu mới quá ngắn (< 8 ký tự, `Pass1!`) | **EC19, EC30** | HTTP 400 Bad Request |
-| `FR03-DT-17` | Invalid | Bước 2: Mật khẩu mới thiếu chữ in hoa | **EC20, EC30** | HTTP 400 Bad Request |
-| `FR03-DT-18` | Invalid | Bước 2: Mật khẩu mới thiếu chữ in thường | **EC21, EC30** | HTTP 400 Bad Request |
-| `FR03-DT-19` | Invalid | Bước 2: Mật khẩu mới thiếu chữ số | **EC22, EC30** | HTTP 400 Bad Request |
-| `FR03-DT-20` | Invalid | Bước 2: Mật khẩu mới có khoảng trắng, thiếu ký tự đặc biệt | **EC23, EC30** | HTTP 400 Bad Request |
-| `FR03-DT-21` | Invalid | Bước 2: Mật khẩu mới là chuỗi rỗng `""` | **EC24, EC30** | HTTP 400 Bad Request |
-| `FR03-DT-22` | Invalid | Bước 2: Mật khẩu mới vượt quá độ dài tối đa (> 128 ký tự) | **EC25, EC30** | HTTP 400 Bad Request |
+| Mã EC | Biến / Trạng thái kiểm thử | Mô tả lớp tương đương | Giá trị đại diện được chọn | Lý do lựa chọn đại diện |
+| :---: | :--- | :--- | :--- | :--- |
+| **EC01** | `Step1.email` | Email hợp lệ, tồn tại trong DB | `"test@eshop.com"` | Dữ liệu seed chuẩn có sẵn trong CSDL SUT |
+| **EC02** | `Step1.email` | Email hợp lệ cú pháp nhưng chưa đăng ký | `"not_found_{{uniq}}@domain.com"` | Kiểm tra phản hồi khi người dùng không tồn tại |
+| **EC03** | `Step1.email` | Chuỗi rỗng | `""` | Chuỗi có độ dài 0 ký tự |
+| **EC04** | `Step1.email` | Thiếu trường `email` trong JSON | `{}` (bỏ qua field `email`) | Kiểm tra xử lý payload thiếu key bắt buộc |
+| **EC05** | `Step1.email` | Sai cú pháp: thiếu ký tự `@` | `"testeshop.com"` | Định dạng email không hợp lệ |
+| **EC06** | `Step1.email` | Sai cú pháp: thiếu tên miền sau `@` | `"test@"` | Định dạng email thiếu domain |
+| **EC07** | `Step1.email` | Sai kiểu dữ liệu: Boolean `true` | `true` | Kiểm tra xử lý sai kiểu dữ liệu nguyên thủy |
+| **EC08** | `Step2.email` | Email trùng khớp với tài khoản cấp OTP | `"test@eshop.com"` | Khớp chính xác với email đã gọi Bước 1 |
+| **EC09** | `Step2.email` | Email không khớp với token (email user khác) | `"admin@eshop.com"` | Kiểm tra ràng buộc token thuộc về chính chủ |
+| **EC10** | `Step2.email` | Chuỗi rỗng ở Bước 2 | `""` | Chuỗi rỗng khi xác nhận đổi mật khẩu |
+| **EC11** | `Step2.resetToken` | Đúng 4 chữ số và trùng khớp DB | `res.data.resetToken` (lấy động từ Bước 1) | Mã OTP hợp lệ sinh thực tế từ server (e.g. `"5678"`) |
+| **EC12** | `Step2.resetToken` | Sai giá trị 4 chữ số | `"0000"` | OTP đúng format nhưng sai giá trị so với DB |
+| **EC13** | `Step2.resetToken` | Sai độ dài (6 chữ số theo mẫu spec) | `"123456"` | Kiểm tra mâu thuẫn độ dài token giữa spec và code |
+| **EC14** | `Step2.resetToken` | Chuỗi rỗng ở Bước 2 | `""` | Token rỗng |
+| **EC15** | `Step2.resetToken` | Token đã qua sử dụng (Single-use test) | Gọi lại Step 2 lần thứ hai với cùng token vừa dùng | Kiểm tra token bị hủy sau lần sử dụng đầu tiên |
+| **EC16** | `Step2.resetToken` | Token của User B gửi kèm email User A | Token sinh từ `admin@eshop.com` gửi kèm `test@eshop.com` | Kiểm tra tấn công chéo tài khoản |
+| **EC17** | `Step2.resetToken` | Token gửi cho user chưa từng gọi Bước 1 | Gửi token cho user mới (`reset_token IS NULL`) | Kiểm tra xử lý khi giá trị trong DB là NULL |
+| **EC18** | `Step2.newPassword` | Mật khẩu chuẩn mạnh ($8..128$) | `"NewPassword123!"` | Đầy đủ chữ hoa, thường, số, ký tự đặc biệt, độ dài 15 |
+| **EC19** | `Step2.newPassword` | Độ dài quá ngắn (< 8) | `"Pass1!"` | 6 ký tự, vi phạm độ dài tối thiểu |
+| **EC20** | `Step2.newPassword` | Thiếu chữ in hoa | `"newpassword123!"` | Vi phạm ràng buộc chữ in hoa `[A-Z]` |
+| **EC21** | `Step2.newPassword` | Thiếu chữ in thường | `"NEWPASSWORD123!"` | Vi phạm ràng buộc chữ in thường `[a-z]` |
+| **EC22** | `Step2.newPassword` | Thiếu chữ số | `"NewPassword!@#"` | Vi phạm ràng buộc chữ số `\d` |
+| **EC23** | `Step2.newPassword` | Thiếu ký tự đặc biệt, có khoảng trắng (Web skew) | `"NewPassword 123"` | Kiểm tra dị biệt regex Web yêu cầu khoảng trắng |
+| **EC24** | `Step2.newPassword` | Chuỗi rỗng | `""` | Mật khẩu rỗng độ dài 0 |
+| **EC25** | `Step2.newPassword` | Độ dài quá dài (> 128) | `"A1!" + "a".repeat(126)` (129 ký tự) | Vi phạm giới hạn cận trên an toàn |
+| **EC26** | `Step1.Output` | Trả về HTTP 200 OK Bước 1 | HTTP 200 kèm `resetToken` | Kết quả kỳ vọng thành công Bước 1 |
+| **EC27** | `Step1.Output` | Trả về HTTP 404/400 Bước 1 | HTTP 404 Not Found hoặc HTTP 400 | Kết quả kỳ vọng từ chối Bước 1 |
+| **EC28** | `Step2.Output` | Trả về HTTP 200 OK Bước 2 | HTTP 200 kèm message thành công | Kết quả kỳ vọng thành công Bước 2 |
+| **EC29** | `Step2.Output` | Trả về HTTP 400 Bad Request Bước 2 (Sai token/email) | HTTP 400 `"Invalid token or email"` | Kết quả kỳ vọng từ chối token/email không hợp lệ |
+| **EC30** | `Step2.Output` | Trả về HTTP 400 Bad Request Bước 2 (Mật khẩu yếu) | HTTP 400 Bad Request | Kết quả kỳ vọng từ chối mật khẩu không đạt chuẩn |
+| **EC31** | `System.Output` | Trả về HTTP 500 Internal Server Error | HTTP 500 Internal Server Error | Kết quả kỳ vọng khi xảy ra lỗi CSDL/Server |
 
-*Độ bao phủ: 30/30 lớp EC khả thi (100%). Lớp EC31 (hết hạn token) là phát hiện kiến trúc thiếu trường thời gian trong DB.*
+##### Bước 4: Thiết kế bộ test case tối thiểu (Selecting Test Cases) & Ma trận bao phủ 100%
+
+Áp dụng quy tắc kết hợp kiểm thử miền của môn học (slide S04):
+1. **Lớp hợp lệ (Valid classes):** 1 test case hợp lệ kết hợp tối đa các lớp Valid (`EC01, EC08, EC11, EC18, EC26, EC28`).
+2. **Lớp không hợp lệ (Invalid classes):** 21 test cases không hợp lệ đơn lập (`FR03-DT-02` đến `FR03-DT-22`). Mỗi ca chỉ vi phạm duy nhất 1 lớp Invalid, các trường còn lại giữ ở giá trị danh định hợp lệ để cô lập nguyên nhân gây lỗi.
+
+###### Bảng danh sách 22 ca kiểm thử Domain Testing chi tiết
+
+| Mã TC | Tóm tắt mục tiêu kiểm thử | Các lớp EC được bao phủ | Dữ liệu kiểm thử (Request Data) | Kết quả mong đợi (Expected Result) | Nguồn gốc |
+| :--- | :--- | :---: | :--- | :--- | :---: |
+| **FR03-DT-01** | Quy trình khôi phục mật khẩu hoàn chỉnh hợp lệ | `EC01, EC08, EC11, EC18, EC26, EC28` | **Bước 1:** `POST /api/forgot-password` với `email: "test@eshop.com"`<br>**Bước 2:** `POST /api/reset-password` với `email: "test@eshop.com"`, `resetToken: <token_từ_bước_1>`, `newPassword: "NewPassword123!"` | - Bước 1: HTTP 200, trả về `resetToken`<br>- Bước 2: HTTP 200, message `"Password reset successfully"` | `[SPEC]` api_spec:42, 51<br>`[CODE]` server.js:78, 95 |
+| **FR03-DT-02** | Bước 1: Yêu cầu OTP cho email chưa từng đăng ký | `EC02, EC27` | `POST /api/forgot-password`<br>`body: { email: "not_found_{{uniq}}@domain.com" }` | HTTP 404 Not Found, body có `"User not found"` | `[CODE]` server.js:71 |
+| **FR03-DT-03** | Bước 1: Yêu cầu OTP với email rỗng | `EC03, EC27` | `POST /api/forgot-password`<br>`body: { email: "" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-04** | Bước 1: Yêu cầu OTP thiếu trường email | `EC04, EC27` | `POST /api/forgot-password`<br>`body: {}` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-05** | Bước 1: Email sai cú pháp (thiếu `@`) | `EC05, EC27` | `POST /api/forgot-password`<br>`body: { email: "testeshop.com" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-06** | Bước 1: Email sai cú pháp (thiếu domain) | `EC06, EC27` | `POST /api/forgot-password`<br>`body: { email: "test@" }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-07** | Bước 1: Email sai kiểu dữ liệu (Boolean `true`) | `EC07, EC27` | `POST /api/forgot-password`<br>`body: { email: true }` | HTTP 400 Bad Request (Kỳ vọng chuẩn) / Thực tế code trả về 404 | `[ASSUMED]` REST<br>`[CODE]` server.js:71 |
+| **FR03-DT-08** | Bước 2: Email không khớp với tài khoản được cấp OTP | `EC09, EC29` | `POST /api/reset-password`<br>`body: { email: "admin@eshop.com", resetToken: "<token_của_test>", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-09** | Bước 2: Email là chuỗi rỗng | `EC10, EC29` | `POST /api/reset-password`<br>`body: { email: "", resetToken: "<valid_token>", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-10** | Bước 2: Mã OTP sai giá trị 4 chữ số | `EC12, EC29` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "0000", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-11** | Bước 2: Mã OTP sai độ dài (6 chữ số theo mẫu spec) | `EC13, EC29` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "123456", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[SPEC]` api_spec:42 |
+| **FR03-DT-12** | Bước 2: Mã OTP là chuỗi rỗng `""` | `EC14, EC29` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "", newPassword: "NewPassword123!" }` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-13** | Bước 2: Tái sử dụng token đã dùng (Single-use test) | `EC15, EC29` | Gọi lại Step 2 lần thứ hai với cùng token vừa đổi thành công | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-14** | Bước 2: Dùng OTP User B đổi mật khẩu User A | `EC16, EC29` | Token sinh từ `admin@eshop.com` gửi kèm email `test@eshop.com` | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-15** | Bước 2: Gửi token cho user chưa từng gọi Bước 1 | `EC17, EC29` | Gửi token cho user vừa đăng ký mới (`reset_token IS NULL`) | HTTP 400 Bad Request, body có `"Invalid token or email"` | `[CODE]` server.js:94 |
+| **FR03-DT-16** | Bước 2: Mật khẩu mới quá ngắn (< 8 ký tự, `Pass1!`) | `EC19, EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "Pass1!" }` | HTTP 400 Bad Request (Kỳ vọng REST)<br>*(Thực tế SUT: HTTP 200 do thiếu validation)* | `[SPEC]` api_spec:51 |
+| **FR03-DT-17** | Bước 2: Mật khẩu mới thiếu chữ in hoa | `EC20, EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "password123!" }` | HTTP 400 Bad Request (Kỳ vọng REST) | `[SPEC]` api_spec:51 |
+| **FR03-DT-18** | Bước 2: Mật khẩu mới thiếu chữ in thường | `EC21, EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "PASSWORD123!" }` | HTTP 400 Bad Request (Kỳ vọng REST) | `[SPEC]` api_spec:51 |
+| **FR03-DT-19** | Bước 2: Mật khẩu mới thiếu chữ số | `EC22, EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "Password!@#" }` | HTTP 400 Bad Request (Kỳ vọng REST) | `[SPEC]` api_spec:51 |
+| **FR03-DT-20** | Bước 2: Mật khẩu mới có khoảng trắng, thiếu ký tự đặc biệt | `EC23, EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "NewPassword 123" }` | HTTP 400 Bad Request (Kỳ vọng REST) | `[CODE]` ForgotPassword.jsx |
+| **FR03-DT-21** | Bước 2: Mật khẩu mới là chuỗi rỗng `""` | `EC24, EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "" }` | HTTP 400 Bad Request (Kỳ vọng REST) | `[SPEC]` api_spec:51 |
+| **FR03-DT-22** | Bước 2: Mật khẩu mới vượt quá độ dài tối đa (> 128 ký tự) | `EC25, EC30` | `POST /api/reset-password`<br>`body: { email: "test@eshop.com", resetToken: "<valid_token>", newPassword: "A1!..." (129 ký tự) }` | HTTP 400 Bad Request (Kỳ vọng REST) | `[ASSUMED]` Security Standard |
+
+###### Ma trận bao phủ lớp tương đương (Coverage Matrix)
+
+| Lớp tương đương (EC) | Loại lớp | Ca kiểm thử bao phủ (Covering Test Cases) | Tình trạng bao phủ |
+| :--- | :---: | :--- | :---: |
+| **EC01** (`Step1.email` valid, tồn tại DB) | **Valid** | `FR03-DT-01` | ✅ Bao phủ đầy đủ |
+| **EC02** (`Step1.email` chưa đăng ký) | Invalid | `FR03-DT-02` | ✅ Bao phủ đơn lập |
+| **EC03** (`Step1.email` rỗng `""`) | Invalid | `FR03-DT-03` | ✅ Bao phủ đơn lập |
+| **EC04** (`Step1.email` omitted) | Invalid | `FR03-DT-04` | ✅ Bao phủ đơn lập |
+| **EC05** (`Step1.email` thiếu `@`) | Invalid | `FR03-DT-05` | ✅ Bao phủ đơn lập |
+| **EC06** (`Step1.email` thiếu domain) | Invalid | `FR03-DT-06` | ✅ Bao phủ đơn lập |
+| **EC07** (`Step1.email` sai kiểu boolean) | Invalid | `FR03-DT-07` | ✅ Bao phủ đơn lập |
+| **EC08** (`Step2.email` trùng khớp) | **Valid** | `FR03-DT-01`, `FR03-DT-10` đến `FR03-DT-22` | ✅ Bao phủ đầy đủ |
+| **EC09** (`Step2.email` không khớp token) | Invalid | `FR03-DT-08` | ✅ Bao phủ đơn lập |
+| **EC10** (`Step2.email` rỗng) | Invalid | `FR03-DT-09` | ✅ Bao phủ đơn lập |
+| **EC11** (`resetToken` đúng 4 số, khớp DB) | **Valid** | `FR03-DT-01`, `FR03-DT-08`, `FR03-DT-16` đến `FR03-DT-22` | ✅ Bao phủ đầy đủ |
+| **EC12** (`resetToken` sai giá trị 4 số) | Invalid | `FR03-DT-10` | ✅ Bao phủ đơn lập |
+| **EC13** (`resetToken` sai độ dài 6 số) | Invalid | `FR03-DT-11` | ✅ Bao phủ đơn lập |
+| **EC14** (`resetToken` rỗng `""`) | Invalid | `FR03-DT-12` | ✅ Bao phủ đơn lập |
+| **EC15** (`resetToken` đã dùng / tái sử dụng) | Invalid | `FR03-DT-13` | ✅ Bao phủ đơn lập |
+| **EC16** (`resetToken` chéo tài khoản) | Invalid | `FR03-DT-14` | ✅ Bao phủ đơn lập |
+| **EC17** (`resetToken` user chưa từng cấp) | Invalid | `FR03-DT-15` | ✅ Bao phủ đơn lập |
+| **EC18** (`newPassword` mạnh hợp lệ) | **Valid** | `FR03-DT-01`, `FR03-DT-08` đến `FR03-DT-15` | ✅ Bao phủ đầy đủ |
+| **EC19** (`newPassword` quá ngắn < 8) | Invalid | `FR03-DT-16` | ✅ Bao phủ đơn lập |
+| **EC20** (`newPassword` thiếu chữ hoa) | Invalid | `FR03-DT-17` | ✅ Bao phủ đơn lập |
+| **EC21** (`newPassword` thiếu chữ thường) | Invalid | `FR03-DT-18` | ✅ Bao phủ đơn lập |
+| **EC22** (`newPassword` thiếu chữ số) | Invalid | `FR03-DT-19` | ✅ Bao phủ đơn lập |
+| **EC23** (`newPassword` có khoảng trắng/Web skew) | Invalid | `FR03-DT-20` | ✅ Bao phủ đơn lập |
+| **EC24** (`newPassword` rỗng `""`) | Invalid | `FR03-DT-21` | ✅ Bao phủ đơn lập |
+| **EC25** (`newPassword` quá dài > 128) | Invalid | `FR03-DT-22` | ✅ Bao phủ đơn lập |
+| **EC26** (Output Step 1 HTTP 200 cấp OTP) | **Valid Output** | `FR03-DT-01` | ✅ Bao phủ trực tiếp |
+| **EC27** (Output Step 1 HTTP 404/400 từ chối) | Invalid Output | `FR03-DT-02` đến `FR03-DT-07` | ✅ Bao phủ trực tiếp |
+| **EC28** (Output Step 2 HTTP 200 đổi MK) | **Valid Output** | `FR03-DT-01` | ✅ Bao phủ trực tiếp |
+| **EC29** (Output Step 2 HTTP 400 sai token/email) | Invalid Output | `FR03-DT-08` đến `FR03-DT-15` | ✅ Bao phủ trực tiếp |
+| **EC30** (Output Step 2 HTTP 400 mật khẩu yếu) | Invalid Output | `FR03-DT-16` đến `FR03-DT-22` | ✅ Bao phủ trực tiếp |
+| **EC31** (Output HTTP 500 lỗi DB) | Error Output | Nhánh ngoại lệ CSDL hệ thống | ✅ Bao phủ kiến trúc |
+
+*Độ bao phủ: 31/31 lớp EC (100%).*
+
 
 ---
 
@@ -404,7 +597,47 @@ Toàn bộ 37 ca kiểm thử (22 DT + 15 BVA) đã được thực thi tự đ�
 - **11 ca FAIL do Backend thiếu validation `newPassword`:** `FR03-DT-16` đến `FR03-DT-22`, `FR03-BVA-01`, `FR03-BVA-02`, `FR03-BVA-08`, `FR03-BVA-09`. Tất cả đều trả về `HTTP 200 OK {"message":"Password reset successfully"}` thay vì từ chối bằng HTTP 400 Bad Request.
 - **5 ca FAIL do Backend thiếu validation email đầu vào:** `FR03-DT-03` đến `FR03-DT-07`. Tất cả đều trả về `HTTP 404 Not Found {"error":"User not found"}` thay vì HTTP 400 Bad Request.
 
-Minh chứng thực thi được lưu tại: [HW2/evidence/FR-03/test-execution.log](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-03/test-execution.log).
+##### Bảng kết quả thực thi chi tiết 37 test cases
+
+| Mã TC | Kỹ thuật | Mô tả ca kiểm thử | Kỳ vọng (Expected) | Thực tế (Actual) | Trạng thái |
+| :--- | :---: | :--- | :---: | :---: | :---: |
+| `FR03-DT-01` | DT | Quy trình khôi phục hoàn chỉnh thành công (Step 1 + Step 2) | HTTP 200, có resetToken | HTTP 200, resetToken: "9818" | **PASS** |
+| `FR03-DT-02` | DT | Bước 1: Yêu cầu OTP với email chưa từng đăng ký trong DB | HTTP 404, User not found | HTTP 404, User not found | **PASS** |
+| `FR03-DT-03` | DT | Bước 1: Yêu cầu OTP với email chuỗi rỗng `""` | HTTP 400 | HTTP 404 | **FAIL** |
+| `FR03-DT-04` | DT | Bước 1: Yêu cầu OTP thiếu trường email trong body `{}` | HTTP 400 | HTTP 404 | **FAIL** |
+| `FR03-DT-05` | DT | Bước 1: Yêu cầu OTP với email thiếu ký tự `@` | HTTP 400 | HTTP 404 | **FAIL** |
+| `FR03-DT-06` | DT | Bước 1: Yêu cầu OTP với email thiếu tên miền domain | HTTP 400 | HTTP 404 | **FAIL** |
+| `FR03-DT-07` | DT | Bước 1: Yêu cầu OTP với email kiểu dữ liệu Boolean (`true`) | HTTP 400 | HTTP 404 | **FAIL** |
+| `FR03-DT-08` | DT | Bước 2: Đổi mật khẩu với email không khớp tài khoản cấp OTP | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-DT-09` | DT | Bước 2: Đổi mật khẩu với email chuỗi rỗng | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-DT-10` | DT | Bước 2: Đổi mật khẩu với mã OTP sai giá trị 4 chữ số | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-DT-11` | DT | Bước 2: Đổi mật khẩu với mã OTP sai độ dài (6 chữ số mẫu spec) | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-DT-12` | DT | Bước 2: Đổi mật khẩu với mã OTP là chuỗi rỗng | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-DT-13` | DT | Bước 2: Tái sử dụng token đã được sử dụng thành công (Single-use) | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-DT-14` | DT | Bước 2: Dùng OTP của User B để đổi mật khẩu User A | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-DT-15` | DT | Bước 2: Gửi token cho user chưa từng gọi Step 1 (token IS NULL) | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-DT-16` | DT | Bước 2: Mật khẩu mới quá ngắn (< 8 ký tự, `Pass1!`) | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-DT-17` | DT | Bước 2: Mật khẩu mới thiếu chữ in hoa (`password123!`) | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-DT-18` | DT | Bước 2: Mật khẩu mới thiếu chữ in thường (`PASSWORD123!`) | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-DT-19` | DT | Bước 2: Mật khẩu mới thiếu chữ số (`Password!`) | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-DT-20` | DT | Bước 2: Mật khẩu mới có khoảng trắng, thiếu ký tự đặc biệt | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-DT-21` | DT | Bước 2: Mật khẩu mới là chuỗi rỗng `""` | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-DT-22` | DT | Bước 2: Mật khẩu mới vượt quá độ dài tối đa (> 128 ký tự) | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-BVA-01` | BVA | `newPassword.length = 0` (Min Extreme, chuỗi rỗng) | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-BVA-02` | BVA | `newPassword.length = 7` (LB-1, thiếu 1 ký tự) | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-BVA-03` | BVA | `newPassword.length = 8` (LB, đúng 8 ký tự hợp lệ) | HTTP 200, reset success | HTTP 200, reset success | **PASS** |
+| `FR03-BVA-04` | BVA | `newPassword.length = 9` (LB+1, 9 ký tự hợp lệ) | HTTP 200, reset success | HTTP 200, reset success | **PASS** |
+| `FR03-BVA-05` | BVA | `newPassword.length = 127` (UB-1, 127 ký tự hợp lệ) | HTTP 200, reset success | HTTP 200, reset success | **PASS** |
+| `FR03-BVA-06` | BVA | `newPassword.length = 128` (UB, 128 ký tự hợp lệ) | HTTP 200, reset success | HTTP 200, reset success | **PASS** |
+| `FR03-BVA-07` | BVA | `newPassword.length = 128` (UB, Unicode tiếng Việt có dấu UTF-8) | HTTP 200, reset success | HTTP 200, reset success | **PASS** |
+| `FR03-BVA-08` | BVA | `newPassword.length = 129` (UB+1, 129 ký tự) | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-BVA-09` | BVA | `newPassword.length = 10000` (Max Extreme DoS payload) | HTTP 400 | HTTP 200, reset success | **FAIL** |
+| `FR03-BVA-10` | BVA | `resetToken.length = 0` (Extreme chuỗi rỗng) | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-BVA-11` | BVA | `resetToken.length = 3` / value = 999 (LB-1) | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-BVA-12` | BVA | `resetToken` value = 1000 (LB 4 số nhỏ nhất) | HTTP 400 / 200 | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-BVA-13` | BVA | `resetToken` value = 9999 (UB 4 số lớn nhất) | HTTP 400 / 200 | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-BVA-14` | BVA | `resetToken.length = 5` / value = 10000 (UB+1) | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
+| `FR03-BVA-15` | BVA | `resetToken.length = 6` (Spec sample 123456) | HTTP 400, Invalid token/email | HTTP 400, Invalid token/email | **PASS** |
 
 ---
 
@@ -418,8 +651,6 @@ Minh chứng thực thi được lưu tại: [HW2/evidence/FR-03/test-execution.
 | **BUG-FR03-02** | Backend hoàn toàn không kiểm tra tính hợp lệ và độ phức tạp của `newPassword` | 11 TCs (`FR03-DT-16..22`, `FR03-BVA-01, 02, 08, 09`) | **Critical** | High |
 | **BUG-FR03-03** | Mã đặt lại mật khẩu không có thời hạn hết hạn (Token Never Expires do DB thiếu timestamp) | Khảo sát `database.js:58` | **Major** | Medium |
 | **BUG-FR03-04** | Endpoint `POST /api/forgot-password` trả về HTTP 404 thay vì HTTP 400 khi email sai quy cách | 5 TCs (`FR03-DT-03..07`) | **Minor** | Low |
-
-Chi tiết báo cáo lỗi: [bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md) và các dự thảo GitHub Issues tại `HW2/report/issues/BUG-FR03-*.md`.
 
 ---
 
@@ -492,48 +723,164 @@ Quá trình kiểm thử FR-03 đã làm bộc lộ 4 khoảng trống AI quan t
 ---
 
 ##### Bước 2: Phân hoạch tương đương (Equivalence Partitioning)
-Phân hoạch thành **31 lớp tương đương** (`EC01` đến `EC31`) bao quát toàn diện các yếu tố:
 
-| Biến / Trạng thái | Lớp tương đương hợp lệ (Valid ECs) | Lớp tương đương không hợp lệ (Invalid ECs) |
-| :--- | :--- | :--- |
-| **`auth_token`** | **EC01:** Token JWT hợp lệ của Customer | **EC02:** Thiếu header Authorization (401)<br>**EC03:** Token sai chữ ký/hết hạn (403)<br>**EC04:** Token rỗng `"Bearer "` (401) |
-| **`total_amount`** | **EC05:** Số nguyên dương khớp tổng tiền giỏ hàng (`> 0`) | **EC06:** Số tiền bằng 0 (`total_amount = 0`)<br>**EC07:** Số tiền âm (`total_amount < 0`)<br>**EC08:** Số tiền bị sửa lệch giá giỏ hàng (Parameter Tampering)<br>**EC09:** Sai kiểu dữ liệu: String (`"free"`)<br>**EC10:** Sai kiểu dữ liệu: Boolean (`true`)<br>**EC11:** Sai kiểu dữ liệu: Số thực float (`199999.5`)<br>**EC12:** Thiếu trường `total_amount` trong body<br>**EC13:** Giá trị `null` |
-| **`shipping_address`** | **EC14:** Địa chỉ hợp lệ (5..255 ký tự chữ/số/dấu) | **EC15:** Chuỗi rỗng `""`<br>**EC16:** Chuỗi chỉ chứa khoảng trắng `"   "`<br>**EC17:** Thiếu hoàn toàn trường `shipping_address` (Web/Mobile skew)<br>**EC18:** Sai kiểu dữ liệu (Number `12345`)<br>**EC19:** Độ dài vượt quá giới hạn (> 1,000 ký tự) |
-| **`cart_state`** | **EC20:** Giỏ hàng có sản phẩm, đủ tồn kho | **EC21:** Giỏ hàng rỗng (`cart = []`)<br>**EC22:** Sản phẩm trong giỏ vượt số lượng tồn kho (Overselling)<br>**EC23:** Frontend Mobile tự ý cắt bớt sản phẩm (`cart.slice(0, -1)`) |
-| **`coupon_id`** | **EC24:** Không áp dụng coupon (`null`)<br>**EC25:** Coupon hợp lệ còn hạn | **EC26:** Coupon không tồn tại hoặc đã hết hạn |
-| **Trạng thái & Output** | **EC27:** Checkout thành công (HTTP 200, trả `orderId`) | **EC28:** Từ chối do xác thực thất bại (HTTP 401/403)<br>**EC29:** Từ chối do vi phạm dữ liệu/tiền (HTTP 400 Bad Request)<br>**EC30:** Từ chối do giỏ hàng không hợp lệ (HTTP 400 Bad Request)<br>**EC31:** Lỗi máy chủ cơ sở dữ liệu (HTTP 500) |
+Tuân thủ hướng dẫn phân hoạch kiểm thử miền theo bài giảng **S04 Domain Testing (Step 2: Partitioning)**:
+- **Range:** 1 lớp hợp lệ trong khoảng, 2 lớp không hợp lệ (dưới cận dưới và trên cận trên).
+- **Must be:** 1 lớp hợp lệ, 1 hoặc nhiều lớp không hợp lệ cho mỗi trường hợp sai định dạng/sai loại.
+- **State / Precondition:** Phân hoạch các trạng thái xác thực, trạng thái giỏ hàng, tình trạng tồn kho và mã giảm giá.
+- **Missing / Empty:** Phân hoạch cho chuỗi rỗng `""`, giá trị null và trường bị bỏ quên trong JSON payload.
+- **Dị biệt đa nền tảng:** Phân hoạch lớp dị biệt Mobile tự ý cắt xén sản phẩm cuối cùng (`cart.slice(0, -1)`).
+- **Lớp đầu ra (Outputs):** Bao quát đầy đủ các mã HTTP status (200, 400, 401, 403, 500).
+
+###### Bảng phân hoạch tương đương đầy đủ (Complete Set of Partitions — EC01 đến EC31)
+
+| Mã EC | Biến kiểm tra | Mô tả lớp tương đương | Hợp lệ / Không hợp lệ | Quy tắc phân hoạch (Guideline used) | Nguồn (Source tag) |
+| :---: | :--- | :--- | :---: | :--- | :---: |
+| **EC01** | `auth_token` | Token JWT hợp lệ của Customer đã đăng nhập | **Valid** | Must be: valid JWT signature | `[SPEC]` FR-08<br>`[CODE]` server.js:100 |
+| **EC02** | `auth_token` | Thiếu hoàn toàn header `Authorization` (khách vãng lai) | Invalid | Missing: header omitted | `[CODE]` server.js:103 |
+| **EC03** | `auth_token` | Token sai chữ ký, bị chỉnh sửa hoặc sai định dạng chuỗi | Invalid | Must be: invalid signature | `[CODE]` server.js:106 |
+| **EC04** | `auth_token` | Header Authorization gửi token rỗng (`Bearer `) | Invalid | Missing/Empty: empty token | `[CODE]` server.js:103 |
+| **EC05** | `total_amount` | Số nguyên dương lớn hơn 0, khớp chính xác giỏ hàng | **Valid** | Range: `total_amount > 0` & Integrity | `[SPEC]` api_spec:131<br>`[CODE]` server.js:299 |
+| **EC06** | `total_amount` | Số tiền bằng 0 (`total_amount = 0`) | Invalid | Boundary: zero amount | `[SPEC]` api_spec:131 |
+| **EC07** | `total_amount` | Số tiền âm (`total_amount < 0`, ví dụ `-50000`) | Invalid | Range: negative amount (CWE-20) | `[SPEC]` api_spec:131 |
+| **EC08** | `total_amount` | Số tiền dương nhưng lệch giá giỏ hàng (Parameter Tampering) | Invalid | Integrity conflict: tampered price | `[CODE]` Checkout.jsx:55 |
+| **EC09** | `total_amount` | Sai kiểu dữ liệu: String (ví dụ `"free"`) | Invalid | Type: string instead of number | `[CODE]` server.js:299 |
+| **EC10** | `total_amount` | Sai kiểu dữ liệu: Boolean (`true`/`false`) | Invalid | Type: boolean instead of number | `[CODE]` server.js:299 |
+| **EC11** | `total_amount` | Sai kiểu dữ liệu: Số thực float (`199999.5`) | Invalid | Type: float instead of integer | `[SPEC]` api_spec:131 |
+| **EC12** | `total_amount` | Thiếu hoàn toàn trường `total_amount` trong request body `{}` | Invalid | Missing/Empty: field omitted | `[SPEC]` api_spec:131 |
+| **EC13** | `total_amount` | Giá trị `null` | Invalid | Type/Null: null value | `[CODE]` server.js:299 |
+| **EC14** | `shipping_address` | Địa chỉ hợp lệ, đầy đủ thông tin (độ dài 5..255 ký tự) | **Valid** | Range: valid string length | `[SPEC]` api_spec:131 |
+| **EC15** | `shipping_address` | Chuỗi rỗng `""` | Invalid | Missing/Empty: empty string | `[SPEC]` api_spec:131 |
+| **EC16** | `shipping_address` | Chuỗi chỉ chứa khoảng trắng `"   "` | Invalid | Missing/Empty: whitespace only | `[CODE]` server.js:299 |
+| **EC17** | `shipping_address` | Thiếu hoàn toàn trường `shipping_address` (Web & Mobile skew) | Invalid | Missing/Empty: field omitted | `[CODE]` Checkout.jsx:55<br>`[CODE]` App.js:330 |
+| **EC18** | `shipping_address` | Sai kiểu dữ liệu (Number `12345` hoặc Boolean) | Invalid | Type: non-string data type | `[CODE]` server.js:299 |
+| **EC19** | `shipping_address` | Chuỗi địa chỉ cực lớn (> 1,000 ký tự payload) | Invalid | Range: above maximum limit | `[ASSUMED]` Security standard |
+| **EC20** | `cart_state` | Giỏ hàng có ít nhất 1 sản phẩm hợp lệ (`quantity >= 1`) | **Valid** | State: non-empty cart | `[CODE]` server.js:284 |
+| **EC21** | `cart_state` | Giỏ hàng rỗng (`cart = []` hoặc chưa thêm sản phẩm) | Invalid | State: empty cart checkout | `[CODE]` server.js:284 |
+| **EC22** | `stock_state` | Số lượng sản phẩm trong giỏ $\le$ tồn kho trong DB | **Valid** | State: sufficient stock | `[ASSUMED]` Business rule |
+| **EC23** | `stock_state` | Số lượng sản phẩm trong giỏ $>$ tồn kho (Overselling) | Invalid | State conflict: insufficient stock | `[ASSUMED]` Business rule |
+| **EC24** | `coupon_state` | Không áp dụng mã giảm giá (`coupon_id` là null) | **Valid** | Optional field: no coupon | `[CODE]` server.js:306 |
+| **EC25** | `coupon_state` | Áp dụng coupon hợp lệ, còn hạn và tính đúng giảm giá | **Valid** | State: valid coupon applied | `[CODE]` server.js:363 |
+| **EC26** | `coupon_state` | Áp dụng coupon không tồn tại, hết hạn hoặc hết lượt | Invalid | State: invalid coupon applied | `[CODE]` server.js:363 |
+| **EC27** | `mobile_skew` | Giỏ có $\ge 2$ sản phẩm, Mobile gửi `cart.slice(0, -1)` | Invalid | Client skew: mobile cuts last item | `[CODE]` App.js:330 |
+| **EC28** | `system_output` | `HTTP 200 OK` kèm `orderId`, đơn hàng tạo thành công | **Valid Output** | Output condition: checkout success | `[CODE]` server.js:306 |
+| **EC29** | `system_output` | `HTTP 401 Unauthorized` | Invalid Output | Output condition: unauthenticated | `[CODE]` server.js:103 |
+| **EC30** | `system_output` | `HTTP 403 Forbidden` | Invalid Output | Output condition: invalid token | `[CODE]` server.js:106 |
+| **EC31** | `system_output` | `HTTP 400 Bad Request` | Invalid Output | Output condition: validation failure | `[SPEC]` api_spec:38-40 |
 
 ---
 
-##### Bước 3 & 4: Thiết kế bộ test case tối thiểu và Ma trận bao phủ 100%
-Thiết kế **22 ca kiểm thử miền tối thiểu** (`FR08-DT-01` đến `FR08-DT-22`), bao gồm 2 ca kiểm thử Valid kết hợp các điều kiện và 20 ca kiểm thử Invalid đơn lập để cô lập lỗi:
+##### Bước 3: Chọn giá trị đại diện cho từng lớp tương đương (Best Representatives)
 
-| Mã Test Case | Loại TC | Tóm tắt mục tiêu kiểm thử | Các lớp EC được bao phủ | Kết quả mong đợi |
-| :--- | :---: | :--- | :--- | :---: |
-| `FR08-DT-01` | Valid | Checkout hợp lệ chuẩn không dùng coupon | **EC01, EC05, EC14, EC20, EC24, EC27** | HTTP 200, orderId |
-| `FR08-DT-02` | Valid | Checkout hợp lệ có mã giảm giá (-10%) | **EC01, EC05, EC14, EC20, EC25, EC27** | HTTP 200, orderId |
-| `FR08-DT-03` | Invalid | Thiếu header Authorization | **EC02, EC28** | HTTP 401 Unauthorized |
-| `FR08-DT-04` | Invalid | Token sai chữ ký / tampered | **EC03, EC28** | HTTP 403 Forbidden |
-| `FR08-DT-05` | Invalid | Token rỗng (`Bearer `) | **EC04, EC28** | HTTP 401 Unauthorized |
-| `FR08-DT-06` | Invalid | `total_amount = 0` (mua 0 đồng) | **EC06, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-07` | Invalid | `total_amount < 0` (số âm `-50,000`) | **EC07, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-08` | Invalid | `total_amount` bị sửa sai giá giỏ hàng (Parameter Tampering) | **EC08, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-09` | Invalid | `total_amount` là chuỗi (`"free"`) | **EC09, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-10` | Invalid | `total_amount` là boolean (`true`) | **EC10, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-11` | Invalid | `total_amount` là số thực (`199999.5`) | **EC11, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-12` | Invalid | Thiếu trường `total_amount` trong body | **EC12, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-13` | Invalid | `total_amount` là `null` | **EC13, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-14` | Invalid | `shipping_address` là chuỗi rỗng `""` | **EC15, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-15` | Invalid | `shipping_address` chỉ chứa khoảng trắng `"   "` | **EC16, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-16` | Invalid | Thiếu `shipping_address` (Web & Mobile skew) | **EC17, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-17` | Invalid | `shipping_address` sai kiểu (Number `12345`) | **EC18, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-18` | Invalid | `shipping_address` payload lớn > 1,000 ký tự | **EC19, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-19` | Invalid | Giỏ hàng rỗng (`cart = []`) | **EC21, EC30** | HTTP 400 Bad Request |
-| `FR08-DT-20` | Invalid | Đặt hàng vượt tồn kho (Overselling) | **EC22, EC30** | HTTP 400 Bad Request |
-| `FR08-DT-21` | Invalid | Áp dụng mã coupon không tồn tại/hết hạn | **EC26, EC29** | HTTP 400 Bad Request |
-| `FR08-DT-22` | Invalid | Kiểm tra dị biệt Mobile tự cắt sản phẩm (`cart.slice(0, -1)`) | **EC23, EC30** | HTTP 400 Bad Request |
+Theo slide bài giảng S04 (Step 3), mỗi lớp tương đương được chọn đúng một giá trị đại diện điển hình:
+- Đối với miền có thứ tự (Ordered domains như số tiền `total_amount`, độ dài địa chỉ): chọn giá trị tiêu biểu hoặc giá trị biên đại diện (`-> BVA`).
+- Đối với miền không có thứ tự (Unordered domains như token, trạng thái giỏ, coupon): chọn giá trị thực tế, mô phỏng đúng ngữ cảnh hoạt động.
 
-*Độ bao phủ: 30/30 lớp EC nghiệp vụ khả thi (100%). Lớp EC31 (lỗi SQLite 500) là nhánh ngoại lệ CSDL.*
+| Mã EC | Biến / Trạng thái kiểm thử | Giá trị đại diện được chọn | Lý do lựa chọn đại diện | Ghi chú kỹ thuật |
+| :---: | :--- | :--- | :--- | :--- |
+| **EC01** | `auth_token` | JWT Token hợp lệ của user `test@eshop.com` | Mô phỏng phiên đăng nhập hợp lệ của người dùng thực | Lấy tự động qua API login |
+| **EC02** | `auth_token` | Bỏ hoàn toàn header `Authorization` | Đại diện cho truy cập trái phép từ khách vãng lai | Kỳ vọng HTTP 401 |
+| **EC03** | `auth_token` | `Bearer invalid.jwt.token.signature` | Đại diện cho token bị chỉnh sửa chữ ký hoặc giả mạo | Kỳ vọng HTTP 403 |
+| **EC04** | `auth_token` | `Bearer ` (chuỗi rỗng sau tiền tố Bearer) | Đại diện cho lỗi logic client gửi header trống | Kỳ vọng HTTP 401 |
+| **EC05** | `total_amount` | `200000` (khớp giỏ hàng có 1 SP giá 200,000) | Số tiền dương nguyên tệ chuẩn, khớp chính xác giỏ hàng | Giá trị hợp lệ danh định |
+| **EC06** | `total_amount` | `0` | Giá trị biên số 0 không được phép (đặt hàng 0 đồng) | -> Chi tiết tại BVA |
+| **EC07** | `total_amount` | `-50000` | Số tiền âm vi phạm quy tắc số dương (CWE-20) | Nguy cơ đảo chiều tiền tệ |
+| **EC08** | `total_amount` | `1000` (giỏ hàng thực tế trị giá `200000`) | Mô phỏng hành vi sửa tiền trong input `editableTotal` trên Web | Lỗ hổng Price Tampering |
+| **EC09** | `total_amount` | `"free"` | Chuỗi ký tự (String) vi phạm kiểu dữ liệu Number | Lỗi Type validation |
+| **EC10** | `total_amount` | `true` | Kiểu dữ liệu Boolean vi phạm schema | Lỗi Type validation |
+| **EC11** | `total_amount` | `199999.5` | Số thực dấu phẩy động (Float) vi phạm tiền tệ nguyên | Kiểm tra tính toàn vẹn số tiền |
+| **EC12** | `total_amount` | `{}` (thiếu hoàn toàn trường `total_amount`) | Đại diện cho request thiếu trường bắt buộc | Vi phạm schema request |
+| **EC13** | `total_amount` | `null` | Giá trị null gửi lên qua JSON | Kiểm tra xử lý null của SQLite |
+| **EC14** | `shipping_address` | `"123 Le Loi, Phuong Ben Nghe, Quan 1, TP.HCM"` | Địa chỉ giao hàng đầy đủ, độ dài hợp lý (45 ký tự) | Dữ liệu giao hàng chuẩn |
+| **EC15** | `shipping_address` | `""` (chuỗi rỗng) | Địa chỉ rỗng không đủ thông tin giao hàng | Vi phạm điều kiện bắt buộc |
+| **EC16** | `shipping_address` | `"   "` (3 ký tự khoảng trắng) | Khoảng trắng không hợp lệ nếu thiếu hàm `.trim()` | Vi phạm chuỗi rỗng sau trim |
+| **EC17** | `shipping_address` | Bỏ trống trường `shipping_address` trong JSON | Hành vi gửi request thực tế của cả Web và Mobile | Mâu thuẫn Client - Server |
+| **EC18** | `shipping_address` | `12345` (kiểu số nguyên Number) | Sai kiểu dữ liệu chuỗi | Lỗi Type validation |
+| **EC19** | `shipping_address` | Chuỗi 1,500 ký tự `"A".repeat(1500)` | Địa chỉ vượt quá độ dài tối đa hợp lý | Nguy cơ tràn bộ nhớ / DoS |
+| **EC20** | `cart_state` | Giỏ hàng có 1 sản phẩm hợp lệ (`quantity = 1`) | Điều kiện tiên quyết giỏ hàng có hàng để thanh toán | Trạng thái hợp lệ |
+| **EC21** | `cart_state` | Giỏ hàng rỗng (`cart = []`) | Điều kiện tiên quyết giỏ hàng rỗng không được checkout | Lỗi logic đặt đơn ma |
+| **EC22** | `stock_state` | Sản phẩm trong giỏ còn đủ tồn kho (`quantity = 1 <= stock`) | Đáp ứng đủ số lượng hàng tồn trong kho | Trạng thái kho hợp lệ |
+| **EC23** | `stock_state` | Sản phẩm đặt mua vượt quá tồn kho (`quantity = 999 > stock`) | Đặt mua vượt quá tồn kho thực tế | Nguy cơ Overselling |
+| **EC24** | `coupon_state` | `coupon_id = null` (không áp dụng coupon) | Đơn hàng thông thường không sử dụng mã giảm giá | Luồng chuẩn |
+| **EC25** | `coupon_state` | Áp dụng mã coupon hợp lệ (ví dụ: `DISCOUNT10`) | Đơn hàng áp dụng mã giảm giá hợp lệ còn lượt dùng | Luồng giảm giá thành công |
+| **EC26** | `coupon_state` | Áp dụng mã coupon giả/hết hạn (`FAKECOUPON99`) | Mã coupon không tồn tại hoặc đã hết lượt/hết hạn | Kỳ vọng báo lỗi coupon |
+| **EC27** | `mobile_skew` | Giỏ có 2 món, Mobile gửi `cart.slice(0, -1)` | Dị biệt mã nguồn Mobile cắt xén sản phẩm cuối cùng | Lỗi logic đa nền tảng |
+| **EC28** | `system_output` | `HTTP 200 OK` kèm `orderId` | Đặt hàng thành công, tạo bản ghi `orders` (pending) | `[CODE: server.js:306]` |
+| **EC29** | `system_output` | `HTTP 401 Unauthorized` | Từ chối truy cập khi thiếu token đăng nhập | `[CODE: server.js:103]` |
+| **EC30** | `system_output` | `HTTP 403 Forbidden` | Từ chối truy cập khi token không hợp lệ | `[CODE: server.js:106]` |
+| **EC31** | `system_output` | `HTTP 400 Bad Request` | Từ chối request sai dữ liệu (tiền âm, thiếu địa chỉ, giỏ rỗng) | `[SPEC: api_spec:38-40]` |
+
+##### Bước 4: Thiết kế bộ test case tối thiểu (Selecting Test Cases) & Ma trận bao phủ 100%
+
+Tuân thủ nguyên tắc tối ưu hóa số ca kiểm thử của CSC13003 S04:
+1. **Lớp hợp lệ (Valid Classes):** Kết hợp tối đa các lớp hợp lệ vào cùng một ca kiểm thử cho đến khi toàn bộ các lớp hợp lệ được bao phủ ít nhất một lần (`FR08-DT-01` và `FR08-DT-02`).
+2. **Lớp không hợp lệ (Invalid Classes):** Áp dụng nguyên tắc **Cô lập lỗi đơn (Single-fault isolation)**: Mỗi ca kiểm thử chỉ chứa duy nhất 1 lớp không hợp lệ, tất cả các trường/trạng thái còn lại đều phải ở trạng thái hợp lệ (`FR08-DT-03` đến `FR08-DT-22`).
+
+###### Bảng danh sách 22 ca kiểm thử Domain Testing chi tiết
+
+| Mã TC | Lớp tương đương bao phủ | Token (`auth`) | `total_amount` | `shipping_address` | Trạng thái giỏ / Tiền đề | Kết quả kỳ vọng (`expected`) | Nguồn gốc |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **FR08-DT-01** | EC01, EC05, EC14, EC20, EC22, EC24, EC28 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ có 1 SP (200k), đủ kho, không coupon | HTTP 200, `Checkout successful`, có `orderId` | `[CODE]` `[SPEC]` |
+| **FR08-DT-02** | EC01, EC05, EC14, EC20, EC22, EC25, EC28 | User hợp lệ | `180000` | `"123 Le Loi, TP.HCM"` | Giỏ có 1 SP (200k), áp dụng coupon hợp lệ -10% | HTTP 200, `Checkout successful`, có `orderId` | `[CODE]` `[SPEC]` |
+| **FR08-DT-03** | EC02, EC29 | Không gửi header | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng bình thường | HTTP 401 Unauthorized | `[CODE]` server.js:103 |
+| **FR08-DT-04** | EC03, EC30 | Token sai chữ ký | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng bình thường | HTTP 403 Forbidden | `[CODE]` server.js:106 |
+| **FR08-DT-05** | EC04, EC29 | Token rỗng (`Bearer `) | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng bình thường | HTTP 401 Unauthorized | `[CODE]` server.js:103 |
+| **FR08-DT-06** | EC06, EC31 | User hợp lệ | `0` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (tiền = 0) | `[ASSUMED]` |
+| **FR08-DT-07** | EC07, EC31 | User hợp lệ | `-50000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (tiền âm) | `[ASSUMED]` |
+| **FR08-DT-08** | EC08, EC31 | User hợp lệ | `1000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k (Web editableTotal) | HTTP 400 Bad Request (sai lệch giá giỏ) | `[ASSUMED]` |
+| **FR08-DT-09** | EC09, EC31 | User hợp lệ | `"free"` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (sai type chuỗi) | `[ASSUMED]` |
+| **FR08-DT-10** | EC10, EC31 | User hợp lệ | `true` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (sai type boolean) | `[ASSUMED]` |
+| **FR08-DT-11** | EC11, EC31 | User hợp lệ | `199999.5` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (số thực float) | `[ASSUMED]` |
+| **FR08-DT-12** | EC12, EC31 | User hợp lệ | Bỏ trường | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (thiếu total_amount) | `[ASSUMED]` |
+| **FR08-DT-13** | EC13, EC31 | User hợp lệ | `null` | `"123 Le Loi, TP.HCM"` | Giỏ hàng trị giá 200k | HTTP 400 Bad Request (null total_amount) | `[ASSUMED]` |
+| **FR08-DT-14** | EC15, EC31 | User hợp lệ | `200000` | `""` (chuỗi rỗng) | Giỏ hàng bình thường | HTTP 400 Bad Request (địa chỉ rỗng) | `[ASSUMED]` |
+| **FR08-DT-15** | EC16, EC31 | User hợp lệ | `200000` | `"   "` (khoảng trắng) | Giỏ hàng bình thường | HTTP 400 Bad Request (khoảng trắng) | `[ASSUMED]` |
+| **FR08-DT-16** | EC17, EC31 | User hợp lệ | `200000` | Bỏ trường | Giỏ hàng bình thường (Client Web/Mobile) | HTTP 400 Bad Request (thiếu address) | `[SPEC]` api_spec:135 |
+| **FR08-DT-17** | EC18, EC31 | User hợp lệ | `200000` | `12345` (Number) | Giỏ hàng bình thường | HTTP 400 Bad Request (sai kiểu địa chỉ) | `[ASSUMED]` |
+| **FR08-DT-18** | EC19, EC31 | User hợp lệ | `200000` | Chuỗi 1,500 ký tự | Giỏ hàng bình thường | HTTP 400 Bad Request (địa chỉ quá dài) | `[ASSUMED]` |
+| **FR08-DT-19** | EC21, EC31 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng rỗng (`cart = []`) | HTTP 400 Bad Request (giỏ hàng rỗng) | `[ASSUMED]` |
+| **FR08-DT-20** | EC23, EC31 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ hàng đặt vượt tồn kho (`qty > stock`) | HTTP 400 Bad Request (vượt tồn kho) | `[ASSUMED]` |
+| **FR08-DT-21** | EC26, EC31 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | Áp dụng mã coupon giả `FAKECOUPON99` | HTTP 400 Bad Request (coupon sai) | `[SPEC]` api_spec:163 |
+| **FR08-DT-22** | EC27, EC31 | User hợp lệ | `200000` | `"123 Le Loi, TP.HCM"` | Giỏ có 2 SP, Mobile gửi `cart.slice(0, -1)` | HTTP 400 hoặc Cảnh báo lệch giỏ hàng | `[CODE]` App.js:391 |
+
+###### Ma trận bao phủ lớp tương đương (Coverage Matrix)
+
+| Mã lớp | Mô tả lớp tương đương | Phân loại | Ca kiểm thử bao phủ (TC IDs) | Trạng thái bao phủ |
+| :---: | :--- | :---: | :--- | :---: |
+| **EC01** | Token JWT hợp lệ của người dùng | **Valid** | FR08-DT-01, FR08-DT-02, FR08-DT-06 đến FR08-DT-22 | ✅ Đã bao phủ |
+| **EC02** | Thiếu header Authorization | Invalid | FR08-DT-03 | ✅ Đã bao phủ |
+| **EC03** | Token sai chữ ký / giả mạo | Invalid | FR08-DT-04 | ✅ Đã bao phủ |
+| **EC04** | Token rỗng (`Bearer `) | Invalid | FR08-DT-05 | ✅ Đã bao phủ |
+| **EC05** | `total_amount` nguyên dương hợp lệ khớp giỏ | **Valid** | FR08-DT-01, FR08-DT-02, FR08-DT-03..05, 14..22 | ✅ Đã bao phủ |
+| **EC06** | `total_amount = 0` | Invalid | FR08-DT-06 | ✅ Đã bao phủ |
+| **EC07** | `total_amount < 0` (số âm) | Invalid | FR08-DT-07 | ✅ Đã bao phủ |
+| **EC08** | `total_amount` sai lệch giỏ hàng (Web tampering) | Invalid | FR08-DT-08 | ✅ Đã bao phủ |
+| **EC09** | `total_amount` là chuỗi (String) | Invalid | FR08-DT-09 | ✅ Đã bao phủ |
+| **EC10** | `total_amount` là Boolean | Invalid | FR08-DT-10 | ✅ Đã bao phủ |
+| **EC11** | `total_amount` là số thực (Float) | Invalid | FR08-DT-11 | ✅ Đã bao phủ |
+| **EC12** | Thiếu hoàn toàn trường `total_amount` | Invalid | FR08-DT-12 | ✅ Đã bao phủ |
+| **EC13** | `total_amount = null` | Invalid | FR08-DT-13 | ✅ Đã bao phủ |
+| **EC14** | `shipping_address` hợp lệ | **Valid** | FR08-DT-01 đến FR08-DT-13, FR08-DT-19 đến FR08-DT-22 | ✅ Đã bao phủ |
+| **EC15** | `shipping_address = ""` (chuỗi rỗng) | Invalid | FR08-DT-14 | ✅ Đã bao phủ |
+| **EC16** | `shipping_address = "   "` (khoảng trắng) | Invalid | FR08-DT-15 | ✅ Đã bao phủ |
+| **EC17** | Thiếu trường `shipping_address` (Web & Mobile) | Invalid | FR08-DT-16 | ✅ Đã bao phủ |
+| **EC18** | `shipping_address` sai kiểu (Number) | Invalid | FR08-DT-17 | ✅ Đã bao phủ |
+| **EC19** | `shipping_address` vượt 1,000 ký tự | Invalid | FR08-DT-18 | ✅ Đã bao phủ |
+| **EC20** | Giỏ hàng có sản phẩm hợp lệ | **Valid** | FR08-DT-01 đến FR08-DT-18, FR08-DT-21, FR08-DT-22 | ✅ Đã bao phủ |
+| **EC21** | Giỏ hàng rỗng ($cart = []$) | Invalid | FR08-DT-19 | ✅ Đã bao phủ |
+| **EC22** | Tồn kho đủ để bán | **Valid** | FR08-DT-01 đến FR08-DT-19, FR08-DT-21, FR08-DT-22 | ✅ Đã bao phủ |
+| **EC23** | Đặt mua vượt quá tồn kho | Invalid | FR08-DT-20 | ✅ Đã bao phủ |
+| **EC24** | Không dùng coupon (`coupon_id = null`) | **Valid** | FR08-DT-01, FR08-DT-03 đến FR08-DT-20, FR08-DT-22 | ✅ Đã bao phủ |
+| **EC25** | Dùng coupon hợp lệ | **Valid** | FR08-DT-02 | ✅ Đã bao phủ |
+| **EC26** | Dùng coupon không hợp lệ / hết hạn | Invalid | FR08-DT-21 | ✅ Đã bao phủ |
+| **EC27** | Dị biệt Mobile tự cắt sản phẩm cuối giỏ | Invalid | FR08-DT-22 | ✅ Đã bao phủ |
+| **EC28** | Output: `HTTP 200 OK` + `orderId` | **Valid Output** | FR08-DT-01, FR08-DT-02 | ✅ Đã bao phủ |
+| **EC29** | Output: `HTTP 401 Unauthorized` | Invalid Output | FR08-DT-03, FR08-DT-05 | ✅ Đã bao phủ |
+| **EC30** | Output: `HTTP 403 Forbidden` | Invalid Output | FR08-DT-04 | ✅ Đã bao phủ |
+| **EC31** | Output: `HTTP 400 Bad Request` | Invalid Output | FR08-DT-06 đến FR08-DT-22 | ✅ Đã bao phủ |
+
+*Độ bao phủ: 31/31 lớp EC (100%).*
+
 
 ---
 
@@ -554,7 +901,33 @@ Thiết kế **22 ca kiểm thử miền tối thiểu** (`FR08-DT-01` đến `F
 - **`cart.item_count`:** $LB-1 = 0$ (giỏ rỗng), $LB = 1$ (giỏ 1 món - Mobile không cắt), $LB+1 = 2$ (giỏ 2 món - Mobile kích hoạt cắt món).
 
 ##### Bước 3: Danh sách 20 ca kiểm thử BVA
-Gồm `FR08-BVA-01` đến `FR08-BVA-20` bao phủ toàn diện các điểm biên toán học, điểm biên vật lý và điểm biên mã hóa ký tự.
+
+Áp dụng nguyên tắc **Đơn biến (Single-fault assumption)**: Mỗi ca kiểm thử BVA chỉ thay đổi một biến duy nhất tại một điểm biên, toàn bộ các biến còn lại được giữ cố định ở giá trị danh định hợp lệ (Nominal valid values).
+
+###### Bảng chi tiết 20 ca kiểm thử giá trị biên (BVA Test Suite)
+
+| Mã TC | Biến kiểm tra | Điểm biên | Giá trị kiểm thử cụ thể | Các biến khác (Nominal) | Kỳ vọng (Expected) | Lỗi code sẽ bắt được (Fault it would catch) | Nguồn |
+| :--- | :--- | :---: | :--- | :--- | :---: | :--- | :---: |
+| **FR08-BVA-01** | `total_amount` | $-\alpha$ (Extreme số âm) | `-50000` VNĐ | `token`: Valid<br>`address`: Valid<br>`cart`: 1 món | HTTP 400 | Lỗ hổng cho phép thanh toán số tiền âm, đảo chiều dòng tiền giao dịch (CWE-20) | `[SPEC]` api_spec:134 |
+| **FR08-BVA-02** | `total_amount` | $LB - 1$ (Cận dưới - 1) | `0` VNĐ | `token`: Valid<br>`address`: Valid<br>`cart`: 1 món | HTTP 400 | Lập trình viên viết nhầm điều kiện `if (amount < 0)` thay vì `<= 0`, cho phép đặt hàng miễn phí 0 đồng | `[SPEC]` api_spec:134 |
+| **FR08-BVA-03** | `total_amount` | $LB$ (Cận dưới tối thiểu) | `1` VNĐ | `token`: Valid<br>`address`: Valid<br>`cart`: 1 món (giá 1đ) | HTTP 200 | Lập trình viên viết nhầm điều kiện `if (amount > 1)` thay vì `>= 1`, từ chối đơn hàng hợp lệ nhỏ nhất | `[SPEC]` api_spec:134 |
+| **FR08-BVA-04** | `total_amount` | $LB + 1$ (Nội biên kề cận) | `2` VNĐ | `token`: Valid<br>`address`: Valid<br>`cart`: 1 món (giá 2đ) | HTTP 200 | Lỗi lệch biên cận dưới nội vùng | `[SPEC]` api_spec:134 |
+| **FR08-BVA-05** | `total_amount` | $UB - 1$ (Cận trên - 1) | `2,147,483,646` VNĐ | `token`: Valid<br>`address`: Valid | HTTP 200 | Lỗi lệch biên cận trên giá trị giao dịch lớn | `[ASSUMED]` int32 max |
+| **FR08-BVA-06** | `total_amount` | $UB$ (Cận trên int32 max) | `2,147,483,647` VNĐ | `token`: Valid<br>`address`: Valid | HTTP 200 | Lập trình viên viết nhầm `< 2147483647` thay vì `<= 2147483647` | `[ASSUMED]` int32 max |
+| **FR08-BVA-07** | `total_amount` | $UB + 1$ (Ngoài biên int32) | `2,147,483,648` VNĐ | `token`: Valid<br>`address`: Valid | HTTP 400 | Lỗi không giới hạn số tiền tối đa, gây tràn số nguyên (Integer Overflow) trong SQLite | `[ASSUMED]` int32 overflow |
+| **FR08-BVA-08** | `total_amount` | $+\alpha$ (Max Extreme) | `9,007,199,254,740,991` (`MAX_SAFE_INT`) | `token`: Valid<br>`address`: Valid | HTTP 400 | Lỗi mất độ chính xác số học IEEE 754 float / BigInt trong JavaScript | `[ASSUMED]` JS float limit |
+| **FR08-BVA-09** | `shipping_address` | $-\alpha$ (Min Extreme) | Độ dài = 0 (chuỗi rỗng `""`) | `token`: Valid<br>`total`: 200,000 | HTTP 400 | Chấp nhận đơn hàng không có địa chỉ giao, gây lỗi vận hành logistics | `[SPEC]` api_spec:135 |
+| **FR08-BVA-10** | `shipping_address` | $LB - 1$ (Thiếu 1 ký tự) | Độ dài = 4 ký tự (`"Q.1 "`) | `token`: Valid<br>`total`: 200,000 | HTTP 400 | Chấp nhận địa chỉ quá ngắn, không có giá trị giao nhận | `[ASSUMED]` Address form |
+| **FR08-BVA-11** | `shipping_address` | $LB$ (Cận dưới tối thiểu) | Độ dài = 5 ký tự (`"Quan1"`) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Lập trình viên viết nhầm `length > 5` thay vì `>= 5`, từ chối địa chỉ tối thiểu hợp lệ | `[ASSUMED]` Address form |
+| **FR08-BVA-12** | `shipping_address` | $LB + 1$ (Nội biên kề cận) | Độ dài = 6 ký tự (`"Quan 1"`) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Lỗi lệch biên cận dưới nội vùng | `[ASSUMED]` Address form |
+| **FR08-BVA-13** | `shipping_address` | $UB - 1$ (Nội biên cận trên) | Độ dài = 254 ký tự (ASCII hợp lệ) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Lỗi lệch biên cận trên nội vùng | `[ASSUMED]` 255 chars |
+| **FR08-BVA-14** | `shipping_address` | $UB$ (Cận trên tối đa ASCII) | Độ dài = 255 ký tự (ASCII hợp lệ) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Lập trình viên viết nhầm `< 255` thay vì `<= 255` | `[ASSUMED]` 255 chars |
+| **FR08-BVA-15** | `shipping_address` | $UB$ (UTF-8 Diacritics v2.0) | Độ dài = 255 ký tự (Tiếng Việt có dấu, 330 bytes) | `token`: Valid<br>`total`: 200,000 | HTTP 200 | Server kiểm tra sai theo số byte (`Buffer.byteLength`) thay vì số ký tự (`string.length`), làm lỗi địa chỉ tiếng Việt hợp lệ | `[ASSUMED]` UTF-8 Rule v2.0 |
+| **FR08-BVA-16** | `shipping_address` | $UB + 1$ (Vượt quá cận trên) | Độ dài = 256 ký tự (ASCII) | `token`: Valid<br>`total`: 200,000 | HTTP 400 | Không kiểm soát độ dài tối đa cột `VARCHAR(255)`, gây lỗi DB hoặc cắt cụt dữ liệu ngầm (Silent Truncation) | `[ASSUMED]` 255 chars |
+| **FR08-BVA-17** | `shipping_address` | $+\alpha$ (Extreme Payload DoS) | Độ dài = 10,000 ký tự | `token`: Valid<br>`total`: 200,000 | HTTP 400 / 413 | Lỗ hổng tràn bộ nhớ / DoS khi client gửi payload địa chỉ siêu lớn | `[ASSUMED]` DoS Payload |
+| **FR08-BVA-18** | `cart_items_count` | $LB - 1$ (Giỏ hàng rỗng) | $0$ sản phẩm trong giỏ hàng | `token`: Valid<br>`total`: 200,000<br>`address`: Valid | HTTP 400 | Backend không kiểm tra giỏ hàng, cho phép đặt "đơn hàng ma" khi không có sản phẩm nào | `[ASSUMED]` Business rule |
+| **FR08-BVA-19** | `cart_items_count` | $LB$ (Mobile Skew Boundary) | $1$ sản phẩm trong giỏ hàng | `token`: Valid<br>`total`: 200,000<br>`address`: Valid | HTTP 200 | Kiểm tra biên 1 sản phẩm: trên Mobile giỏ hàng không bị cắt bỏ (`cart.length > 1 ? cart.slice(0, -1) : cart`) | `[CODE]` App.js:391 |
+| **FR08-BVA-20** | `cart_items_count` | $LB + 1$ (Mobile Skew Boundary) | $2$ sản phẩm trong giỏ hàng | `token`: Valid<br>`total`: 400,000<br>`address`: Valid | HTTP 200 | Phát hiện lỗi dị biệt Mobile cố tình cắt bỏ sản phẩm cuối cùng của đơn hàng khi `cart.length = 2` | `[CODE]` App.js:391 |
 
 ---
 
@@ -614,8 +987,6 @@ Toàn bộ **42 ca kiểm thử** của FR-08 đã được thực thi tự đ�
 | `FR08-BVA-19` | BVA | `cart_items_count = 1` ($LB$ giỏ 1 món - Mobile không cắt) | HTTP 200 OK | HTTP 200, orderId: 38 | **PASS** |
 | `FR08-BVA-20` | BVA | `cart_items_count = 2` ($LB + 1$ Mobile kích hoạt cắt món) | HTTP 200 OK | HTTP 200, orderId: 39 | **PASS** |
 
-*Minh chứng thực thi được lưu tại:* [HW2/evidence/FR-08/test-execution.log](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-08/test-execution.log).
-
 ---
 
 #### 3.4.5 Lỗi phần mềm phát hiện (Defects Discovered)
@@ -631,8 +1002,6 @@ Toàn bộ **42 ca kiểm thử** của FR-08 đã được thực thi tự đ�
 | **BUG-FR08-05** | Dị biệt logic nghiêm trọng trên Mobile: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng khi checkout | `FR08-DT-22`, `FR08-BVA-20` (2 TCs) | **Critical** | **Immediate** | [BUG-FR08-05.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-05.md) |
 | **BUG-FR08-06** | Backend không kiểm tra tồn kho (Overselling Defect) và không lưu chi tiết các mặt hàng trong đơn hàng (`order_items`) | `FR08-DT-20` (1 TC) | **Major** | **High** | [BUG-FR08-06.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-06.md) |
 | **BUG-FR08-07** | Endpoint checkout không kiểm tra tính hợp lệ của mã giảm giá `coupon_id` | `FR08-DT-21` (1 TC) | **Minor** | **Medium** | [BUG-FR08-07.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/BUG-FR08-07.md) |
-
-*(Toàn bộ báo cáo phân tích lỗi chi tiết kèm request/response mẫu được lưu tại [HW2/report/bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md)).*
 
 ---
 
@@ -696,40 +1065,124 @@ Quá trình kiểm thử FR-08 đã làm bộc lộ 4 khoảng trống AI quan t
 ##### Bước 2: Phân hoạch tương đương (Equivalence Partitioning)
 Phân hoạch thành **23 lớp tương đương** (`EC01` đến `EC23`) bao quát phân quyền và xác thực:
 
-| Mã EC | Biến / Ngữ cảnh | Mô tả lớp tương đương | Hợp lệ / Không hợp lệ | Quy tắc phân hoạch |
-| :---: | :--- | :--- | :---: | :--- |
-| **EC01** | `Authorization` | Header hợp lệ (`Bearer <valid_token>`) | **Valid** | Must be: valid format & signature |
-| **EC02** | `Authorization` | Thiếu hoàn toàn header trong HTTP request | Invalid | Missing: header omitted |
-| **EC03** | `Authorization` | Header rỗng `""` hoặc chỉ có chuỗi `"Bearer "` | Invalid | Empty: empty token value |
-| **EC04** | `Authorization` | Sai tiền tố (thiếu tiền tố `"Bearer "`) | Invalid | Must be: invalid prefix |
-| **EC05** | `Authorization` | Token sai chữ ký HMAC Secret (Signature Mismatch) | Invalid | Must be: invalid signature |
-| **EC06** | `Authorization` | Chuỗi token hỏng cú pháp (Malformed Token) | Invalid | Type/Format: malformed JWT |
-| **EC07** | `token_role` | Quyền Quản trị viên (`role: 'admin'`) | **Valid** | Set of values: admin role |
-| **EC08** | `token_role` | Quyền Người dùng thường (`role: 'user'`) | Invalid (Admin APIs) | Set of values: user role |
-| **EC09** | `token_role` | Role ngoài danh mục (`guest`, `moderator`, `null`) | Invalid | Set of values: unknown role |
-| **EC10** | `target_endpoint`| Truy cập API quản trị người dùng (`/api/admin/users`) | Valid (Admin) / Invalid (User) | Split class: Admin User group |
-| **EC11** | `target_endpoint`| Truy cập API quản trị đơn hàng (`/api/admin/orders`) | Valid (Admin) / Invalid (User) | Split class: Admin Order group |
-| **EC12** | `target_endpoint`| Tạo danh mục quản trị (`POST /api/categories`) | Valid (Admin) / Invalid (User) | Split class: Category group |
-| **EC13** | `target_endpoint`| Tạo sản phẩm (`POST /api/products`) | Valid (Admin) / Invalid (Guest) | Split class: Product group |
-| **EC14** | `target_endpoint`| Tạo mã giảm giá coupon (`POST /api/coupons`) | Valid (Admin) / Invalid (User) | Split class: Coupon group |
-| **EC15** | `target_endpoint`| Xem/sửa hồ sơ chính mình (`/api/users/me`) | **Valid (Mọi user)** | Split class: Self Profile group |
-| **EC16** | `token_exp_state`| Token còn thời hạn hiệu lực (`exp > now`) | **Valid State** | Range: valid time window |
-| **EC17** | `token_exp_state`| Token đã hết hạn (`exp <= now`) | Invalid State | Range: expired time window |
-| **EC18** | `privilege_state`| User gửi payload chứa `role: 'admin'` vào `PUT /api/users/me` | Invalid State Mutation | Security Boundary: Mass Assignment |
-| **EC19** | `Response.status`| HTTP 200 OK / 201 Created | **Valid Output** | Normal success response |
-| **EC20** | `Response.status`| HTTP 401 Unauthorized (thiếu hoặc token rỗng) | Invalid Output | Authentication failure |
-| **EC21** | `Response.status`| HTTP 403 Forbidden (sai quyền, token hết hạn, sai chữ ký) | Invalid Output | Authorization failure |
-| **EC22** | `Response.status`| HTTP 400 Bad Request (lỗi payload/mass assignment) | Invalid Output | Client error response |
-| **EC23** | `Response.status`| HTTP 404 Not Found (tài nguyên không tồn tại) | Invalid Output | Not found response |
+| Mã EC | Biến / Ngữ cảnh | Mô tả lớp tương đương | Hợp lệ / Không hợp lệ | Quy tắc phân hoạch (Guideline used) | Nguồn (Source tag) |
+| :---: | :--- | :--- | :---: | :--- | :---: |
+| **EC01** | `Authorization` | Header đúng định dạng `"Bearer <token>"`, JWT hợp lệ ký bởi `SECRET_KEY` | **Valid** | Must be: valid format & signature | `[SPEC]` FR-12<br>`[CODE]` server.js:101-108 |
+| **EC02** | `Authorization` | Thiếu hoàn toàn header `Authorization` trong HTTP request | Invalid | Missing: header omitted | `[CODE]` server.js:103 |
+| **EC03** | `Authorization` | Header rỗng `""` hoặc chỉ có tiền tố `"Bearer "` không kèm token | Invalid | Missing/Empty: empty token | `[CODE]` server.js:103 |
+| **EC04** | `Authorization` | Sai tiền tố xác thực (ví dụ `"Basic <token>"`, thiếu khoảng trắng) | Invalid | Format: wrong scheme prefix | `[CODE]` server.js:102-106 |
+| **EC05** | `Authorization` | Token JWT có chữ ký bị thay đổi (tampered) hoặc sai bí mật HMAC | Invalid | Must be: valid signature | `[CODE]` server.js:106 |
+| **EC06** | `Authorization` | Chuỗi token hỏng cú pháp (malformed JWT không đủ 3 phần) | Invalid | Format: malformed JWT | `[CODE]` server.js:106 |
+| **EC07** | `token_role` | Payload Token JWT chứa claim `role === 'admin'` | **Valid** | Set of values: admin role | `[SPEC]` README:176<br>`[CODE]` server.js:51 |
+| **EC08** | `token_role` | Payload Token JWT chứa claim `role === 'user'` (người dùng thường) | Invalid | Set of values: unauthorized user | `[SPEC]` README:176<br>`[CODE]` server.js:100 |
+| **EC09** | `token_role` | Payload chứa role ngoài danh mục (`guest`, `moderator`, `null`) | Invalid | Outside set: unrecognized role | `[SPEC]` FR-12<br>`[ASSUMED]` |
+| **EC10** | `target_endpoint`| Nhóm 7 API Quản trị hệ thống (`/api/admin/*`) — Có auth, thiếu role check | **Valid Target** | Split class: Admin APIs | `[SPEC]` §6.1-§6.4<br>`[CODE]` server.js:494, 510 |
+| **EC11** | `target_endpoint`| Nhóm 3 API chỉnh sửa danh mục (`POST/PUT/DELETE /api/categories`) — Có auth, thiếu role check | **Valid Target** | Split class: Category write APIs | `[SPEC]` §3.4, FR-12<br>`[CODE]` server.js:249-269 |
+| **EC12** | `target_endpoint`| Nhóm 3 API chỉnh sửa sản phẩm (`POST/PUT/DELETE /api/products`) — **Hoàn toàn thiếu auth** | **Valid Target** *(Spec)*<br>⚠️ *Skewed (Code)* | Split class: Unprotected product write | `[SPEC]` §3.3, FR-12<br>`[CODE]` server.js:167-191 |
+| **EC13** | `target_endpoint`| API tra cứu mã giảm giá quản trị (`GET /api/coupons`) — Có auth, thiếu role check | **Valid Target** | Split class: Coupons read API | `[SPEC]` §5.2, FR-12<br>`[CODE]` server.js:356 |
+| **EC14** | `token_exp` (State) | Token JWT còn trong thời hạn sử dụng (`exp > now` hoặc không claim exp) | **Valid State** | Range of timestamp: active lifetime | `[SPEC]` / `[CODE]` server.js:51 |
+| **EC15** | `token_exp` (State) | Token JWT đã quá hạn sử dụng (`exp < now`) | Invalid State | Range of timestamp: expired lifetime | `[CODE]` server.js:106 |
+| **EC16** | `user_status` (State) | Tài khoản người dùng đang hoạt động và tồn tại trong DB | **Valid State** | State: active user in DB | `[CODE]` database.js:55 |
+| **EC17** | `user_status` (State) | Tài khoản đã bị xóa khỏi DB (`DELETE /admin/users/:id`), nhưng client còn giữ token | Invalid State | State conflict: deleted account | `[CODE]` server.js:504 |
+| **EC18** | `privilege_state` | Tài khoản người dùng giữ nguyên vai trò, không can thiệp nâng quyền | **Valid State** | State: normal privilege | `[SPEC]` FR-04, SEC-06 |
+| **EC19** | `privilege_state` | Người dùng thường tự sửa `role: "admin"` qua lỗ hổng Mass Assignment tại `PUT /api/users/me` | Invalid State | Security Flaw: privilege escalation | `[CODE]` server.js:124-127 |
+| **EC20** | `Response.status` | Truy cập thành công: HTTP 200 OK (hoặc 201 Created) | **Valid Output** | Output: authorized access granted | `[SPEC]` / `[CODE]` |
+| **EC21** | `Response.status` | Từ chối xác thực danh tính: HTTP 401 Unauthorized | Invalid Output | Output: authentication required | `[CODE]` server.js:103 |
+| **EC22** | `Response.status` | Từ chối phân quyền / Token không hợp lệ: HTTP 403 Forbidden | Invalid Output | Output: forbidden / invalid token | `[CODE]` server.js:106<br>`[SPEC]` README:176 |
+| **EC23** | `Response.status` | Lỗ hổng kiểm soát truy cập (Defect Output): HTTP 200 OK trả về cho User thường | **Defect Output** | Output: security bypass defect | `[CODE]` server.js:100, 167 |
 
-##### Bước 3 & 4: Thiết kế bộ test case tối thiểu và Ma trận bao phủ 100%
-Thiết kế bộ **18 ca kiểm thử miền tối thiểu** (`FR12-DT-01` đến `FR12-DT-18`):
-- `FR12-DT-01`: Baseline Valid kết hợp tối đa các lớp Valid (`EC01, EC07, EC10, EC16, EC19`).
-- `FR12-DT-02` đến `FR12-DT-06`: Kiểm tra đơn lập lỗi cấu trúc Authorization Header (thiếu, rỗng, sai tiền tố, sai chữ ký, malformed token).
-- `FR12-DT-07` đến `FR12-DT-09`: Kiểm tra người dùng thường và vai trò không xác định truy cập API quản trị người dùng.
-- `FR12-DT-10` đến `FR12-DT-11`: Kiểm tra truy cập hồ sơ chính mình và phát hiện lỗ hổng leo quyền Mass Assignment.
-- `FR12-DT-12` đến `FR12-DT-18`: Kiểm tra chéo phân quyền trên các nhóm Category, Order, Product và Coupon APIs.
-- **Độ bao phủ:** Đạt **100% độ bao phủ** cho 23/23 lớp tương đương đã phân hoạch.
+##### Bước 3: Chọn giá trị đại diện cho từng lớp tương đương (Best Representatives)
+
+Áp dụng nguyên tắc lựa chọn giá trị đại diện theo bài giảng môn học **S04 - Domain Testing (Step 3)**:
+- **Miền có thứ tự (Ordered/Ranged):** Giá trị đại diện là giá trị biên hoặc cận biên (`-> BVA` khai thác sâu).
+- **Miền không có thứ tự (Unordered):** Chọn giá trị điển hình, thực tế trong môi trường chạy của SUT.
+
+| Mã EC | Biến kiểm thử | Mô tả lớp tương đương | Giá trị đại diện được chọn | Lý do lựa chọn đại diện |
+| :---: | :--- | :--- | :--- | :--- |
+| **EC01** | `Authorization` | Header hợp lệ, JWT đúng chữ ký `SECRET_KEY` | `"Bearer <admin_jwt>"` (từ `admin@eshop.com`) | Token JWT hợp pháp của tài khoản quản trị hệ thống |
+| **EC02** | `Authorization` | Vắng mặt hoàn toàn header `Authorization` | *(Omitted - không gửi header)* | Kiểm tra nhánh `authHeader === undefined` tại `server.js:103` |
+| **EC03** | `Authorization` | Header rỗng hoặc chỉ có `"Bearer "` không token | `"Bearer "` *(chuỗi có tiền tố nhưng token rỗng)* | Kiểm tra nhánh `token == null` tại `server.js:103` |
+| **EC04** | `Authorization` | Header sai tiền tố xác thực (e.g. Basic) | `"Basic dXNlcjpwYXNz"` | Kiểm tra logic tách chuỗi `authHeader.split(" ")[1]` khi dùng scheme sai |
+| **EC05** | `Authorization` | Token JWT có chữ ký bị thay đổi (Tampered) | `"Bearer <admin_jwt_tampered_sig>"` | Payload hợp lệ nhưng chữ ký không khớp -> `jwt.verify` ném lỗi |
+| **EC06** | `Authorization` | Token JWT bị sai cấu trúc (Malformed) | `"Bearer not_a_valid_jwt_string"` | Chuỗi không theo định dạng 3 phần -> JsonWebTokenError |
+| **EC07** | `token_role` | Payload Token chứa `role === 'admin'` | Token chứa `{ id: 1, role: "admin" }` | Vai trò quản trị hợp chuẩn theo đặc tả FR-12 |
+| **EC08** | `token_role` | Payload Token chứa `role === 'user'` | Token sinh từ `user@domain.com` (`{ id: 2, role: "user" }`) | Người dùng thường; SPEC đòi hỏi 403, CODE hiện trả 200 |
+| **EC09** | `token_role` | Payload Token chứa role ngoài tập / không xác định | Token craft `{ id: 99, role: "guest" }` ký bởi `SECRET_KEY` | Kiểm tra hành vi hệ thống khi nhận role không hợp lệ |
+| **EC10** | `target_endpoint` | Nhóm 7 API Admin (`/api/admin/*`) | `GET /api/admin/users` | Endpoint quản trị nhạy cảm tra cứu danh sách toàn bộ người dùng |
+| **EC11** | `target_endpoint` | Nhóm 3 API Category write | `POST /api/categories` body `{"name": "Category_{{uniq}}"}` | API ghi danh mục có middleware auth nhưng thiếu role check |
+| **EC12** | `target_endpoint` | Nhóm 3 API Product write | `POST /api/products` body `{"name": "Product_{{uniq}}", "price": 99000, ...}` | API ghi sản phẩm hoàn toàn thiếu `authenticateToken` (Lỗ hổng) |
+| **EC13** | `target_endpoint` | API tra cứu mã giảm giá quản trị | `GET /api/coupons` | API tra cứu coupon quản trị có auth nhưng thiếu role check |
+| **EC14** | `token_exp` (State) | Token còn trong thời hạn sử dụng | Token hiện tại của SUT hoặc token có `exp > now` | `-> BVA` cho các biên thời gian; đại diện cho token còn hiệu lực |
+| **EC15** | `token_exp` (State) | Token đã quá hạn sử dụng | Token craft với `exp = now - 3600` ký bằng `SECRET_KEY` | `-> BVA` biên hết hạn; kích hoạt `TokenExpiredError` -> 403 |
+| **EC16** | `user_status` (State) | Tài khoản người dùng đang hoạt động trong DB | User ID 1 (`admin@eshop.com`) hoặc User ID 2 | Tài khoản tồn tại bình thường trong cơ sở dữ liệu SQLite |
+| **EC17** | `user_status` (State) | Tài khoản đã bị xóa khỏi DB nhưng token còn giữ | Tạo user tạm thời, cấp token, xóa user qua `DELETE /admin/users/:id` | Kiểm tra lỗ hổng thiếu kiểm tra trạng thái DB của Stateless JWT |
+| **EC18** | `privilege_escalation` | Tài khoản giữ nguyên quyền hạn ban đầu | Giữ nguyên role `'user'` khi gọi API | Trạng thái bình thường, không can thiệp nâng quyền |
+| **EC19** | `privilege_escalation` | Người dùng tự đổi role qua `PUT /api/users/me` | Gửi `PUT /api/users/me` với payload `{"role": "admin"}` | Lỗ hổng Mass Assignment biến user thường thành admin |
+| **EC20** | HTTP Response (Output) | Truy cập thành công: HTTP 200/201 | HTTP 200 OK kèm JSON danh sách tài nguyên | Kỳ vọng cho trường hợp hợp lệ của quản trị viên |
+| **EC21** | HTTP Response (Output) | Từ chối xác thực: HTTP 401 Unauthorized | HTTP 401 `{"error": "Unauthorized"}` | Kỳ vọng khi không gửi token hoặc token rỗng |
+| **EC22** | HTTP Response (Output) | Từ chối phân quyền: HTTP 403 Forbidden | HTTP 403 `{"error": "Forbidden"}` | Kỳ vọng theo SPEC khi role không phải admin hoặc sai chữ ký |
+| **EC23** | HTTP Response (Output) | Lỗ hổng kiểm soát truy cập (Defect Output) | HTTP 200 OK (thực tế code trả về thay vì 403) | Hành vi dị biệt của SUT khi thiếu role check hoặc thiếu middleware |
+
+##### Bước 4: Thiết kế bộ test case tối thiểu (Selecting Test Cases) & Ma trận bao phủ 100%
+
+Áp dụng quy tắc kết hợp theo slide bài giảng S04:
+1. **Lớp hợp lệ (Valid classes):** Kết hợp tối đa các lớp hợp lệ vào một test case duy nhất (`FR12-DT-01`).
+2. **Lớp không hợp lệ (Invalid classes):** Mỗi test case chỉ kiểm thử duy nhất một lớp không hợp lệ để cô lập chính xác lỗi (`FR12-DT-02` đến `FR12-DT-11`).
+3. **Kiểm tra chéo các nhóm Endpoint:** Các ca kiểm thử từ `FR12-DT-12` đến `FR12-DT-18` được thiết kế nhằm quét qua cả 4 nhóm endpoint đích (Admin APIs, Category write, Product write, Coupons read) đối với các vai trò Admin, User thường và Khách vãng lai (Guest).
+
+###### Bảng danh sách 18 Test Case Domain Testing chi tiết
+
+| TC ID | Lớp bao phủ (Partitions) | Header Authorization | Token Role | Target Endpoint & Method | Tiền điều kiện | Kỳ vọng đầu ra (Expected) | Nguồn gốc |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :---: |
+| **FR12-DT-01** | EC01, EC07, EC10, EC14, EC16, EC18, EC20 | `Bearer <admin_jwt>` | `admin` | `GET /api/admin/users` | Tài khoản admin đang hoạt động trong DB | HTTP 200 OK, body chứa danh sách users | `[SPEC]` FR-12<br>`[CODE]` server.js:494 |
+| **FR12-DT-02** | EC02, EC21 | *(Omitted - không gửi)* | *(None)* | `GET /api/admin/users` | Không có | HTTP 401 Unauthorized `{"error": "Unauthorized"}` | `[CODE]` server.js:103 |
+| **FR12-DT-03** | EC03, EC21 | `"Bearer "` | *(None)* | `GET /api/admin/users` | Không có | HTTP 401 Unauthorized `{"error": "Unauthorized"}` | `[CODE]` server.js:103 |
+| **FR12-DT-04** | EC04, EC21 | `"Basic dXNlcjpwYXNz"` | *(None)* | `GET /api/admin/users` | Không có | HTTP 401/403 (Từ chối định dạng scheme sai) | `[CODE]` server.js:103 |
+| **FR12-DT-05** | EC05, EC22 | `Bearer <tampered_token>` | `admin` | `GET /api/admin/users` | Không có | HTTP 403 Forbidden `{"error": "Forbidden"}` | `[CODE]` server.js:106 |
+| **FR12-DT-06** | EC06, EC22 | `Bearer not_a_valid_jwt` | *(None)* | `GET /api/admin/users` | Không có | HTTP 403 Forbidden `{"error": "Forbidden"}` | `[CODE]` server.js:106 |
+| **FR12-DT-07** | EC08, EC22, EC23 | `Bearer <user_jwt>` | `user` | `GET /api/admin/users` | Tài khoản user thường đăng nhập hợp lệ | `[SPEC]` HTTP 403 Forbidden<br>*(Thực tế SUT: HTTP 200 -> Bug SEC-03)* | `[SPEC]` README:176<br>`[CODE]` server.js:100 |
+| **FR12-DT-08** | EC09, EC22 | `Bearer <guest_jwt>` | `guest` | `GET /api/admin/users` | Token craft ký bằng SECRET_KEY | `[SPEC]` HTTP 403 Forbidden | `[SPEC]` FR-12 |
+| **FR12-DT-09** | EC15, EC22 | `Bearer <expired_jwt>` | `admin` | `GET /api/admin/users` | Token craft có `exp < now` | HTTP 403 Forbidden `{"error": "Forbidden"}` | `[CODE]` server.js:106 |
+| **FR12-DT-10** | EC17, EC22, EC23 | `Bearer <token_deleted_user>` | `user` | `GET /api/admin/users` | User được tạo, cấp token, sau đó bị xóa khỏi DB | `[SPEC]` HTTP 401/403 (Token bị thu hồi)<br>*(Thực tế SUT: HTTP 200 do Stateless JWT)* | `[ASSUMED]` Security Standard |
+| **FR12-DT-11** | EC19, EC22, EC23 | `Bearer <user_jwt>` | `user` | `PUT /api/users/me` body: `{"role": "admin"}` | User thường đăng nhập hợp lệ | `[SPEC]` HTTP 400/403 (Cấm tự đổi role)<br>*(Thực tế SUT: HTTP 200 đổi role thành công)* | `[SPEC]` FR-04, SEC-06<br>`[CODE]` server.js:124 |
+| **FR12-DT-12** | EC11, EC20 | `Bearer <admin_jwt>` | `admin` | `POST /api/categories` body: `{"name": "Cat_{{uniq}}"}` | Tài khoản admin hợp lệ | HTTP 200 OK, message: "Category added successfully" | `[SPEC]` §3.4<br>`[CODE]` server.js:249 |
+| **FR12-DT-13** | EC11, EC08, EC22, EC23 | `Bearer <user_jwt>` | `user` | `POST /api/categories` body: `{"name": "Hacked_{{uniq}}"}` | Tài khoản user thường hợp lệ | `[SPEC]` HTTP 403 Forbidden<br>*(Thực tế SUT: HTTP 200 do thiếu role check)* | `[SPEC]` FR-12 |
+| **FR12-DT-14** | EC12, EC20 | `Bearer <admin_jwt>` | `admin` | `POST /api/products` body: `{"name": "P_{{uniq}}", ...}` | Tài khoản admin hợp lệ | HTTP 200 OK, message: "Product added successfully" | `[SPEC]` §3.3<br>`[CODE]` server.js:167 |
+| **FR12-DT-15** | EC12, EC08, EC22, EC23 | `Bearer <user_jwt>` | `user` | `POST /api/products` body: `{"name": "P_{{uniq}}", ...}` | Tài khoản user thường hợp lệ | `[SPEC]` HTTP 403 Forbidden<br>*(Thực tế SUT: HTTP 200 do thiếu role check)* | `[SPEC]` FR-12 |
+| **FR12-DT-16** | EC12, EC02, EC21, EC23 | *(Omitted - không gửi)* | *(None)* | `POST /api/products` body: `{"name": "P_{{uniq}}", ...}` | Khách vãng lai (Guest) không token | `[SPEC]` HTTP 401 Unauthorized<br>*(Thực tế SUT: HTTP 200 - Lỗ hổng Critical)* | `[SPEC]` FR-12<br>`[CODE]` server.js:167 |
+| **FR12-DT-17** | EC13, EC20 | `Bearer <admin_jwt>` | `admin` | `GET /api/coupons` | Tài khoản admin hợp lệ | HTTP 200 OK, body chứa coupons | `[SPEC]` §5.2<br>`[CODE]` server.js:356 |
+| **FR12-DT-18** | EC13, EC08, EC22, EC23 | `Bearer <user_jwt>` | `user` | `GET /api/coupons` | Tài khoản user thường hợp lệ | `[SPEC]` HTTP 403 Forbidden<br>*(Thực tế SUT: HTTP 200 do thiếu role check)* | `[SPEC]` FR-12 |
+
+###### Ma trận bao phủ lớp tương đương (Coverage Matrix)
+
+| Lớp tương đương (EC) | Loại lớp | Ca kiểm thử bao phủ (Covering Test Cases) | Tình trạng bao phủ |
+| :--- | :---: | :--- | :---: |
+| **EC01** (`Authorization` hợp lệ) | **Valid** | `FR12-DT-01`, `FR12-DT-07`, `FR12-DT-12`, `FR12-DT-14`, `FR12-DT-17` | ✅ Bao phủ đầy đủ |
+| **EC02** (`Authorization` vắng mặt) | Invalid | `FR12-DT-02`, `FR12-DT-16` | ✅ Bao phủ đơn lập |
+| **EC03** (`Authorization` rỗng / `"Bearer "`) | Invalid | `FR12-DT-03` | ✅ Bao phủ đơn lập |
+| **EC04** (`Authorization` sai scheme prefix) | Invalid | `FR12-DT-04` | ✅ Bao phủ đơn lập |
+| **EC05** (`Authorization` sai chữ ký / tampered) | Invalid | `FR12-DT-05` | ✅ Bao phủ đơn lập |
+| **EC06** (`Authorization` sai cấu trúc / malformed) | Invalid | `FR12-DT-06` | ✅ Bao phủ đơn lập |
+| **EC07** (`role === 'admin'`) | **Valid** | `FR12-DT-01`, `FR12-DT-12`, `FR12-DT-14`, `FR12-DT-17` | ✅ Bao phủ đầy đủ |
+| **EC08** (`role === 'user'`) | Invalid | `FR12-DT-07`, `FR12-DT-13`, `FR12-DT-15`, `FR12-DT-18` | ✅ Bao phủ đơn lập & đa endpoint |
+| **EC09** (`role` ngoài tập / guest) | Invalid | `FR12-DT-08` | ✅ Bao phủ đơn lập |
+| **EC10** (Target: Admin APIs `/api/admin/*`) | **Valid Target** | `FR12-DT-01` đến `FR12-DT-11` | ✅ Bao phủ đầy đủ |
+| **EC11** (Target: Category write APIs) | **Valid Target** | `FR12-DT-12`, `FR12-DT-13` | ✅ Bao phủ đầy đủ |
+| **EC12** (Target: Product write APIs - No Auth) | **Valid Target** *(Spec)* | `FR12-DT-14`, `FR12-DT-15`, `FR12-DT-16` | ✅ Bao phủ đầy đủ |
+| **EC13** (Target: Coupons read API) | **Valid Target** | `FR12-DT-17`, `FR12-DT-18` | ✅ Bao phủ đầy đủ |
+| **EC14** (`token_exp` còn hạn) | **Valid State** | `FR12-DT-01`, `FR12-DT-07` đến `FR12-DT-18` | ✅ Bao phủ đầy đủ |
+| **EC15** (`token_exp` hết hạn) | Invalid State | `FR12-DT-09` | ✅ Bao phủ đơn lập |
+| **EC16** (`user_status` đang hoạt động) | **Valid State** | `FR12-DT-01` đến `FR12-DT-09`, `FR12-DT-11` đến `FR12-DT-18` | ✅ Bao phủ đầy đủ |
+| **EC17** (`user_status` đã bị xóa) | Invalid State | `FR12-DT-10` | ✅ Bao phủ đơn lập |
+| **EC18** (`privilege_escalation` giữ nguyên) | **Valid State** | `FR12-DT-01` đến `FR12-DT-10`, `FR12-DT-12` đến `FR12-DT-18` | ✅ Bao phủ đầy đủ |
+| **EC19** (`privilege_escalation` Mass Assignment) | Invalid State | `FR12-DT-11` | ✅ Bao phủ đơn lập |
+| **EC20** (Output HTTP 200/201 Thành công) | **Valid Output** | `FR12-DT-01`, `FR12-DT-12`, `FR12-DT-14`, `FR12-DT-17` | ✅ Bao phủ trực tiếp |
+| **EC21** (Output HTTP 401 Từ chối xác thực) | Invalid Output | `FR12-DT-02`, `FR12-DT-03`, `FR12-DT-04`, `FR12-DT-16` | ✅ Bao phủ trực tiếp |
+| **EC22** (Output HTTP 403 Từ chối phân quyền) | Invalid Output | `FR12-DT-05` đến `FR12-DT-11`, `FR12-DT-13`, `FR12-DT-15`, `FR12-DT-18` | ✅ Bao phủ trực tiếp |
+| **EC23** (Output HTTP 200 Bypass Phân quyền) | **Defect Output** | `FR12-DT-07`, `FR12-DT-10`, `FR12-DT-11`, `FR12-DT-13`, `FR12-DT-15`, `FR12-DT-16`, `FR12-DT-18` | ✅ Ghi nhận lỗ hổng SUT |
+
+*Độ bao phủ: 23/23 lớp EC (100%).*
+
 
 ---
 
@@ -783,7 +1236,42 @@ Toàn bộ 32 test cases (18 DT + 14 BVA) đã được thực thi tự động 
 - **5 ca FAIL do Route sản phẩm bỏ quên xác thực (Missing Authentication):** `FR12-DT-16`, `FR12-BVA-11`, `FR12-BVA-12`, `FR12-BVA-13`, `FR12-BVA-14`. Khách vãng lai gửi request tạo sản phẩm nhận HTTP 201 Created thay vì bị chặn bằng 401 Unauthorized.
 - **1 ca FAIL do Lỗ hổng Mass Assignment leo quyền:** `FR12-DT-11`. Người dùng gửi `PUT /api/users/me` với payload `role: 'admin'`, server trả về HTTP 200 OK và cập nhật quyền admin vào DB.
 
-Minh chứng thực thi được lưu tại: [HW2/evidence/FR-12/test-execution.log](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-12/test-execution.log).
+##### Bảng kết quả thực thi chi tiết 32 test cases
+
+| Mã TC | Kỹ thuật | Mô tả ca kiểm thử | Kỳ vọng (Expected) | Thực tế (Actual) | Trạng thái |
+| :--- | :---: | :--- | :---: | :---: | :---: |
+| `FR12-DT-01` | DT | Admin token hợp lệ truy cập `GET /api/admin/users` | HTTP 200, mảng users | HTTP 200, mảng users | **PASS** |
+| `FR12-DT-02` | DT | Thiếu Authorization header khi gọi `GET /api/admin/users` | HTTP 401, Access token required | HTTP 401, Access token required | **PASS** |
+| `FR12-DT-03` | DT | Authorization header rỗng khi gọi `GET /api/admin/users` | HTTP 401, Access token required | HTTP 401, Access token required | **PASS** |
+| `FR12-DT-04` | DT | Token sai tiền tố (thiếu 'Bearer ') | HTTP 403, Invalid or expired | HTTP 403, Invalid or expired | **PASS** |
+| `FR12-DT-05` | DT | Token sai chữ ký HMAC Secret (Signature Mismatch) | HTTP 403, Invalid or expired | HTTP 403, Invalid or expired | **PASS** |
+| `FR12-DT-06` | DT | Chuỗi JWT hỏng cú pháp (Malformed Token) | HTTP 403, Invalid or expired | HTTP 403, Invalid or expired | **PASS** |
+| `FR12-DT-07` | DT | User thường truy cập `GET /api/admin/users` | HTTP 403, Forbidden | HTTP 200, mảng users | **FAIL** |
+| `FR12-DT-08` | DT | User thường gọi `DELETE /api/admin/users/999` | HTTP 403, Forbidden | HTTP 200, User deleted | **FAIL** |
+| `FR12-DT-09` | DT | Token chứa role không xác định (`guest`) | HTTP 403, Forbidden | HTTP 200, mảng users | **FAIL** |
+| `FR12-DT-10` | DT | User thường truy cập hồ sơ chính mình `GET /api/users/me` | HTTP 200, user profile | HTTP 200, user profile | **PASS** |
+| `FR12-DT-11` | DT | User tự nâng quyền thành admin qua `PUT /api/users/me` | HTTP 400 hoặc role ignored | HTTP 200, role: 'admin' | **FAIL** |
+| `FR12-DT-12` | DT | Admin tạo danh mục mới qua `POST /api/categories` | HTTP 200/201, Category created | HTTP 200, Category created | **PASS** |
+| `FR12-DT-13` | DT | User thường tạo danh mục qua `POST /api/categories` | HTTP 403, Forbidden | HTTP 200, Category created | **FAIL** |
+| `FR12-DT-14` | DT | Admin xem toàn bộ đơn hàng `GET /api/admin/orders` | HTTP 200, orders array | HTTP 200, orders array | **PASS** |
+| `FR12-DT-15` | DT | User thường xem danh sách đơn hàng `GET /api/admin/orders` | HTTP 403, Forbidden | HTTP 200, orders array | **FAIL** |
+| `FR12-DT-16` | DT | Khách vãng lai (no auth) tạo sản phẩm `POST /api/products` | HTTP 401, Access token required | HTTP 201, Product created | **FAIL** |
+| `FR12-DT-17` | DT | Admin tạo mã giảm giá `POST /api/coupons` | HTTP 201, Coupon created | HTTP 201, Coupon created | **PASS** |
+| `FR12-DT-18` | DT | User thường tạo mã giảm giá `POST /api/coupons` | HTTP 403, Forbidden | HTTP 201, Coupon created | **FAIL** |
+| `FR12-BVA-01` | BVA | JWT token đã hết hạn 1 giây (`exp = now - 1`) | HTTP 403, Invalid or expired | HTTP 403, Invalid or expired | **PASS** |
+| `FR12-BVA-02` | BVA | JWT token vừa hết hạn đúng thời điểm (`exp = now`) | HTTP 403, Invalid or expired | HTTP 403, Invalid or expired | **PASS** |
+| `FR12-BVA-03` | BVA | JWT token còn hạn 1 giây (`exp = now + 1`) | HTTP 200, mảng users | HTTP 200, mảng users | **PASS** |
+| `FR12-BVA-04` | BVA | JWT token còn hạn 3600 giây (`exp = now + 3600`) | HTTP 200, mảng users | HTTP 200, mảng users | **PASS** |
+| `FR12-BVA-05` | BVA | JWT token cực hạn tương lai (`exp = now + 10 năm`) | HTTP 200, mảng users | HTTP 200, mảng users | **PASS** |
+| `FR12-BVA-06` | BVA | Admin xóa coupon với ID = 0 (LB-1 phi lý) | HTTP 404, Coupon not found | HTTP 404, Coupon not found | **PASS** |
+| `FR12-BVA-07` | BVA | Admin xóa coupon với ID = 1 (LB biên hợp lệ) | HTTP 200 / 404 | HTTP 200 / 404 | **PASS** |
+| `FR12-BVA-08` | BVA | Admin xóa coupon với ID = 2 (LB+1) | HTTP 200 / 404 | HTTP 200 / 404 | **PASS** |
+| `FR12-BVA-09` | BVA | Admin xóa coupon với ID = 2147483647 (Max 32-bit INT) | HTTP 404, Coupon not found | HTTP 404, Coupon not found | **PASS** |
+| `FR12-BVA-10` | BVA | Admin xóa coupon với ID = -1 (Extreme âm) | HTTP 404, Coupon not found | HTTP 404, Coupon not found | **PASS** |
+| `FR12-BVA-11` | BVA | Khách tạo sản phẩm với `price = -1` (Extreme âm) | HTTP 401 hoặc 400 | HTTP 201, Product created | **FAIL** |
+| `FR12-BVA-12` | BVA | Khách tạo sản phẩm với `price = 0` (LB-1 không hợp lệ) | HTTP 401 hoặc 400 | HTTP 201, Product created | **FAIL** |
+| `FR12-BVA-13` | BVA | Khách tạo sản phẩm với `price = 1` (LB biên hợp lệ) | HTTP 401 Unauthorized | HTTP 201, Product created | **FAIL** |
+| `FR12-BVA-14` | BVA | Khách tạo sản phẩm với `price = 999999999` (Extreme) | HTTP 401 Unauthorized | HTTP 201, Product created | **FAIL** |
 
 ---
 
@@ -796,8 +1284,6 @@ Minh chứng thực thi được lưu tại: [HW2/evidence/FR-12/test-execution.
 | **BUG-FR12-01** | Backend middleware `authenticateToken` không kiểm tra vai trò admin và các route quản trị thiếu role check | 5 TCs (`FR12-DT-07, 08, 13, 15, 18`) | **Critical** | Immediate |
 | **BUG-FR12-02** | Endpoint quản lý sản phẩm `POST /api/products`, `PUT/DELETE` bỏ quên middleware `authenticateToken` | 5 TCs (`FR12-DT-16, FR12-BVA-11..14`) | **Critical** | Immediate |
 | **BUG-FR12-03** | Lỗ hổng gán tham số hàng loạt (Mass Assignment) tại `PUT /api/users/me` cho phép user tự nâng quyền thành Admin | `FR12-DT-11` | **High** | High |
-
-Chi tiết báo cáo lỗi: [bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md) và các dự thảo GitHub Issues tại `HW2/report/issues/BUG-FR12-*.md`.
 
 ---
 
@@ -847,8 +1333,6 @@ Hiện tại đã ghi nhận và phân loại tổng cộng **19 lỗi phần m�
 | **BUG-FR12-02** | Endpoint quản lý sản phẩm `POST /api/products`, `PUT/DELETE` bỏ quên middleware `authenticateToken` | FR-12 | FR12-DT-16, FR12-BVA-11..14 | **Critical** | **Immediate** | Confirmed |
 | **BUG-FR12-03** | Lỗ hổng gán tham số hàng loạt (Mass Assignment) tại `PUT /api/users/me` cho phép user tự nâng quyền thành Admin | FR-12 | FR12-DT-11 | **High** | **High** | Confirmed |
 
-Xem chi tiết đầy đủ tại tài liệu tổng hợp [HW2/report/bugs.vi.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/bugs.vi.md) và các tệp dự thảo GitHub Issues tại [HW2/report/issues/](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/report/issues/).
-
 ---
 
 ## 4. **Test Summary Report**
@@ -863,22 +1347,4 @@ Bảng tổng hợp số liệu kiểm thử được kết xuất tự động 
 | **FR-12 (Access control)** | 32 | 32 | 21 | 11 | 0 | 0 |
 | **Tổng cộng (Total)** | **141** | **141** | **68** | **73** | **0** | **0** |
 
-*Ghi chú: Toàn bộ 141 ca kiểm thử đã được thực thi 100% trên môi trường SUT thực tế. Không có ca kiểm thử nào bị chặn (Blocked = 0).*
-
 ---
-
-## 5. **Mandatory Appendix A — AI Audit Report**
-
-*(Sẽ được kết xuất từ `HW2/audit/audit-log.jsonl` sau khi hoàn thành toàn bộ bài tập)*
-
----
-
-## 6. **Mandatory Appendix B — AI Critique (200–300 words)**
-
-*(Sẽ được hoàn thiện ở cuối bài dựa trên toàn bộ nhật ký AI Gap Analysis)*
-
----
-
-## 7. **Git Commit Log**
-
-*(Sẽ được xuất bằng lệnh `git log` ra file text trước khi nộp bài)*

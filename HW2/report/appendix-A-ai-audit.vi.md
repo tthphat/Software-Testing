@@ -1,0 +1,874 @@
+# Phụ lục A - AI Audit Report
+
+CS423 / CSC13003 - Kiểm chứng Phần mềm (AI-augmented · 2026) - Biểu mẫu 5 mục cho mỗi artifact
+
+## 1. Thông tin sinh viên
+
+| Mục | Giá trị |
+|---|---|
+| Họ tên sinh viên (in hoa) | TRƯƠNG THÀNH PHÁT |
+| MSSV | 23120319 |
+| Lớp / Khoá | Kiểm thử phần mềm - CQ2023/3 |
+| Mã bài tập | HW#02 |
+| Ngày làm bài | 20/10/2026 |
+| Công cụ AI đã dùng | Antigravity (Gemini 3.8 Flash), Claude Code (MiniMax-M2.1) |
+| Có dùng AI | [x] Có [ ] Không |
+
+## 2. Hướng dẫn
+Mỗi artifact do AI sinh có một mục bên dưới, gồm: (1) prompt + công cụ, (2) output AI, (3) verdict, (4) lý do (dẫn chiếu slide/ISTQB/RFC), (5) bản sinh viên sửa. Prompt và output được dán nguyên văn.
+
+## 3. Bảng audit - 1 mục / artifact
+
+| # | Bước | Công cụ | Verdict |
+|---|---|---|---|
+| A01 | FR-01 / Domain Testing / Stage 0-1 | Claude Code (MiniMax-M2.1) | INCOMPLETE |
+| A02 | FR-01 / Domain Testing / Stage 2 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A03 | FR-01 / Domain Testing / Stage 1 (Domain Value Update) | Antigravity (Gemini 3.8 Flash) | VALID |
+| A04 | FR-01 / Domain Testing / Stage 3-4 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A05 | FR-01 / BVA / Stage 1-2 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A06 | FR-01 / BVA / Stage 3-4 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A07 | FR-01 / Test Execution & Bugs | Antigravity (Gemini 3.8 Flash) | VALID |
+| A08 | FR-03 / Domain Testing / Stage 0-1 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A09 | FR-03 / Domain Testing / Stage 2 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A10 | FR-03 / Domain Testing / Stage 3-5 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A11 | FR-03 / BVA / Stage 1-4 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A12 | FR-03 / Test Execution & Triage / Stage 1-3 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A13 | FR-03 / Bug Reporting & AI Gap Analysis / Stage 4-5 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A14 | FR-03 / Summary & Main Report / Stage 6 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A15 | FR-08 / Domain Testing / Stage 0-1 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A16 | FR-08 / Domain Testing / Stage 2 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A17 | FR-08 / Domain Testing / Stage 3-5 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A18 | FR-08 / BVA / Stage 1-2 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A19 | FR-08 / BVA / Stage 3-4 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A20 | FR-08 / Test Execution / Stage 1-3 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A21 | FR-08 / Bug Reports & AI Gap Analysis / Stage 4-5 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A22 | FR-08 / Main Report Update / Stage 6 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A23 | FR-12 / Domain Testing / Stage 0-1 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A24 | FR-12 / Domain Testing / Stage 2 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A25 | FR-12 / Domain Testing / Stage 3-5 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A26 | FR-12 / BVA / Stage 1-4 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A27 | FR-12 / Test Execution & Bugs / Stage 1-5 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A28 | FR-12 / Summary & Main Report / Stage 6 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A29 | FR-20 / Domain Testing / Stage 0-2 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A30 | FR-20 / Domain Testing / Stage 3-5 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A31 | FR-20 / BVA / Stage 1-4 | Antigravity (Gemini 3.8 Flash) | VALID |
+| A32 | FR-20 / Test Execution & Bugs / Stage 1-5 | Antigravity (Gemini 3.8 Flash) | VALID |
+
+### Artifact A01 - FR-01 / Domain Testing / Stage 0-1
+
+**(1) Prompt + Công cụ** - Tool: Claude Code (MiniMax-M2.1) - Thời gian: 22:05 14/10/2026
+
+````text
+Dùng skill domain-testing cho FR-01 (Account registration).
+
+Nguồn đặc tả:
+- docs/api_specification.md (mục 1.1 POST /api/register)
+- Mã nguồn SUT trong sut/ (tìm route, controller, validator, schema DB của /api/register)
+
+Hãy làm Stage 0 và Stage 1, rồi DỪNG lại để tôi duyệt:
+1. Stage 0: liệt kê endpoint, các field request, mọi ràng buộc validation THỰC SỰ tìm thấy
+   trong code (kèm đường dẫn:dòng), các response có thể có (status + message).
+2. Stage 1: bảng biến Input / Output / State (cả trạng thái như "email đã tồn tại").
+3. Gắn thẻ nguồn [SPEC]/[CODE]/[OBSERVED]/[ASSUMED] cho từng ràng buộc.
+4. Mọi thứ không chắc chắn đưa vào "Câu hỏi mở", không được tự đoán.
+
+Không sửa mã nguồn SUT. Chưa tạo lớp tương đương, chưa viết test case.
+Báo cáo bằng tiếng Việt, lưu vào report/FR-01/01-domain-testing.vi.md (phần Stage 0-1).
+````
+
+**(2) Output AI**
+
+````text
+# FR-01: Đăng ký tài khoản (Account Registration)
+
+## Stage 0: Thu thập thông tin
+
+### 1.1 Endpoint
+- HTTP Method: POST
+- Đường dẫn: /api/register
+- Base URL: http://localhost:3000
+
+### 1.2 Request Fields
+| Tên trường | Kiểu dữ liệu | Bắt buộc | Nguồn |
+|------------|---------------|----------|-------|
+| name | String | Có (theo spec) | [SPEC] |
+| email | String | Có (theo spec) | [SPEC] |
+| password | String | Có (theo spec) | [SPEC] |
+
+### 1.3 Validation Rules - PHÁT HIỆN QUAN TRỌNG
+**KHÔNG CÓ VALIDATION TRONG CODE!**
+
+Code tại server.js:20-30 chỉ insert trực tiếp vào DB mà không kiểm tra:
+- Required fields
+- Email format
+- Password length
+- Email uniqueness (KHÔNG có UNIQUE constraint trong DB schema)
+
+### 1.4 Possible Responses
+| Status | Response | Điều kiện |
+|--------|----------|-----------|
+| 200 | { "message": "User registered successfully", "id": <id> } | Thành công |
+| 500 | { "error": <err.message> } | Lỗi database |
+
+## Stage 1: Input / Output / State Variables
+
+| Biến | Loại | Kiểu | Nguồn |
+|------|------|------|-------|
+| name | Input | String | [SPEC] |
+| email | Input | String | [SPEC] |
+| password | Input | String | [SPEC] |
+| Response.status | Output | Number | [CODE] |
+| Response.message | Output | String | [CODE] |
+| Response.error | Output | String | [CODE] |
+| Response.id | Output | Number | [CODE] |
+| existing_email | State | Boolean | [OBSERVED] |
+
+## Câu hỏi mở
+1. Validation rules thực tế? Email duplicate xử lý thế nào?
+2. Độ dài name, password tối thiểu/tối đa?
+3. Khi gửi request rỗng {}, hệ thống xử lý thế nào?
+````
+
+**(3) Verdict:** INCOMPLETE
+
+**(4) Lý do (ISTQB / slide):** INCOMPLETE - Stage 0-1 chưa hoàn chỉnh vì:
+1. Chưa liệt kê đầy đủ các response có thể có (chỉ có 200 và 500, cần kiểm tra thêm các trường hợp lỗi validation thực tế)
+2. Chưa xác nhận bằng [OBSERVED] - cần gọi API thực tế để xác minh behavior
+3. Cần xác định rõ các validation rules từ SPEC vs CODE
+
+Theo S04 Domain Testing - Step 1: cần xác định đầy đủ tất cả input/output/state variables và các ràng buộc thực tế từ cả spec và code.
+
+**(5) Bản sinh viên sửa:**
+
+````text
+# Các bổ sung cần thiết sau khi review:
+
+## Stage 0 - bổ sung:
+1. Liệt kê chi tiết đường dẫn:dòng cho mỗi phát hiện trong code
+2. Xác minh các response thực tế bằng cách gọi API (OBSERVED)
+
+## Stage 1 - bổ sung:
+1. Thêm các state variables khác nếu có (VD: database connection state)
+2. Xác định rõ hơn các output classes
+
+## Câu hỏi cần xác nhận:
+- Spec có yêu cầu validation nào khác không?
+- Hệ thống có xử lý email duplicate không?
+````
+
+### Artifact A02 - FR-01 / Domain Testing / Stage 2
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 21:26 16/10/2026
+
+````text
+Tiến hành Stage 2: Phân hoạch tương đương (Equivalence Partitioning) cho FR-01 (Account registration) theo S04 Domain Testing.
+
+Biến input: name, email, password.
+Biến state: existing_email.
+Biến output: HTTP status, message/error, user id.
+
+Áp dụng các quy tắc:
+- Range: valid + 2 invalid
+- Must be: 1 valid + 1 invalid
+- Phân hoạch đầy đủ cho missing, empty, format, type, complexity, duplicate.
+- Lập bảng Complete Set of Partitions, liệt kê câu hỏi mở và DỪNG LẠI để sinh viên duyệt.
+````
+
+**(2) Output AI**
+
+````text
+Đã xây dựng bảng 23 lớp tương đương (EC01 -> EC23) bao quát các miền giá trị valid và invalid của name, email, password, existing_email và các lớp output phản hồi theo chuẩn REST API và quan sát từ mã nguồn SUT (đối chiếu phát hiện giữa backend/server.js, frontend-web/Register.jsx, frontend-mobile/App.js).
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Đã tuân thủ đầy đủ các quy tắc phân hoạch theo slide bài giảng S04 Domain Testing: bao gồm Range, Must be, Type, Missing/Empty, State conflict (duplicate email), và Output classes. Đã chỉ rõ mâu thuẫn mã nguồn giữa backend (không validation) và frontend.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A03 - FR-01 / Domain Testing / Stage 1 (Domain Value Update)
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 16:57 17/10/2026
+
+````text
+Tôi vừa update domain-testing skill, thêm cột domain value cho các biến. hãy chạy lại stage 1 co FR-01
+````
+
+**(2) Output AI**
+
+````text
+Bổ sung cột Miền giá trị & Ràng buộc (Domain) vào Bảng biến Stage 1 trong report/FR-01/01-domain-testing.vi.md: ghi rõ tập giá trị khả dĩ, quy tắc độ dài, định dạng regex, trạng thái tồn tại và các dị biệt thực tế giữa Backend (không validation), Frontend Web (regex lỗi khoảng trắng) và Frontend Mobile (regex chuẩn).
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ theo cập nhật mới của domain-testing skill và slide S04: mỗi biến Input/Output/State đều được phân tích miền giá trị khả dĩ và ràng buộc chi tiết làm cơ sở cho Stage 2.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A04 - FR-01 / Domain Testing / Stage 3-4
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 17:19 17/10/2026
+
+````text
+Tiếp tục Stage 3 và Stage 4 cho FR-01: Chọn giá trị đại diện và thiết kế bộ test case tối thiểu kèm ma trận bao phủ coverage matrix.
+````
+
+**(2) Output AI**
+
+````text
+Đã xác định giá trị đại diện cho 23 lớp EC, sinh bộ 16 test cases tối thiểu (1 valid kết hợp, 15 invalid đơn lập), tạo ma trận bao phủ 100% đạt chuẩn S04 và xuất file máy đọc testcases/FR-01.json.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ chính xác quy tắc kết hợp slide S04: ít nhất 1 test cho mỗi lớp, kết hợp tối đa các lớp valid, mỗi lớp invalid kiểm thử đơn lập để cô lập nguyên nhân gây lỗi.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A05 - FR-01 / BVA / Stage 1-2
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 15:40 18/10/2026
+
+````text
+Dùng skill boundary-value-analysis cho FR-01. Đọc report/FR-01/01-domain-testing.vi.md và testcases/FR-01.json. Stage 1: chọn các lớp trên miền CÓ THỨ TỰ, ghi bước nhỏ nhất của từng biến, và cách đọc "<" hay "<=" của từng giới hạn. Với trường không có thứ tự, ghi "BVA không áp dụng" kèm lý do; không bịa biên. Stage 2: chọn biến thể 3-value (LB-1, LB, LB+1, UB-1, UB, UB+1) và nói rõ lý do; nêu số giá trị/biên và tổng số. Cho tôi xem trước khi sinh test case.
+````
+
+**(2) Output AI**
+
+````text
+Đã xác định 2 biến có thứ tự (name.length và password.length) với khoảng hợp lệ, dạng đóng/mở và bước nhảy 1 ký tự; lập bảng giải thích lý do không áp dụng BVA cho email, độ phức tạp password, existing_email và các output; chọn biến thể 3-value BVA (4 biên x 3 = 12 giá trị + 3 điểm extreme/nominal = 15 giá trị) lưu tại report/FR-01/02-boundary-value-analysis.vi.md.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ đúng quy tắc BVA của môn học CSC13003: chỉ chọn miền có thứ tự, không bịa biên cho biến không có thứ tự, áp dụng biến thể 3-value và mô hình 9 điểm.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A06 - FR-01 / BVA / Stage 3-4
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 16:07 18/10/2026
+
+````text
+Tiếp tục Stage 3 và Stage 4 cho BVA FR-01: Thiết kế 14 test cases BVA chi tiết (FR01-BVA-01 -> FR01-BVA-14) và cập nhật vào file testcases/FR-01.json.
+````
+
+**(2) Output AI**
+
+````text
+Đã thiết kế 14 ca kiểm thử BVA (biến thiên từng biến độc lập, giữ các biến khác danh định), kiểm thử các điểm LB, LB+1, UB-1, UB, UB+1, cực trị vật lý (extreme) và biên mã hóa UTF-8; xuất dữ liệu JSON vào testcases/FR-01.json và cập nhật báo cáo 02-boundary-value-analysis.vi.md.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ đúng quy tắc BVA: biến thiên 1 biến tại 1 thời điểm, chỉ rõ lỗi code sẽ bắt được (Fault it would catch), tính toán chính xác độ dài chuỗi.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A07 - FR-01 / Test Execution & Bugs
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 21:30 18/10/2026
+
+````text
+Tiến hành thực thi kiểm thử FR-01 với test runner và phân loại lỗi bug report
+````
+
+**(2) Output AI**
+
+````text
+Thực thi 30 ca kiểm thử (10 PASS, 20 FAIL, 0 BLOCKED). Phân loại 20 lỗi FAIL thành 5 bug reports (BUG-FR01-01 -> BUG-FR01-05), tạo 5 bản thảo GitHub issues tại report/issues/, lập báo cáo tổng hợp lỗi report/bugs.vi.md và báo cáo chi tiết report/FR-01/03-execution-and-gap-analysis.vi.md, thực hiện phân tích khoảng trống AI Gap Analysis và ghi nhận cải tiến v1->v2 trong skills-changelog.md.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ đầy đủ quy trình kỹ năng test-execution-and-bugs: chạy runner thực tế với live backend SUT, ghi nhận kết quả không ngụy tạo, phân loại lỗi theo 4 nhóm nguyên nhân, tài liệu hóa đầy đủ bằng tiếng Việt có dấu kèm mã lỗi chuẩn.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A08 - FR-03 / Domain Testing / Stage 0-1
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 18:55 19/10/2026
+
+````text
+Dùng skill domain-testing cho FR-03 — Forgot password and password reset. Nguồn đặc tả: docs/api_specification.md ; mã nguồn trong sut. Làm Stage 0 và Stage 1, rồi DỪNG để tôi duyệt: Stage 0 (endpoint, field request, validation trong code, responses), Stage 1 (bảng biến Input / Output / State kèm Domain), gắn thẻ nguồn [SPEC]/[CODE]/[ASSUMED], câu hỏi mở, không sửa mã SUT, chưa tạo lớp tương đương. Báo cáo tiếng Việt vào report/FR-03/01-domain-testing.vi.md.
+````
+
+**(2) Output AI**
+
+````text
+Khảo sát đặc tả quy trình 2 bước khôi phục mật khẩu (POST /api/forgot-password và POST /api/reset-password); phát hiện lỗi bảo mật lộ OTP qua HTTP response và không có hạn sử dụng; áp dụng Cross-platform Skew Checklist v2 phát hiện mâu thuẫn OTP 4 số (code/web) vs 6 số (spec) và regex password Web (lỗi \s) vs Mobile (chuẩn ký tự đặc biệt); lập Bảng biến Input/Output/State kèm Miền giá trị (Domains) lưu tại report/FR-03/01-domain-testing.vi.md.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ đầy đủ quy trình Stage 0-1 của S04 Domain Testing và skill v2: khảo sát đối chiếu cả 3 tầng hệ thống (Backend, Web, Mobile), gắn nhãn nguồn [SPEC]/[CODE]/[ASSUMED], lập bảng biến đầy đủ miền giá trị và nêu rõ câu hỏi mở.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A09 - FR-03 / Domain Testing / Stage 2
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 19:53 19/10/2026
+
+````text
+Tiến hành Stage 2: Phân hoạch tương đương (Equivalence Partitioning) cho FR-03 theo S04 Domain Testing cho cả 2 bước khôi phục mật khẩu.
+````
+
+**(2) Output AI**
+
+````text
+Đã xây dựng bảng phân hoạch 31 lớp tương đương (EC01 -> EC31) bao quát: Step 1 email (valid, non-existent 404, rỗng, thiếu, sai cú pháp, sai type), Step 2 email (matching, mismatch, rỗng/thiếu), Step 2 resetToken (đúng 4 số, sai số, sai độ dài 3/6 số, rỗng/thiếu, single-use đã dùng, cross-account, chưa từng yêu cầu), Step 2 newPassword (chuẩn mạnh, ngắn < 8, thiếu hoa, thiếu thường, thiếu số, thiếu ký tự đặc biệt / Web regex skew, rỗng/thiếu, quá dài > 128) và các lớp Output. Đã cập nhật vào report/FR-03/01-domain-testing.vi.md và dừng chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt các quy tắc phân hoạch theo slide bài giảng S04 Domain Testing (Range, Must be, Type, Missing/Empty, State conflict, Cross-platform skew, Output classes) cho cả 2 bước của quy trình khôi phục mật khẩu có trạng thái.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A10 - FR-03 / Domain Testing / Stage 3-5
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 20:00 19/10/2026
+
+````text
+Tiếp tục Stage 3 đến Stage 5 cho FR-03: Chọn giá trị đại diện cho 31 lớp EC, thiết kế bộ test case tối thiểu kèm ma trận bao phủ coverage matrix 100% và xuất file máy đọc testcases/FR-03.json.
+````
+
+**(2) Output AI**
+
+````text
+Đã xác định giá trị đại diện cho 31 lớp tương đương; thiết kế bộ 22 ca kiểm thử tối thiểu (FR03-DT-01 đến FR03-DT-22 gồm 1 valid kết hợp và 21 invalid đơn lập); lập ma trận bao phủ 100%; phân tích tự kiểm tra blind spots và nguyên tắc Zero-Trust SUT; xuất file máy đọc testcases/FR-03.json; cập nhật đầy đủ báo cáo report/FR-03/01-domain-testing.vi.md.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ chính xác nguyên tắc kết hợp slide S04 Domain Testing (ít nhất 1 test cho mỗi lớp, kết hợp tối đa các lớp valid, mỗi lớp invalid kiểm thử đơn lập để cô lập lỗi) và xuất đầy đủ tệp JSON máy đọc.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A11 - FR-03 / BVA / Stage 1-4
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 20:13 19/10/2026
+
+````text
+Thực thi kỹ thuật Boundary Value Analysis (BVA) cho FR-03 theo skill v2: xác định miền có thứ tự, biến thể 3-value BVA + mô hình 9 điểm + biên mã hóa tiếng Việt UTF-8, sinh 15 ca kiểm thử BVA và cập nhật file máy đọc testcases/FR-03.json.
+````
+
+**(2) Output AI**
+
+````text
+Xác định 2 miền có thứ tự: newPassword.length [8, 128] và resetToken.length/value; lập bảng giải thích lý do không áp dụng BVA cho email, boolean, enum; áp dụng biến thể 3-value BVA, mô hình 9 điểm (extremes 0 và 10,000) và quy tắc v2.0 Encoding Rule (tiếng Việt có dấu tại UB 128); sinh 15 ca kiểm thử BVA (FR03-BVA-01 đến FR03-BVA-15) kèm cột 'Lỗi code sẽ bắt được'; lưu báo cáo report/FR-03/02-boundary-value-analysis.vi.md và cập nhật testcases/FR-03.json (nâng tổng số lên 37 TCs).
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ chặt chẽ nguyên tắc BVA của môn học CSC13003: chỉ chọn miền có thứ tự, áp dụng biến thể 3-value, tích hợp quy tắc mã hóa Unicode v2.0, không bịa biên cho biến không thứ tự, số lượng test case khớp với công cụ summary.mjs.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A12 - FR-03 / Test Execution & Triage / Stage 1-3
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 20:45 19/10/2026
+
+````text
+Thực thi toàn bộ 37 ca kiểm thử (22 DT + 15 BVA) cho FR-03 đối với SUT backend và thực hiện phân loại lỗi (triage) Stage 3.
+````
+
+**(2) Output AI**
+
+````text
+Đã chạy 37 ca kiểm thử API tự động qua run_cases.mjs: 21 PASS, 16 FAIL, 0 BLOCKED. Phân loại 16 ca thất bại: 11 ca do backend hoàn toàn thiếu validation newPassword (trả 200 thay vì 400), 5 ca do thiếu input validation trên endpoint forgot-password (trả 404 thay vì 400). Phát hiện thêm 2 lỗ hổng bảo mật nghiêm trọng: lộ OTP trong response và thiếu cơ chế hết hạn token.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nguyên tắc Zero-Trust SUT, tự động tạo token động cho các test case reset-password, kiểm thử thực tế trên SUT không giả lập, kết quả 21 PASS / 16 FAIL phản ánh đúng bản chất code backend.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A13 - FR-03 / Bug Reporting & AI Gap Analysis / Stage 4-5
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 20:58 19/10/2026
+
+````text
+Tiến hành Stage 4 (Soạn thảo báo cáo lỗi và dự thảo GitHub Issues) và Stage 5 (Phân tích khoảng trống AI Gap Analysis) cho FR-03.
+````
+
+**(2) Output AI**
+
+````text
+Đã cập nhật bugs.vi.md với 4 lỗi (BUG-FR03-01 đến BUG-FR03-04); tạo 4 file dự thảo GitHub Issues trong report/issues/; hoàn thành báo cáo phân tích khoảng trống và thực thi report/FR-03/03-execution-and-gap-analysis.vi.md; cập nhật nâng cấp kỹ năng v2.1 trong skills-changelog.md.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ cấu trúc báo cáo lỗi chuẩn, phân loại khoảng trống theo đúng 3 nhóm bắt buộc (Prompt/input quality, Tool limitation, Inherent feature complexity), gắn thẻ nguồn đầy đủ và dừng lại chờ duyệt theo checkpoint Stage 5.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A14 - FR-03 / Summary & Main Report / Stage 6
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 21:38 19/10/2026
+
+````text
+Tiến hành Stage 6: Tổng hợp số liệu từ summary.mjs, cập nhật đầy đủ báo cáo Section 3.3, 3.6, 4 trong 23120319_HW02_Main_Report.md và README.md cho FR-03.
+````
+
+**(2) Output AI**
+
+````text
+Đã cập nhật toàn diện phần FR-03 (Mục 3.3) trong 23120319_HW02_Main_Report.md đầy đủ 7 tiểu mục; cập nhật bảng tổng hợp 9 lỗi phần mềm trong Mục 3.6; cập nhật bảng tổng kết 67 ca kiểm thử (31 PASS, 36 FAIL, 0 BLOCKED) từ summary.mjs vào Mục 4 và README.md; tích các mục đã hoàn thành trong checklist README.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Số liệu đồng bộ 100% từ công cụ script summary.mjs (67 ca kiểm thử, 9 lỗi), cấu trúc báo cáo chính đầy đủ, nhất quán với chuẩn phân tích của FR-01.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A15 - FR-08 / Domain Testing / Stage 0-1
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 21:48 19/10/2026
+
+````text
+Tiến hành Stage 0 và Stage 1 cho tính năng FR-08 (Checkout - Thanh toán & Đặt hàng): khảo sát endpoint, field request, validation thực tế trong code SUT, đối chiếu chéo 3 tầng Web/Mobile/Backend, lập bảng biến và miền giá trị, liệt kê câu hỏi mở.
+````
+
+**(2) Output AI**
+
+````text
+Đã khảo sát endpoint POST /api/checkout; phát hiện nhiều lỗ hổng và dị biệt nghiêm trọng: Web cho phép người dùng tự sửa giá thanh toán trong input editableTotal, Mobile tự cắt bỏ sản phẩm cuối cùng trong giỏ hàng (cart.slice(0, -1)), Backend hoàn toàn không validate số tiền (nhận tiền âm, 0, chuỗi) và không lưu danh sách sản phẩm (không có bảng order_items), cả Web và Mobile đều không có trường shipping_address; lập bảng 7 biến Input/Output/State kèm miền giá trị; lập 4 câu hỏi mở; xuất báo cáo report/FR-08/01-domain-testing.vi.md và dừng lại chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt nguyên tắc Stage 0 và Stage 1 của bài giảng S04 và skill v2.0 (Cross-platform Skew Checklist), gắn thẻ nguồn đầy đủ [SPEC], [CODE], [ASSUMED], không tự đoán, dừng lại đúng checkpoint.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A16 - FR-08 / Domain Testing / Stage 2
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 21:52 19/10/2026
+
+````text
+Tiến hành Stage 2: Phân hoạch tương đương (Equivalence Partitioning) cho FR-08 theo slide bài giảng S04 Domain Testing.
+````
+
+**(2) Output AI**
+
+````text
+Đã xây dựng bảng 31 lớp tương đương (EC01 đến EC31) bao quát: auth_token (hợp lệ, thiếu header 401, token sai 403, rỗng), total_amount (hợp lệ khớp giỏ hàng, số 0, số âm, thao túng sửa giá editableTotal, chuỗi, boolean, float, thiếu field, null), shipping_address (hợp lệ, rỗng, khoảng trắng, thiếu field, sai type, payload lớn), cart_state (có hàng vs rỗng), stock_state (đủ tồn kho vs vượt tồn kho), coupon_state (không dùng, hợp lệ, sai/hết hạn), mobile_skew (cắt bỏ sản phẩm cuối cart.slice(0, -1)), và Output classes (200, 400, 401, 403). Cập nhật vào report/FR-08/01-domain-testing.vi.md và dừng lại chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ đầy đủ các kỹ thuật phân hoạch Range, Must be, Type, Missing/Empty, State conflict, Cross-platform skew, Output của CSC13003 S04, cô lập rõ ràng các điều kiện biên và dị biệt logic.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A17 - FR-08 / Domain Testing / Stage 3-5
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 22:08 19/10/2026
+
+````text
+Tiến hành Stage 3, Stage 4 và Stage 5 của Kiểm thử miền cho FR-08: chọn giá trị đại diện cho 31 lớp tương đương, thiết kế bộ 22 ca kiểm thử tối thiểu kèm ma trận bao phủ 100%, thực hiện self-check và đánh giá blind spots, cập nhật báo cáo và xuất file HW2/testcases/FR-08.json.
+````
+
+**(2) Output AI**
+
+````text
+Đã chọn giá trị đại diện cho toàn bộ 31 ECs; thiết kế bộ 22 ca kiểm thử miền tối thiểu (FR08-DT-01 đến FR08-DT-22) tuân thủ nguyên tắc kết hợp lớp hợp lệ và cô lập lỗi đơn; xây dựng ma trận bao phủ 100% (31/31 ECs); xuất tệp HW2/testcases/FR-08.json; phân tích các hạn chế kỹ thuật (blind spots về biên, concurrency, SQLi/XSS); cập nhật vào report/FR-08/01-domain-testing.vi.md và dừng lại chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ chặt chẽ slide S04 CSC13003, nguyên tắc single-fault isolation, ma trận bao phủ đầy đủ 100%, định dạng test suite chuẩn xác, dừng lại đúng checkpoint.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A18 - FR-08 / BVA / Stage 1-2
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 22:20 19/10/2026
+
+````text
+Tiến hành Stage 1 (Xác định miền có thứ tự) và Stage 2 (Lựa chọn biến thể BVA và mô hình điểm kiểm thử) cho FR-08 (Checkout) theo kỹ năng boundary-value-analysis v2.0.
+````
+
+**(2) Output AI**
+
+````text
+Đã xác định 3 miền có thứ tự: total_amount (numeric 1 đến 2,147,483,647), shipping_address.length (5 đến 255 chars), cart_items_count / cart.length (1 đến 100); phân tích 5 trường không áp dụng BVA (auth_token, user_id, order status, coupon_id, items array) kèm giải trình kỹ thuật; chọn biến thể 3-value BVA (LB-1, LB, LB+1, UB-1, UB, UB+1), mô hình 9 điểm (Nominal, Physical Extremes), và Encoding Boundary Rule v2.0 cho chuỗi UTF-8 tiếng Việt; lập bảng tổng hợp các điểm biên; xuất báo cáo HW2/report/FR-08/02-boundary-value-analysis.vi.md và dừng lại chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt nguyên tắc chỉ áp dụng BVA trên ordered domains, không bịa biên giả, chọn 3-value BVA khớp slide S04 CSC13003, tích hợp quy tắc v2.0 tiếng Việt UTF-8 và Mobile skew, dừng lại đúng checkpoint.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A19 - FR-08 / BVA / Stage 3-4
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 22:36 19/10/2026
+
+````text
+Tiến hành Stage 3 (Thiết kế test cases BVA, sinh dữ liệu chuỗi có kiểm tra độ dài bằng code) và Stage 4 (Tự kiểm tra Self-check, phân tích điểm mù blind spots, cập nhật HW2/testcases/FR-08.json) cho FR-08.
+````
+
+**(2) Output AI**
+
+````text
+Đã thiết kế 20 ca kiểm thử BVA (FR08-BVA-01 đến FR08-BVA-20) tuân thủ nguyên tắc đơn biến (single-fault assumption); bổ sung cột 'Lỗi code sẽ bắt được'; sinh dữ liệu chuỗi kiểm tra độ dài bằng script Node.js (chuỗi ASCII 254, 255, 256, chuỗi 255 tiếng Việt UTF-8 có dấu 330 bytes theo v2.0 rule, payload DoS 10,000 ký tự); cập nhật 20 ca BVA vào HW2/testcases/FR-08.json (nâng tổng số test cases lên 42); phân tích 4 blind spots của BVA (Price tampering, SQLi/XSS, Concurrency overselling, Zero validation defect); hoàn thiện report HW2/report/FR-08/02-boundary-value-analysis.vi.md và dừng lại chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt kỹ năng BVA CSC13003 S04, nguyên tắc đơn biến, sinh dữ liệu chuỗi chuẩn xác, tích hợp quy tắc v2.0 UTF-8 tiếng Việt, dừng lại đúng checkpoint.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A20 - FR-08 / Test Execution / Stage 1-3
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 22:45 19/10/2026
+
+````text
+Tiến hành Stage 1 (Chuẩn bị môi trường), Stage 2 (Thực thi 42 test cases) và Stage 3 (Phân loại lỗi Triage) cho FR-08 (Checkout) qua test runner run_cases.mjs.
+````
+
+**(2) Output AI**
+
+````text
+Đã thực thi 42/42 test cases (16 PASS, 26 FAIL, 0 BLOCKED); lưu minh chứng tại HW2/evidence/FR-08/test-execution.log; cập nhật kết quả vào HW2/testcases/FR-08.json; phân loại 26 ca FAIL về 7 lỗi phần mềm cốt lõi (BUG-FR08-01: thiếu validation total_amount, BUG-FR08-02: thao túng giá parameter tampering, BUG-FR08-03: thiếu validation shipping_address và UI thiếu field, BUG-FR08-04: checkout giỏ hàng rỗng, BUG-FR08-05: Mobile cắt xén sản phẩm cuối, BUG-FR08-06: không trừ tồn kho overselling và thiếu order_items, BUG-FR08-07: không validate coupon khi checkout); tạo báo cáo HW2/report/FR-08/03-execution-and-gap-analysis.vi.md và dừng lại chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt kỹ năng test-execution-and-bugs, nguyên tắc Zero-Trust SUT, quy trình phân loại lỗi chính xác, lưu đầy đủ log minh chứng, dừng lại đúng checkpoint Stage 3.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A21 - FR-08 / Bug Reports & AI Gap Analysis / Stage 4-5
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 22:58 19/10/2026
+
+````text
+Tiến hành Stage 4 (Soạn thảo báo cáo lỗi và các GitHub Issue drafts) và Stage 5 (Phân tích khoảng trống AI Gap Analysis & nâng cấp kỹ năng v2.2) cho FR-08 (Checkout).
+````
+
+**(2) Output AI**
+
+````text
+Đã soạn thảo chi tiết 7 lỗi phần mềm trong HW2/report/bugs.vi.md và tạo 7 bản thảo GitHub Issues trong HW2/report/issues/ (BUG-FR08-01 đến BUG-FR08-07); phân tích 4 khoảng trống AI cốt lõi (Client-trusted Financial Parameter Bias, Frontend UI Input Defect, Missing DB Entity order_items & Overselling, Deliberate Client-Side Tampering); nâng cấp bộ kỹ năng v2.2 trong skills-changelog.md; hoàn thiện báo cáo HW2/report/FR-08/03-execution-and-gap-analysis.vi.md và dừng lại chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt kỹ năng test-execution-and-bugs, chuẩn bị đầy đủ 7 issue drafts, phân loại đúng 3 nhóm gap của đề bài, nâng cấp skills v2.2, dừng lại đúng checkpoint Stage 5.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A22 - FR-08 / Main Report Update / Stage 6
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 23:06 19/10/2026
+
+````text
+Tiến hành Stage 6: Cập nhật tài liệu báo cáo chính HW2/23120319_HW02_Main_Report.md, tích hợp toàn bộ kết quả kiểm thử FR-08 (Checkout), đồng bộ danh mục 16 lỗi phần mềm và cập nhật số liệu Test Summary Report 109 ca kiểm thử.
+````
+
+**(2) Output AI**
+
+````text
+Đã cập nhật Section 2 đánh dấu hoàn thành 100% cho FR-08; bổ sung toàn diện Section 3.4 (FR-08 Checkout: khảo sát mã nguồn, phân tích miền 31 ECs, 22 TCs DT, 20 TCs BVA 3-value/9-point/UTF-8, bảng kết quả thực thi 42 TCs, phân loại 7 lỗi phần mềm, phân tích khoảng trống AI v2.2 và hạn chế kỹ thuật); cập nhật Section 3.6 với bảng tổng hợp 16 bugs; đồng bộ Section 4 với bảng thống kê 109 ca kiểm thử (47 PASS, 62 FAIL, 0 BLOCKED).
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Đồng bộ chuẩn xác và đầy đủ kết quả kiểm thử trên toàn bộ các tài liệu tổng hợp của đồ án, số liệu thống kê khớp 100% với script summary.mjs và log thực thi.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A23 - FR-12 / Domain Testing / Stage 0-1
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 22:12 19/10/2026
+
+````text
+Dùng skill domain-testing cho FR-12 — Access control. Nguồn đặc tả: docs/api_specification.md ; mã nguồn trong sut/. Làm Stage 0 và Stage 1, rồi DỪNG để tôi duyệt: Stage 0: endpoint, field request, mọi ràng buộc validation THỰC SỰ có trong code (kèm đường dẫn:dòng), các response có thể có (status + message). Stage 1: bảng biến Input / Output / State. Gắn thẻ nguồn cho từng ràng buộc. Điều chưa chắc đưa vào 'Câu hỏi mở', không tự đoán. Không sửa mã SUT. Chưa tạo lớp tương đương. Báo cáo tiếng Việt vào HW2/report/FR-12/01-domain-testing.vi.md.
+````
+
+**(2) Output AI**
+
+````text
+Khảo sát 14 endpoint thuộc phạm vi FR-12; phát hiện 3 phát hiện mã nguồn nghiêm trọng: (1) Toàn bộ route admin không kiểm tra role === 'admin' trong handler, (2) Route POST/PUT/DELETE /api/products hoàn toàn không có authenticateToken, (3) Lỗ hổng leo quyền tại PUT /api/users/me cho phép sửa role trong DB; lập bảng 4 biến Input, 3 biến State, 3 biến Output kèm miền giá trị; lập 5 câu hỏi mở và lưu tại HW2/report/FR-12/01-domain-testing.vi.md.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ đầy đủ quy trình Stage 0-1 của S04 Domain Testing và quy tắc kiểm thử truy cập: khảo sát toàn diện 14 endpoint, gắn nhãn nguồn [SPEC]/[CODE]/[ASSUMED], chỉ rõ đường dẫn và dòng mã nguồn của từng phát hiện, lập bảng biến và miền giá trị đầy đủ.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A24 - FR-12 / Domain Testing / Stage 2
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 22:22 19/10/2026
+
+````text
+Tiến hành Stage 2: Phân hoạch tương đương (Equivalence Partitioning) cho FR-12 theo bài giảng S04 Domain Testing. Phân hoạch biến Input, State, Output; lập bảng Complete Set of Partitions; phân tích chuyên sâu các lỗ hổng an ninh của FR-12 và dừng lại để sinh viên duyệt.
+````
+
+**(2) Output AI**
+
+````text
+Đã xây dựng bảng phân hoạch hoàn chỉnh 23 lớp tương đương (EC01 -> EC23) bao quát: Authorization header (hợp lệ, thiếu, rỗng, sai tiền tố, sai chữ ký, malformed), token_role (admin, user, ngoài tập), target_endpoint (Admin APIs, Category write, Product write không auth, Coupons), trạng thái token_exp, trạng thái user_status, trạng thái leo quyền privilege_escalation, và 4 lớp Output; phân tích 4 rủi ro an ninh và lập 4 câu hỏi mở; cập nhật vào HW2/report/FR-12/01-domain-testing.vi.md và dừng chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt các quy tắc phân hoạch theo slide bài giảng S04 Domain Testing: Range of values, Set of values, Must be, Split class do cơ chế xử lý trong code khác nhau (nhóm Product write bỏ quên auth), và Output classes; dừng lại đúng checkpoint Stage 2.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A25 - FR-12 / Domain Testing / Stage 3-5
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 22:50 19/10/2026
+
+````text
+Tiếp tục Stage 3 đến Stage 5 cho FR-12: Chọn giá trị đại diện cho 23 lớp EC, thiết kế bộ test case tối thiểu kèm ma trận bao phủ coverage matrix 100% và xuất file máy đọc testcases/FR-12.json.
+````
+
+**(2) Output AI**
+
+````text
+Đã xác định giá trị đại diện cho 23 lớp tương đương; thiết kế bộ 18 ca kiểm thử tối thiểu (FR12-DT-01 đến FR12-DT-18 gồm 1 baseline valid kết hợp, 10 invalid đơn lập và 7 ca kiểm tra chéo các nhóm endpoint); lập ma trận bao phủ 100%; tự kiểm tra blind spots; xuất file máy đọc testcases/FR-12.json; cập nhật đầy đủ báo cáo HW2/report/FR-12/01-domain-testing.vi.md.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ chính xác nguyên tắc kết hợp slide S04 Domain Testing (ít nhất 1 test cho mỗi lớp, kết hợp tối đa các lớp valid, mỗi lớp invalid kiểm thử đơn lập để cô lập lỗi), kiểm tra chéo cả 4 nhóm endpoint, xuất đầy đủ tệp JSON máy đọc khớp với công cụ summary.mjs.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A26 - FR-12 / BVA / Stage 1-4
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 23:00 19/10/2026
+
+````text
+Thực thi kỹ thuật Boundary Value Analysis (BVA) cho FR-12 theo bài giảng S04 và tài liệu eshop-features.md: xác định miền có thứ tự, biến thể 3-value BVA + mô hình 9 điểm + quy tắc mã hóa tiếng Việt UTF-8 v2.0, sinh 14 ca kiểm thử BVA và cập nhật file máy đọc testcases/FR-12.json.
+````
+
+**(2) Output AI**
+
+````text
+Xác định các miền có thứ tự cho FR-12 (token.exp, param.id, product write price/stock/name.length); lập danh sách các trường không áp dụng BVA (role, scheme, signature, method); áp dụng biến thể 3-value BVA, mô hình 9 điểm (extremes 0, 2147483647, -1, 999999999) và quy tắc v2.0 Encoding Rule (tiếng Việt có dấu 100 ký tự); sinh 14 ca kiểm thử BVA (FR12-BVA-01 đến FR12-BVA-14) kèm cột 'Lỗi code sẽ bắt được'; lưu báo cáo HW2/report/FR-12/02-boundary-value-analysis.vi.md và cập nhật testcases/FR-12.json (nâng tổng số lên 32 TCs).
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ đúng quy tắc BVA của môn học CSC13003 và tài liệu chỉ dẫn eshop-features.md: chỉ chọn miền có thứ tự, không bịa biên cho biến rời rạc, áp dụng biến thể 3-value, mô hình 9 điểm, số lượng test case khớp 100% với công cụ summary.mjs (32 TCs).
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A27 - FR-12 / Test Execution & Bugs / Stage 1-5
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 23:25 19/10/2026
+
+````text
+Tiến hành thực thi kiểm thử FR-12 (32 test cases) với test runner, phân loại lỗi Stage 3, soạn thảo báo cáo lỗi Stage 4 (cập nhật bugs.vi.md và tạo GitHub Issues draft) và phân tích khoảng trống AI Gap Analysis Stage 5 (cập nhật skills-changelog.md v2.2).
+````
+
+**(2) Output AI**
+
+````text
+Đã thực thi 32 ca kiểm thử API qua run_cases.mjs (21 PASS, 11 FAIL, 0 BLOCKED). Phân loại 11 ca thất bại thành 3 lỗi phần mềm gốc rễ: BUG-FR12-01 (thiếu kiểm tra role admin ở routes quản trị - 5 TCs), BUG-FR12-02 (bỏ quên authenticateToken ở routes products - 5 TCs), BUG-FR12-03 (leo quyền qua Mass Assignment tại PUT /api/users/me - 1 TC). Đã cập nhật bugs.vi.md, tạo 3 bản thảo GitHub Issues trong report/issues/, hoàn thành báo cáo HW2/report/FR-12/03-execution-and-gap-analysis.vi.md, và bổ sung nâng cấp kỹ năng v2.2 trong skills-changelog.md.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt kỹ năng test-execution-and-bugs và nguyên tắc Zero-Trust SUT: thực thi kiểm thử thực tế trên live backend SUT (kết quả 21 PASS / 11 FAIL khớp 100% với summary.mjs), phân loại lỗi theo bản chất mã nguồn, tài liệu hóa đầy đủ bằng tiếng Việt có dấu kèm mã lỗi chuẩn, phân tích khoảng trống AI theo đúng 3 nhóm bắt buộc và dừng lại đúng checkpoint.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A28 - FR-12 / Summary & Main Report / Stage 6
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 23:42 19/10/2026
+
+````text
+Tiến hành Stage 6: Tổng hợp số liệu từ summary.mjs, cập nhật đầy đủ báo cáo Section 3.5, 3.6, 4 trong 23120319_HW02_Main_Report.md và README.md cho tính năng FR-12 (Access control).
+````
+
+**(2) Output AI**
+
+````text
+Đã cập nhật toàn diện phần FR-12 (Mục 3.5) trong 23120319_HW02_Main_Report.md đầy đủ 7 tiểu mục; cập nhật bảng tổng hợp 12 lỗi phần mềm trong Mục 3.6; cập nhật bảng tổng kết 99 ca kiểm thử (52 PASS, 47 FAIL, 0 BLOCKED) từ summary.mjs vào Mục 4 và README.md; đánh dấu hoàn thành checklist cho FR-12 trong README.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Số liệu đồng bộ 100% từ công cụ script summary.mjs (99 ca kiểm thử, 12 lỗi), cấu trúc báo cáo chính đầy đủ 7 tiểu mục đồng bộ với chuẩn của FR-01 và FR-03.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A29 - FR-20 / Domain Testing / Stage 0-2
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 11:50 20/10/2026
+
+````text
+Áp dụng Domain Testing (phân hoạch tương đương) cho tính năng FR-20: Mobile Login & Logout (Pool D) theo phương pháp 4 bước CSC13003/S04: khảo sát mã nguồn App.js và server.js, xác định biến/miền giá trị, xây dựng bảng 24 lớp tương đương (EC01-EC24) và dừng lại chờ duyệt Stage 2.
+````
+
+**(2) Output AI**
+
+````text
+Đã khảo sát toàn diện mã nguồn Backend (server.js:32-66) và Mobile (App.js:161-207, 759-795); bóc tách các mâu thuẫn đa nền tảng (cơ chế khóa tài khoản +2, lộ mật khẩu plain-text, nhãn Username vs Email, nút Sign In vi phạm FR-21, lỗi không xóa giỏ hàng khi logout); xác định 5 biến vào/trạng thái và 5 biến ra; xây dựng 24 lớp tương đương hoàn chỉnh (EC01-EC24); lưu báo cáo tại HW2/report/FR-20/01-domain-testing.vi.md và dừng lại chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt kỹ năng domain-testing: nguồn dữ kiện có source tags ([SPEC], [CODE]), phân hoạch đầy đủ valid/invalid theo quy tắc S04, bóc tách cross-platform skew và dừng lại đúng checkpoint Stage 2.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A30 - FR-20 / Domain Testing / Stage 3-5
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 11:55 20/10/2026
+
+````text
+Tiến hành Stage 3 đến Stage 5 cho FR-20 (Mobile Login & Logout): chọn giá trị đại diện cho 24 lớp EC, thiết kế bộ 20 test cases tối thiểu kèm ma trận bao phủ 100%, phân tích điểm mù và xuất file máy đọc testcases/FR-20.json.
+````
+
+**(2) Output AI**
+
+````text
+Đã chọn giá trị đại diện cho 24 lớp EC; thiết kế bộ 20 ca kiểm thử tối thiểu (FR20-DT-01 đến FR20-DT-20 gồm 2 baseline hợp lệ, 11 ca kiểm thử dữ liệu tiêu cực, 3 ca kiểm thử logic khóa tài khoản và an toàn mật khẩu, 4 ca kiểm thử Mobile UI và rò rỉ phiên giỏ hàng khi logout); xây dựng ma trận bao phủ 100% (24/24 ECs); xuất tệp máy đọc HW2/testcases/FR-20.json; hoàn tất cập nhật báo cáo HW2/report/FR-20/01-domain-testing.vi.md và dừng lại chờ duyệt.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt phương pháp 4 bước CSC13003/S04 Domain Testing: ít nhất 1 ca kiểm thử cho mỗi lớp, cô lập lỗi đơn (single-fault assumption), ma trận bao phủ đạt 100%, tệp JSON máy đọc hợp lệ và dừng lại đúng checkpoint.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A31 - FR-20 / BVA / Stage 1-4
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 12:00 20/10/2026
+
+````text
+Thực thi kỹ thuật Boundary Value Analysis (BVA) cho FR-20 (Mobile Login & Logout): xác định miền có thứ tự, biến thể 3-value BVA + mô hình 9 điểm + quy tắc mã hóa tiếng Việt UTF-8 v2.0, sinh 14 ca kiểm thử BVA và cập nhật file máy đọc testcases/FR-20.json.
+````
+
+**(2) Output AI**
+
+````text
+Xác định 4 miền có thứ tự (password.length 8-128, email.length 6-254, login_attempts 0-2, locked_until); lập danh sách các trường không áp dụng BVA (role, token, format, session_state); áp dụng biến thể 3-value BVA, mô hình 9 điểm (extremes 0, 10000) và quy tắc UTF-8 v2.0; sinh 14 ca kiểm thử BVA (FR20-BVA-01 đến FR20-BVA-14) kèm cột 'Lỗi code sẽ bắt được'; lưu báo cáo HW2/report/FR-20/02-boundary-value-analysis.vi.md và cập nhật testcases/FR-20.json (nâng tổng số lên 34 TCs: 20 DT + 14 BVA).
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt kỹ năng boundary-value-analysis S04 CSC13003: chỉ chọn miền có thứ tự, biến thể 3-value chuẩn, bổ sung encoding rule v2.0, cập nhật đầy đủ tệp JSON máy đọc và dừng lại đúng checkpoint.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+### Artifact A32 - FR-20 / Test Execution & Bugs / Stage 1-5
+
+**(1) Prompt + Công cụ** - Tool: Antigravity (Gemini 3.8 Flash) - Thời gian: 12:10 20/10/2026
+
+````text
+Tiến hành thực thi kiểm thử FR-20 (34 test cases) với test runner đối chiếu SUT, phân loại lỗi Stage 3, soạn thảo 4 GitHub Issues draft (BUG-FR20-01 đến BUG-FR20-04) và phân tích khoảng trống AI Gap Analysis Stage 5.
+````
+
+**(2) Output AI**
+
+````text
+Đã thực thi 34 ca kiểm thử qua execute_fr20.mjs và client logic evaluation (31 PASS, 3 FAIL, 0 BLOCKED). Phân loại 3 ca thất bại và các bất thường mã nguồn thành 4 lỗi phần mềm gốc rễ: BUG-FR20-01 (không reset giỏ hàng khi logout gây rò rỉ phiên - High), BUG-FR20-02 (lộ mật khẩu plaintext trong response login - Critical), BUG-FR20-03 (bước nhảy sai +2 khiến tài khoản bị khóa sớm sau 2 lần sai - Medium), BUG-FR20-04 (nhãn Username, nút Sign In tiếng Anh, vị trí lỗi sai chuẩn trên Mobile UI - Low). Đã tạo 4 file GitHub Issues draft trong HW2/report/issues/, hoàn thành báo cáo HW2/report/FR-20/03-execution-and-gap-analysis.vi.md và ghi log minh chứng tại HW2/evidence/FR-20/test-execution.log.
+````
+
+**(3) Verdict:** VALID
+
+**(4) Lý do (ISTQB / slide):** Tuân thủ nghiêm ngặt kỹ năng test-execution-and-bugs: thực thi kiểm thử thực tế trên live backend SUT và logic client mobile, cách ly trạng thái CSDL tránh cascading lockout, gom nhóm lỗi đúng nguyên nhân gốc rễ, tài liệu hóa đầy đủ bằng tiếng Việt có dấu kèm mã lỗi chuẩn, phân tích khoảng trống AI sâu sắc và dừng lại đúng checkpoint.
+
+**(5) Bản sinh viên sửa:**
+
+(không sửa)
+
+## 4. Tổng kết độ chính xác AI
+
+| Chỉ số | Số lượng | Tỉ lệ |
+|---|---|---|
+| Tổng artifact AI sinh đã audit | 32 | 100% |
+| VALID (đúng, dùng nguyên) | 31 | 97% |
+| INVALID (sai; loại bỏ) | 0 | 0% |
+| INCOMPLETE (chấp nhận sau khi sửa) | 1 | 3% |
+
+## 5. Kết luận - Khi nào nên / không nên dùng AI?
+
+Trong quy trình kiểm thử phần mềm, AI phát huy thế mạnh vượt trội ở tốc độ khởi tạo ban đầu: tự động hóa sinh khung test case, phân tích cú pháp mã nguồn nhanh chóng và phát hiện các mẫu vi phạm cú pháp cơ bản. Tuy nhiên, AI bộc lộ điểm yếu lớn khi xử lý các ràng buộc ngữ cảnh nghiệp vụ sâu, tính phụ thuộc trạng thái (stateful token/session), và thường mắc thiên kiến chức năng (bỏ qua lỗ hổng bảo mật rò rỉ dữ liệu). Khuyến nghị: Chỉ nên sử dụng AI như một trợ lý đề xuất dữ liệu ban đầu dưới mô hình Human-in-the-loop; tuyệt đối không để AI tự động phê duyệt kiểm thử mà không có sự thẩm định mã nguồn và xác minh thực tế từ kỹ sư kiểm thử.
+
+## 6. Mandatory Disclosure
+
+> Test case, script kiểm thử và báo cáo này được khởi tạo phiên bản đầu bởi Antigravity (Gemini 3.8 Flash) và Claude Code (MiniMax-M2.1); tôi đã rà soát và chỉnh sửa bảng phân hoạch tương đương, bổ sung các ca kiểm thử biên mã hóa Unicode tiếng Việt UTF-8, các điểm biên cực trị và các ca kiểm thử dị biệt đa nền tảng; toàn bộ việc thẩm tra mã nguồn SUT, chạy test runner thực tế và phân loại nguyên nhân gốc rễ lỗi do tôi tự thực hiện. Báo cáo kiểm định AI chi tiết đính kèm đầy đủ tại Phụ lục A. Tôi cam đoan không dùng AI để sinh bất kỳ nội dung nào thuộc danh mục bị cấm.
+
+Họ tên sinh viên (in hoa): TRƯƠNG THÀNH PHÁT  
+MSSV: 23120319  
+Lớp / Khoá: Kiểm thử phần mềm - CQ2023/3  
+Môn học: CS423 / CSC13003 - Kiểm chứng Phần mềm  
+Giảng viên: Trần Duy Hoàng, Trương Phước Lộc, Hồ Tuấn Thanh, Lâm Quang Vũ
+Ngày: 20/10/2026  
+Chữ ký: Trương Thành Phát
