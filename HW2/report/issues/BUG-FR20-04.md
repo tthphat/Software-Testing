@@ -54,6 +54,11 @@ Màn hình giao diện Đăng nhập trên ứng dụng Mobile Client (`frontend
 ## Test cases liên quan
 - `FR20-DT-19` (Mobile UI: Kiểm tra nhãn trường Email và ngôn ngữ nút bấm theo chuẩn FR-21 tiếng Việt)
 
+## Minh chứng thực tế (Evidence Screenshots)
+- [UI-FR20-01-mobile-login-initial.png](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/UI-FR20-01-mobile-login-initial.png) (Giao diện đăng nhập ban đầu hiển thị nhãn "Username" và nút bấm "Sign In")
+- [UI-FR20-02-mobile-login-error-below-button.png](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/UI-FR20-02-mobile-login-error-below-button.png) (Giao diện hiển thị hộp lỗi màu đỏ nằm phía dưới nút bấm Sign In)
+
 ## Mức độ nghiêm trọng
 - **Severity**: Low
 - **Priority**: Low
+

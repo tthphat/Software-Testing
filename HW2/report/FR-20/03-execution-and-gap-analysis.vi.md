@@ -87,6 +87,16 @@ Toàn bộ 34 test cases đã được thực thi tự động qua test runner `
 
 Log thực thi chi tiết được lưu trữ làm minh chứng tại [HW2/evidence/FR-20/test-execution.log](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/test-execution.log).
 
+### Bằng chứng ảnh chụp màn hình giao diện Mobile (Mobile UI Screenshots)
+- [UI-FR20-01-mobile-login-initial.png](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/UI-FR20-01-mobile-login-initial.png): Giao diện Đăng nhập ban đầu (nhãn "Username", nút "Sign In" tiếng Anh).
+- [UI-FR20-02-mobile-login-error-below-button.png](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/UI-FR20-02-mobile-login-error-below-button.png): Thông báo lỗi đăng nhập thất bại nằm phía dưới nút bấm Sign In.
+- [UI-FR20-03-mobile-cart-items-before-logout.png](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/UI-FR20-03-mobile-cart-items-before-logout.png): Giao diện Giỏ hàng có 2 sản phẩm trước khi người dùng đăng xuất.
+- [UI-FR20-04-mobile-profile-logged-in.png](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/UI-FR20-04-mobile-profile-logged-in.png): Giao diện Thông tin cá nhân người dùng với nút "Thoát" màu đỏ.
+- [UI-FR20-05-mobile-cart-retention-after-logout.png](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/UI-FR20-05-mobile-cart-retention-after-logout.png): Bằng chứng Session Bleed - Đã đăng xuất (thanh navbar báo "Đăng nhập") nhưng giỏ hàng vẫn tồn lưu nguyên 2 sản phẩm.
+
+Tổng hợp minh chứng toàn diện xem tại: [UI_TEST_EVIDENCE_REPORT.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/UI_TEST_EVIDENCE_REPORT.md).
+
+
 ---
 
 ## 4. Báo cáo lỗi phần mềm (Defect Triage)

@@ -49,6 +49,11 @@ Hậu quả: Toàn bộ danh sách sản phẩm mà người dùng vừa đăng 
 ## Test cases liên quan
 - `FR20-DT-18` (Mobile Logout: Kiểm tra dọn dẹp giỏ hàng khi người dùng có sản phẩm)
 
+## Minh chứng thực tế (Evidence Screenshots)
+- [UI-FR20-03-mobile-cart-items-before-logout.png](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/UI-FR20-03-mobile-cart-items-before-logout.png) (Giao diện giỏ hàng 2 sản phẩm trước khi đăng xuất)
+- [UI-FR20-05-mobile-cart-retention-after-logout.png](file:///d:/HCMUS/semester7/software-testing/Software-Testing/HW2/evidence/FR-20/UI-FR20-05-mobile-cart-retention-after-logout.png) (Minh chứng sau khi đăng xuất, thanh điều hướng báo "Đăng nhập" nhưng giỏ hàng vẫn tồn lưu nguyên 2 sản phẩm)
+
 ## Mức độ nghiêm trọng
 - **Severity**: High
 - **Priority**: High
+
