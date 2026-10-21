@@ -24,9 +24,13 @@ Tài liệu này tổng hợp toàn bộ các khiếm khuyết phần mềm (bug
 | **BUG-FR08-05** | Dị biệt logic nghiêm trọng trên Mobile: Frontend Mobile tự ý cắt xén sản phẩm cuối cùng trong giỏ hàng khi checkout (`cart.slice(0, -1)`) | FR-08 | FR08-DT-22, FR08-BVA-20 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
 | **BUG-FR08-06** | Backend không kiểm tra tồn kho (Overselling Defect) và không lưu chi tiết các mặt hàng trong đơn hàng (`order_items`) | FR-08 | FR08-DT-20 | **Major** | **High** | Confirmed (Đã xác minh qua code & API) |
 | **BUG-FR08-07** | Endpoint checkout không kiểm tra tính hợp lệ của mã giảm giá `coupon_id` | FR-08 | FR08-DT-21 | **Minor** | **Medium** | Confirmed (Đã xác minh qua code & API) |
-| **BUG-FR12-01** | Backend middleware uthenticateToken không kiểm tra vai trò admin và các route quản trị (/api/admin/users, /api/admin/orders, /api/categories, /api/coupons) thiếu role check dẫn đến người dùng thường truy cập và thực thi trái phép (Broken Access Control) | FR-12 | FR12-DT-07, 08, 13, 15, 18 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
-| **BUG-FR12-02** | Endpoint quản lý sản phẩm POST /api/products, PUT /api/products/:id, DELETE /api/products/:id bỏ quên middleware uthenticateToken, cho phép khách vãng lai (unauthenticated) tạo/sửa/xóa sản phẩm trái phép và bypass validation | FR-12 | FR12-DT-16, FR12-BVA-11, 12, 13, 14 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR12-01** | Backend middleware `authenticateToken` không kiểm tra vai trò admin và các route quản trị (/api/admin/users, /api/admin/orders, /api/categories, /api/coupons) thiếu role check dẫn đến người dùng thường truy cập và thực thi trái phép (Broken Access Control) | FR-12 | FR12-DT-07, 08, 13, 15, 18 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR12-02** | Endpoint quản lý sản phẩm POST /api/products, PUT /api/products/:id, DELETE /api/products/:id bỏ quên middleware `authenticateToken`, cho phép khách vãng lai (unauthenticated) tạo/sửa/xóa sản phẩm trái phép và bypass validation | FR-12 | FR12-DT-16, FR12-BVA-11, 12, 13, 14 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
 | **BUG-FR12-03** | Lỗ hổng gán tham số hàng loạt (Mass Assignment) tại PUT /api/users/me cho phép người dùng thường tự nâng quyền tài khoản thành Admin (privilege escalation) | FR-12 | FR12-DT-11 | **High** | **High** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR20-01** | Hàm logout() trong Mobile App không dọn dẹp giỏ hàng gây rò rỉ dữ liệu phiên giữa các người dùng (Cross-user Cart Retention / Session Bleed) | FR-20 | FR20-DT-18 | **High** | **High** | Confirmed (Đã xác minh qua code Mobile & UI) |
+| **BUG-FR20-02** | API POST /api/login trả về mật khẩu người dùng dạng plaintext trong response JSON (Sensitive Data Exposure) | FR-20 | FR20-DT-16 | **Critical** | **Immediate** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR20-03** | Cơ chế tính số lần đăng nhập sai cộng dồn bước nhảy 2 khiến tài khoản bị khóa bất thường chỉ sau 2 lần sai (Premature Account Lockout) | FR-20 | FR20-DT-14, FR20-BVA-13 | **Medium** | **Medium** | Confirmed (Đã xác minh qua code & API) |
+| **BUG-FR20-04** | Giao diện đăng nhập Mobile App sử dụng nhãn tiếng Anh không đồng nhất và đặt vị trí thông báo lỗi sai chuẩn UI/UX | FR-20 | FR20-DT-19 | **Low** | **Low** | Confirmed (Đã xác minh qua Mobile UI) |
 
 ---
 
@@ -907,3 +911,322 @@ Sau đó khi gọi `GET /api/users/me`, trường `role` trong cơ sở dữ li�
   ```
 - Backend không áp dụng whitelist các trường được phép cập nhật bởi người dùng thông thường (`req.body` không được sanitize).
 - Phân loại lỗi theo CWE: CWE-915 (Improperly Controlled Modification of Dynamically-Determined Object Attributes), CWE-269 (Improper Privilege Management), OWASP A04:2021-Insecure Design.
+
+---
+
+### BUG-FR20-01: Hàm logout() trong Mobile App không dọn dẹp giỏ hàng gây rò rỉ dữ liệu phiên giữa các người dùng (Cross-user Cart Retention / Session Bleed)
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-20 – Đăng nhập & Đăng xuất Mobile (Mobile Login & Logout) |
+| **Test cases liên quan** | `FR20-DT-18` |
+| **Mức độ (Severity)** | **High** |
+| **Độ ưu tiên (Priority)** | **High** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Expo Mobile Web / Android / iOS, Node.js v20.x, SQLite3, Base URL `http://localhost:3000` |
+| **Ngày phát hiện** | 2026-10-20 |
+
+#### 1. Mô tả lỗi (Description)
+Khi người dùng thực hiện thao tác Đăng xuất (`logout`) trên ứng dụng Mobile, hàm xử lý chỉ xóa token xác thực (`setToken(null)`), thông tin người dùng (`setUser(null)`) và danh sách đơn hàng (`setOrders([])`), nhưng **hoàn toàn bỏ quên việc làm rỗng giỏ hàng** (không có lệnh `setCart([])`).
+
+Hậu quả: Toàn bộ danh sách sản phẩm mà người dùng vừa đăng xuất đã thêm vào giỏ hàng vẫn tồn tại nguyên vẹn trong bộ nhớ trạng thái (React state) của ứng dụng. Khi một người dùng khác đăng nhập trên cùng thiết bị (hoặc người dùng mới lướt ứng dụng ở chế độ khách vãng lai), họ sẽ nhìn thấy toàn bộ giỏ hàng của người dùng trước, có thể xem được giá tiền, số lượng, điều chỉnh danh sách, và thậm chí tiến hành thanh toán với các mặt hàng đó. Đây là lỗi rò rỉ dữ liệu phiên nghiêm trọng (Session Bleed / Privacy Leak) trên thiết bị di động dùng chung.
+
+#### 2. Các bước tái hiện (Steps to Reproduce)
+1. Mở ứng dụng Mobile (`frontend-mobile/App.js`).
+2. Đăng nhập với tài khoản `test@eshop.com`.
+3. Duyệt danh sách sản phẩm và bấm "Thêm vào giỏ" cho 2 sản phẩm bất kỳ.
+4. Chuyển sang tab Giỏ hàng để xác nhận có 2 sản phẩm trong giỏ.
+5. Chuyển sang tab Tài khoản (Profile) và bấm nút "Đăng xuất" (`logout`).
+6. Sau khi đăng xuất thành công và màn hình quay về Đăng nhập, đăng nhập bằng một tài khoản khác (hoặc quay lại màn hình Home xem giỏ hàng).
+
+#### 3. Kết quả thực tế (Actual Result)
+- Màn hình giỏ hàng vẫn lưu giữ nguyên vẹn 2 sản phẩm từ phiên đăng nhập của người dùng trước.
+- Biến trạng thái `cart` trong React không bị reset về mảng rỗng `[]`.
+
+#### 4. Kết quả mong đợi (Expected Result)
+- Khi người dùng đăng xuất, toàn bộ dữ liệu phiên làm việc cục bộ phải bị tiêu hủy hoàn toàn.
+- Hàm `logout()` phải gọi `setCart([])` để giỏ hàng trở về trạng thái rỗng cho phiên làm việc tiếp theo:
+  ```javascript
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+    setOrders([]);
+    setCart([]); // Reset giỏ hàng
+    setCurrentView('login');
+  };
+  ```
+
+#### 5. Phân tích nguyên nhân & Code tham chiếu
+- Tại `eshop-sut/frontend-mobile/App.js:161-169`:
+  ```javascript
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+    setOrders([]);
+    // THIẾU: setCart([]);
+    setCurrentView('login');
+  };
+  ```
+- Phân loại lỗi bảo mật:
+  - **CWE-459**: Incomplete Cleanup.
+  - **CWE-200**: Exposure of Sensitive Information to an Unauthorized Actor.
+  - **OWASP**: Mobile Top 10 - Insecure Data Storage & Client-Side Session Handling.
+
+#### 6. Test cases liên quan
+- `FR20-DT-18` (Mobile Logout: Kiểm tra dọn dẹp giỏ hàng khi người dùng có sản phẩm)
+
+#### 7. Minh chứng thực tế (Evidence Screenshots)
+- [UI-FR20-03-mobile-cart-items-before-logout.png](../evidence/FR-20/UI-FR20-03-mobile-cart-items-before-logout.png) (Giao diện giỏ hàng 2 sản phẩm trước khi đăng xuất)
+- [UI-FR20-05-mobile-cart-retention-after-logout.png](../evidence/FR-20/UI-FR20-05-mobile-cart-retention-after-logout.png) (Minh chứng sau khi đăng xuất, thanh điều hướng báo "Đăng nhập" nhưng giỏ hàng vẫn tồn lưu nguyên 2 sản phẩm)
+
+#### 8. Mức độ nghiêm trọng
+- **Severity**: High
+- **Priority**: High
+
+---
+
+### BUG-FR20-02: API POST /api/login trả về mật khẩu người dùng dạng plaintext trong response JSON (Sensitive Data Exposure)
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-20 – Đăng nhập & Đăng xuất Mobile (Mobile Login & Logout) |
+| **Test cases liên quan** | `FR20-DT-16` |
+| **Mức độ (Severity)** | **Critical** |
+| **Độ ưu tiên (Priority)** | **Immediate** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Expo Mobile Web / Android / iOS, Node.js v20.x, SQLite3, Base URL `http://localhost:3000` |
+| **Ngày phát hiện** | 2026-10-20 |
+
+#### 1. Mô tả lỗi (Description)
+API xác thực đăng nhập `POST /api/login` thực hiện truy vấn bảng cơ sở dữ liệu `users` bằng câu lệnh `SELECT * FROM users WHERE email = ?`. Khi kiểm tra mật khẩu thành công, máy chủ trả về toàn bộ đối tượng bản ghi người dùng (`user`) trong body phản hồi JSON cho client mà không loại bỏ trường `password`.
+
+Hậu quả: Mật khẩu nguyên bản của người dùng bị rò rỉ dưới dạng văn bản thuần (plaintext) qua đường truyền HTTP. Bất kỳ trung gian mạng nào (Man-in-the-Middle), proxy ghi log hệ thống, công cụ phân tích lưu lượng, hoặc phần mềm độc hại trên thiết bị người dùng đều có thể trích xuất trực tiếp mật khẩu gốc của tài khoản. Đây là vi phạm an toàn thông tin cấp độ đặc biệt nghiêm trọng.
+
+#### 2. Các bước tái hiện (Steps to Reproduce)
+1. Gửi HTTP POST request đến endpoint đăng nhập của máy chủ SUT:
+   ```http
+   POST /api/login HTTP/1.1
+   Host: localhost:3000
+   Content-Type: application/json
+
+   {
+     "email": "test@eshop.com",
+     "password": "Password123!"
+   }
+   ```
+2. Kiểm tra chuỗi phản hồi JSON nhận được từ máy chủ trong `response body`.
+
+#### 3. Kết quả thực tế (Actual Result)
+Máy chủ trả về HTTP 200 OK với trường `password` lộ rõ trong đối tượng `user`:
+```json
+{
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 2,
+    "name": "Test User",
+    "email": "test@eshop.com",
+    "password": "Password123!",
+    "role": "user",
+    "login_attempts": 0,
+    "locked_until": null
+  }
+}
+```
+
+#### 4. Kết quả mong đợi (Expected Result)
+- Máy chủ tuyệt đối không được tuần tự hóa (serialize) hoặc gửi trả trường `password` trong bất kỳ phản hồi API nào.
+- Trường `password` phải được loại bỏ (destructure/strip) trước khi trả về:
+  ```javascript
+  const { password: _, ...safeUser } = user;
+  res.json({ message: 'Login successful', token, user: safeUser });
+  ```
+
+#### 5. Phân tích nguyên nhân & Code tham chiếu
+- Tại `eshop-sut/backend/server.js:34-52`:
+  ```javascript
+  db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (!user) return res.status(401).json({ error: 'Invalid email or password' });
+    ...
+    if (user.password !== password) {
+      ...
+    }
+    ...
+    res.json({ message: 'Login successful', token, user }); // Lộ user.password
+  });
+  ```
+- Phân loại CWE / OWASP:
+  - **CWE-200**: Exposure of Sensitive Information to an Unauthorized Actor.
+  - **CWE-312**: Cleartext Storage/Transmission of Sensitive Information.
+  - **OWASP Top 10:2021**: A02:2021 – Cryptographic Failures / A04:2021 – Insecure Design.
+
+#### 6. Test cases liên quan
+- `FR20-DT-16` (Kiểm tra bảo mật an toàn thông tin: Không rò rỉ mật khẩu trong phản hồi đăng nhập)
+
+#### 8. Mức độ nghiêm trọng
+- **Severity**: Critical
+- **Priority**: Immediate
+
+---
+
+### BUG-FR20-03: Cơ chế tính số lần đăng nhập sai cộng dồn bước nhảy 2 khiến tài khoản bị khóa bất thường chỉ sau 2 lần sai (Premature Account Lockout)
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-20 – Đăng nhập & Đăng xuất Mobile (Mobile Login & Logout) |
+| **Test cases liên quan** | `FR20-DT-14`, `FR20-BVA-13` |
+| **Mức độ (Severity)** | **Medium** |
+| **Độ ưu tiên (Priority)** | **Medium** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Expo Mobile Web / Android / iOS, Node.js v20.x, SQLite3, Base URL `http://localhost:3000` |
+| **Ngày phát hiện** | 2026-10-20 |
+
+#### 1. Mô tả lỗi (Description)
+Trong logic xử lý đăng nhập thất bại tại máy chủ SUT (`POST /api/login`), biến đếm số lần đăng nhập sai `login_attempts` được cộng dồn với bước nhảy là 2 (`+ 2`) thay vì 1 (`+ 1`).
+
+Do ngưỡng kích hoạt khóa tài khoản được quy định là `newAttempts >= 3` với thời gian khóa 3 phút:
+- Ban đầu: `login_attempts = 0`.
+- Lần 1 gõ sai: `newAttempts = 0 + 2 = 2` (< 3, chưa khóa).
+- Lần 2 gõ sai: `newAttempts = 2 + 2 = 4` (>= 3, hệ thống lập tức khóa tài khoản và thiết lập `locked_until` sang 3 phút sau).
+
+Hậu quả: Người dùng hợp lệ chỉ cần nhập nhầm mật khẩu 2 lần liên tiếp là đã bị tước quyền đăng nhập vào hệ thống trong vòng 3 phút. Điều này phá vỡ tiêu chuẩn thiết kế tài liệu và trải nghiệm người dùng thông thường (vốn cho phép ít nhất 3 hoặc 5 lần nhập sai), dẫn đến tình trạng từ chối dịch vụ sớm (Denial of Service) và gây ức chế lớn cho khách hàng.
+
+#### 2. Các bước tái hiện (Steps to Reproduce)
+1. Đảm bảo tài khoản `test@eshop.com` đang ở trạng thái bình thường (`login_attempts = 0`, `locked_until = NULL`).
+2. Gửi request đăng nhập thất bại lần 1 với mật khẩu sai:
+   ```http
+   POST /api/login HTTP/1.1
+   Host: localhost:3000
+   Content-Type: application/json
+
+   { "email": "test@eshop.com", "password": "WrongPassword1!" }
+   ```
+   Server phản hồi HTTP 401. Kiểm tra database thấy `login_attempts = 2`.
+3. Gửi tiếp request đăng nhập thất bại lần 2 với mật khẩu sai:
+   ```http
+   POST /api/login HTTP/1.1
+   Host: localhost:3000
+   Content-Type: application/json
+
+   { "email": "test@eshop.com", "password": "WrongPassword2!" }
+   ```
+   Server phản hồi HTTP 401. Kiểm tra database thấy `login_attempts = 4` và trường `locked_until` đã bị kích hoạt.
+4. Gửi request đăng nhập lần 3 với mật khẩu đúng chuẩn `Password123!`.
+
+#### 3. Kết quả thực tế (Actual Result)
+- Ở lần thứ 3, ngay cả khi người dùng cung cấp mật khẩu chính xác, máy chủ lập tức từ chối và phản hồi HTTP 403 Forbidden:
+  ```json
+  {
+    "error": "Tài khoản đã bị khóa. Vui lòng thử lại sau."
+  }
+  ```
+- Người dùng bị khóa ngay sau lần sai thứ 2.
+
+#### 4. Kết quả mong đợi (Expected Result)
+- Mỗi lần đăng nhập thất bại chỉ được cộng thêm 1 đơn vị vào số lần thử sai (`+ 1`):
+  ```javascript
+  const newAttempts = (user.login_attempts || 0) + 1;
+  ```
+- Với ngưỡng khóa tài khoản `>= 3`, hệ thống phải cho phép người dùng thử sai tối thiểu 3 lần liên tiếp (Lần 1: 1, Lần 2: 2, Lần 3: 3) và chỉ khóa ở lần vi phạm thứ 4 trở đi hoặc sau khi đạt đủ 3 lần vi phạm.
+
+#### 5. Phân tích nguyên nhân & Code tham chiếu
+- Tại `eshop-sut/backend/server.js:53-56`:
+  ```javascript
+  if (user.password !== password) {
+    const newAttempts = (user.login_attempts || 0) + 2; // BUG: Bước nhảy sai + 2
+    const lockedUntil = newAttempts >= 3 ? new Date(Date.now() + 3 * 60 * 1000).toISOString() : null;
+    db.run('UPDATE users SET login_attempts = ?, locked_until = ? WHERE id = ?', [newAttempts, lockedUntil, user.id]);
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  ```
+- Phân loại lỗi:
+  - **CWE-840**: Business Logic Errors.
+  - **CWE-400**: Uncontrolled Resource Consumption / Unintended Account Lockout DoS.
+
+#### 6. Test cases liên quan
+- `FR20-DT-14` (Kiểm tra cơ chế khóa tài khoản khi gõ sai lần thứ 2 liên tiếp)
+- `FR20-BVA-13` (BVA Ngưỡng số lần gõ sai: Kiểm tra chuyển đổi trạng thái khi gõ sai lần 1 và lần 2)
+
+#### 8. Mức độ nghiêm trọng
+- **Severity**: Medium
+- **Priority**: Medium
+
+---
+
+### BUG-FR20-04: Giao diện đăng nhập Mobile App sử dụng nhãn tiếng Anh không đồng nhất và đặt vị trí thông báo lỗi sai chuẩn UI/UX
+
+| Mục | Nội dung |
+|---|---|
+| **Tính năng** | FR-20 – Đăng nhập & Đăng xuất Mobile (Mobile Login & Logout) |
+| **Test cases liên quan** | `FR20-DT-19` |
+| **Mức độ (Severity)** | **Low** |
+| **Độ ưu tiên (Priority)** | **Low** |
+| **Khả năng tái hiện** | Luôn luôn (100%) |
+| **Môi trường** | Expo Mobile Web / Android / iOS, Node.js v20.x, SQLite3, Base URL `http://localhost:3000` |
+| **Ngày phát hiện** | 2026-10-20 |
+
+#### 1. Mô tả lỗi (Description)
+Màn hình giao diện Đăng nhập trên ứng dụng Mobile Client (`frontend-mobile/App.js`) tồn tại ba điểm không tuân thủ quy chuẩn thiết kế giao diện (UI) và trải nghiệm người dùng (UX):
+1. **Sai nhãn trường nhập liệu (Field Label Mismatch)**: Nhãn hiển thị là `"Username"` tại dòng 763, trong khi trường này nhận địa chỉ email (`loginEmail`, placeholder `"email@example.com"`) và toàn bộ luồng nghiệp vụ xác thực sử dụng email.
+2. **Không nhất quán ngôn ngữ tiếng Việt (Linguistic Inconsistency)**: Nút bấm gửi form đăng nhập hiển thị chuỗi tiếng Anh `"Sign In"` tại dòng 783, vi phạm quy định thống nhất giao diện tiếng Việt xuyên suốt ứng dụng theo tiêu chuẩn FR-21.
+3. **Vị trí thông báo lỗi không chuẩn (Bad Error Placement)**: Khung hiển thị thông báo lỗi đăng nhập (`errorBox`, dòng 790) được bố trí ở phía dưới nút bấm hành động Submit. Trên thiết bị di động, khi bàn phím ảo hiển thị hoặc màn hình nhỏ, thông báo lỗi đặt bên dưới nút sẽ bị đẩy ra ngoài tầm nhìn (viewport) hoặc bị bàn phím che khuất, khiến người dùng không biết lý do đăng nhập thất bại.
+
+#### 2. Các bước tái hiện (Steps to Reproduce)
+1. Khởi động ứng dụng Mobile Client (`npm start` trong thư mục `eshop-sut/frontend-mobile`).
+2. Mở màn hình Đăng nhập (`renderLogin`).
+3. Quan sát giao diện:
+   - Đọc nhãn phía trên ô nhập email.
+   - Đọc chữ hiển thị trên nút bấm đăng nhập.
+4. Nhập sai thông tin đăng nhập và bấm nút để quan sát vị trí xuất hiện của khung báo lỗi đỏ.
+
+#### 3. Kết quả thực tế (Actual Result)
+- Nhãn hiển thị: `"Username"`.
+- Nút bấm hiển thị: `"Sign In"`.
+- Hộp thông báo lỗi đỏ nằm phía dưới nút bấm `"Sign In"`.
+
+#### 4. Kết quả mong đợi (Expected Result)
+- Nhãn trường nhập liệu phải là `"Email"` (hoặc `"Địa chỉ Email"`).
+- Nút bấm hành động phải hiển thị tiếng Việt đồng nhất: `"Đăng nhập"`.
+- Khung thông báo lỗi nên được đặt ở vị trí dễ quan sát: ở phía trên các trường nhập liệu hoặc nằm ngay phía trên nút bấm đăng nhập theo quy chuẩn Form UX (FR-22).
+
+#### 5. Phân tích nguyên nhân & Code tham chiếu
+- Tại `eshop-sut/frontend-mobile/App.js:762-794`:
+  ```javascript
+  // Dòng 763: Nhãn "Username" thay vì "Email"
+  <Text style={styles.inputLabel}>Username</Text>
+  <TextInput
+    style={styles.input}
+    placeholder="email@example.com"
+    value={loginEmail}
+    onChangeText={setLoginEmail}
+    autoCapitalize="none"
+    keyboardType="email-address"
+  />
+
+  // Dòng 783: Nhãn nút bấm "Sign In" tiếng Anh
+  <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+    <Text style={styles.loginButtonText}>Sign In</Text>
+  </TouchableOpacity>
+
+  // Dòng 790: Hộp lỗi nằm dưới nút bấm
+  {loginError ? (
+    <View style={styles.errorBox}>
+      <Text style={styles.errorBoxText}>{loginError}</Text>
+    </View>
+  ) : null}
+  ```
+
+#### 6. Test cases liên quan
+- `FR20-DT-19` (Mobile UI: Kiểm tra nhãn trường Email và ngôn ngữ nút bấm theo chuẩn FR-21 tiếng Việt)
+
+#### 7. Minh chứng thực tế (Evidence Screenshots)
+- [UI-FR20-01-mobile-login-initial.png](../evidence/FR-20/UI-FR20-01-mobile-login-initial.png) (Giao diện đăng nhập ban đầu hiển thị nhãn "Username" và nút bấm "Sign In")
+- [UI-FR20-02-mobile-login-error-below-button.png](../evidence/FR-20/UI-FR20-02-mobile-login-error-below-button.png) (Giao diện hiển thị hộp lỗi màu đỏ nằm phía dưới nút bấm Sign In)
+
+#### 8. Mức độ nghiêm trọng
+- **Severity**: Low
+- **Priority**: Low
+
+---
+

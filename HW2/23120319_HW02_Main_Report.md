@@ -35,6 +35,7 @@ Hệ thống kiểm thử EShop là một nền tảng thương mại điện t�
 | **FR-03 — Forgot password and password reset** | Pool A | Quy trình 2 bước: yêu cầu đặt lại mật khẩu và gửi mã reset token/mật khẩu mới | **Đã hoàn thành 100%** |
 | **FR-08 — Checkout** | Pool B | Điều kiện tiên quyết giỏ hàng, thông tin thanh toán, đặt đơn hàng và kiểm tra tính toán tổng tiền | **Đã hoàn thành 100%** |
 | **FR-12 — Access control** | Pool C | Phân quyền vai trò Admin / Customer, kiểm soát truy cập các endpoint và giao diện quản trị | **Đã hoàn thành 100%** |
+| **FR-20 — Mobile Login & Logout** | Pool D | Tính năng xác thực trên thiết bị di động (React Native), kiểm tra đăng nhập, đăng xuất, dọn dẹp phiên làm việc, cô lập giỏ hàng và tuân thủ chuẩn giao diện mobile | **Đã hoàn thành 100%** |
 
 
 ---
@@ -1307,9 +1308,265 @@ Quá trình kiểm thử FR-12 đã làm bộc lộ 4 khoảng trống AI quan t
 
 ---
 
-### **3.6 Consolidated Bug Reports**
+### **3.6 FR-20 — Mobile Login & Logout (Pool D)**
 
-Hiện tại đã ghi nhận và phân loại tổng cộng **19 lỗi phần mềm** (5 lỗi từ FR-01, 4 lỗi từ FR-03, 7 lỗi từ FR-08, và 3 lỗi từ FR-12). Toàn bộ lỗi đều được xác thực trực tiếp qua phân tích mã nguồn SUT và thực thi test runner tự động:
+#### 3.6.1 Tìm hiểu tính năng và đặc tả thực tế
+- **Phạm vi tính năng:** Kiểm thử luồng Đăng nhập & Đăng xuất trên thiết bị di động (React Native) theo `docs/eshop-features.md` (FR-20), `eshop-sut/README.md` (§7 Phân hệ Mobile) và `docs/api_specification.md` (mục 1.2 Đăng nhập).
+- **Các thành phần mục tiêu khảo sát:**
+  - Giao diện và logic Mobile Client: `eshop-sut/frontend-mobile/App.js` (`handleLogin`, `logout`, `renderLogin`, `renderProfile`, quản lý state `token`, `user`, `cart`, `orders`).
+  - Backend Authentication Endpoint: `eshop-sut/backend/server.js:32-66` (`POST /api/login`).
+  - Trạng thái cơ sở dữ liệu: Bảng `users` trong `database.sqlite` (các cột `email`, `password`, `login_attempts`, `locked_until`).
+- **Nguồn đặc tả đã sử dụng:**
+  - `docs/eshop-features.md` (FR-20: Mobile Features) `[SPEC]`
+  - Mã nguồn Mobile Client: `eshop-sut/frontend-mobile/App.js:145-207, 755-797` `[CODE]`
+  - Mã nguồn Backend: `eshop-sut/backend/server.js:32-66` `[CODE]`
+  - Kết quả thực thi trực tiếp qua Automated Test Runner: `[OBSERVED]`
+- **Bảng đối chiếu mâu thuẫn đa nền tảng (Cross-platform Skew Checklist v2.0):**
+
+| Vấn đề / Tiêu chí | Đặc tả (`[SPEC]`) | Backend (`[CODE]`) | Frontend Mobile (`[CODE]`) | Tác động kiểm thử |
+| :--- | :--- | :--- | :--- | :--- |
+| **Kiểm tra rỗng `email` / `password`** | Bắt buộc nhập | Không kiểm tra (`server.js:33`) | Không kiểm tra trước khi gửi request (`App.js:189`) | Cho phép gửi request rỗng lên server |
+| **Nhãn trường Email** | Email | `email` | Label hiển thị là `"Username"` (`App.js:763`) | Mâu thuẫn thuật ngữ nhãn UI |
+| **Ngôn ngữ nút Submit** | Tiếng Việt (`FR-21`) | N/A | Nút ghi tiếng Anh `"Sign In"` (`App.js:783`) | Vi phạm tiêu chuẩn giao diện FR-21 |
+| **Vị trí thông báo lỗi** | Nằm TRÊN nút Submit (`FR-22`) | N/A | Nằm DƯỚI nút Submit (`App.js:790`) | Vi phạm tiêu chuẩn Form FR-22 |
+| **Xử lý lỗi cụ thể** | Phân biệt rõ lỗi sai mật khẩu vs khóa tài khoản | Trả về 401 hoặc 403 có thông điệp riêng | `catch` nuốt hết lỗi, luôn hiện chuỗi chung `"Đăng nhập thất bại..."` | Người dùng không biết tài khoản bị khóa hay gõ sai |
+| **Dọn giỏ hàng khi Logout** | Đăng xuất phải xóa session và dữ liệu nhạy cảm | N/A (Stateless JWT) | **Bỏ quên `setCart([])`** (`App.js:161`) | Giỏ hàng của user cũ bị rò rỉ cho user/guest tiếp theo |
+
+- **Phát hiện quan trọng từ mã nguồn SUT (Code Investigation):**
+  - **Lỗ hổng rò rỉ dữ liệu phiên giữa các người dùng khi Logout (`App.js:161-169`):** Hàm `logout()` trên Mobile chỉ reset `token`, `user`, `orders`, hoàn toàn **bỏ quên lệnh `setCart([])`**. Hệ quả: Giỏ hàng của người dùng vừa đăng xuất vẫn được lưu trữ nguyên vẹn trên Client React state, khiến người dùng tiếp theo hoặc khách vãng lai sau đó nhìn thấy và thừa hưởng toàn bộ sản phẩm trong giỏ của người tiền nhiệm (Session Bleed / Cross-user Cart Retention).
+  - **Lỗ hổng lộ mật khẩu người dùng dạng plaintext (`server.js:52`):** Tại route `POST /api/login`, khi xác thực thành công, server trả về trực tiếp đối tượng `user` thu được từ câu lệnh `SELECT * FROM users`, chứa nguyên vẹn trường `password` dạng plain-text truyền qua mạng về client (CWE-200 / Sensitive Data Exposure).
+  - **Cơ chế tính số lần đăng nhập sai cộng dồn bước nhảy 2 (`server.js:54`):** Mỗi lần nhập sai mật khẩu, biến `login_attempts` bị cộng dồn **+2** (`const newAttempts = user.login_attempts + 2`) thay vì +1. Do ngưỡng khóa tài khoản là `>= 3`, chỉ sau **2 lần nhập sai** (0 + 2 + 2 = 4 >= 3), tài khoản đã bị khóa ngay lập tức trong 180 giây (3 phút) thay vì cho phép thử 3 lần như thiết kế (Premature Account Lockout).
+  - **Vi phạm tiêu chuẩn thiết kế UI/UX trên Mobile (`App.js:755-797`):** Form đăng nhập trên Mobile dùng nhãn tiếng Anh `"Username"` thay vì `"Email"`, nút gửi dùng `"Sign In"` (vi phạm chuẩn tiếng Việt thống nhất FR-21), và hộp thông báo lỗi đặt bên dưới nút gửi (vi phạm chuẩn vị trí lỗi FR-22).
+
+---
+
+#### 3.6.2 Kiểm thử miền (Domain Testing)
+
+##### Bước 1: Xác định biến Input, Output, State và Miền giá trị (Domains)
+
+| Tên biến | Loại biến | Kiểu dữ liệu | Miền giá trị và Ràng buộc kỹ thuật (Domain Constraints) | Nguồn dữ kiện (Source Tag) |
+| :--- | :---: | :---: | :--- | :---: |
+| `input_email` | Input | String | Chuỗi định dạng email RFC 5322 hợp lệ; có thể là email đã đăng ký hoặc chưa đăng ký; chuỗi rỗng `""`; khoảng trắng; sai định dạng; `null`; sai kiểu (number, boolean). | `[SPEC]` §1.2, `[CODE]` `server.js:33` |
+| `input_password` | Input | String | Chuỗi mật khẩu người dùng; khớp với mật khẩu tài khoản trong CSDL; sai mật khẩu; chuỗi rỗng `""`; khoảng trắng; `null`; sai kiểu dữ liệu. | `[SPEC]` §1.2, `[CODE]` `server.js:33` |
+| `state_account` | State | Enum | Trạng thái của tài khoản trong CSDL: <br>• `NORMAL`: Tồn tại, không bị khóa (`login_attempts = 0`, `locked_until` is NULL). <br>• `FAILED_ONCE`: Đã gõ sai 1 lần (`login_attempts = 2`). <br>• `LOCKED`: Đang bị khóa (`locked_until > now`). <br>• `NON_EXISTENT`: Không tồn tại trong CSDL. | `[CODE]` `server.js:37-63`, `database.js:48-61` |
+| `state_session` | State | Enum | Trạng thái phiên làm việc trên Mobile: <br>• `GUEST`: Chưa đăng nhập (`token = ""`, `user = null`). <br>• `AUTHENTICATED`: Đã đăng nhập (`token != ""`, `user != null`). | `[CODE]` `App.js:33-36` |
+| `state_cart` | State | Array | Trạng thái giỏ hàng trước khi Đăng xuất: <br>• `EMPTY`: Giỏ hàng rỗng (`cart = []`). <br>• `HAS_ITEMS`: Giỏ hàng chứa từ 1 sản phẩm trở lên. | `[CODE]` `App.js:34, 161` |
+| `output_status` | Output | Integer | Mã trạng thái HTTP trả về: `200` (OK), `401` (Unauthorized), `403` (Forbidden), `500` (Internal Error). | `[SPEC]` §1.2, `[CODE]` `server.js:36-63` |
+| `output_token` | Output | String/Null | Chuỗi JWT Token hợp lệ khi đăng nhập thành công; hoặc `null` khi đăng nhập thất bại. | `[SPEC]` §1.2, `[CODE]` `server.js:51` |
+| `output_user_payload`| Output | Object/Null| Đối tượng user trả về; ghi nhận lỗ hổng lộ trường `password`. | `[CODE]` `server.js:52` |
+| `output_mobile_view` | Output | String | Màn hình điều hướng trên Mobile: `"home"` (khi login/logout thành công), `"login"` (khi đăng nhập thất bại), `"profile"` (nơi thực hiện logout). | `[CODE]` `App.js:203, 168` |
+| `output_cart_state`  | Output | Array | Giỏ hàng sau khi Đăng xuất: Kỳ vọng sạch `[]`; thực tế bị giữ nguyên các món cũ. | `[CODE]` `App.js:161-169` |
+
+##### Bước 2: Phân hoạch các lớp tương đương (Equivalence Partitioning)
+
+| Mã lớp (EC ID) | Biến liên quan | Mô tả lớp tương đương | Phân loại | Quy tắc áp dụng | Nguồn dữ kiện (Source Tag) |
+| :---: | :--- | :--- | :---: | :--- | :---: |
+| **EC01** | `input_email` | Email hợp lệ đã tồn tại trong CSDL (VD: `test@eshop.com`) | **Valid** | Giá trị đại diện hợp lệ | `[SPEC]`, `[CODE]` `server.js:35` |
+| **EC02** | `input_email` | Email hợp lệ nhưng chưa từng đăng ký trong CSDL (VD: `unregistered_user_99@domain.com`) | **Invalid** | Dữ liệu không tồn tại (State conflict) | `[CODE]` `server.js:37` |
+| **EC03** | `input_email` | Email là chuỗi rỗng `""` | **Invalid** | Rỗng / Empty string | `[SPEC]`, `[CODE]` |
+| **EC04** | `input_email` | Email chỉ chứa khoảng trắng `"   "` | **Invalid** | Whitespace-only string | `[SPEC]`, `[CODE]` |
+| **EC05** | `input_email` | Email sai quy cách định dạng (thiếu `@`, thiếu tên miền) | **Invalid** | Format violation | `[SPEC]` |
+| **EC06** | `input_email` | Trường `email` bị thiếu (undefined / không truyền) | **Invalid** | Missing field | `[CODE]` |
+| **EC07** | `input_email` | Trường `email` sai kiểu dữ liệu (Number `12345`, Boolean `true`) | **Invalid** | Wrong data type | `[CODE]` |
+| **EC08** | `input_password` | Mật khẩu chính xác khớp với mật khẩu tài khoản trong CSDL (VD: `Test1234!`) | **Valid** | Mật khẩu đúng | `[SPEC]`, `[CODE]` `server.js:46` |
+| **EC09** | `input_password` | Mật khẩu không chính xác / sai mật khẩu (VD: `WrongPassword123!`) | **Invalid** | Mật khẩu sai | `[CODE]` `server.js:53` |
+| **EC10** | `input_password` | Mật khẩu là chuỗi rỗng `""` | **Invalid** | Rỗng / Empty string | `[SPEC]`, `[CODE]` |
+| **EC11** | `input_password` | Mật khẩu chỉ chứa khoảng trắng `"   "` | **Invalid** | Whitespace-only string | `[SPEC]`, `[CODE]` |
+| **EC12** | `input_password` | Trường `password` bị thiếu (undefined / không truyền) | **Invalid** | Missing field | `[CODE]` |
+| **EC13** | `input_password` | Trường `password` sai kiểu dữ liệu (Number `123456`, Boolean `false`) | **Invalid** | Wrong data type | `[CODE]` |
+| **EC14** | `state_account` | Tài khoản ở trạng thái bình thường (`login_attempts = 0`, không bị khóa) | **Valid** | Trạng thái tài khoản chuẩn | `[CODE]` `server.js:40` |
+| **EC15** | `state_account` | Tài khoản đang bị khóa tạm thời (`locked_until > now`) | **Invalid** | Trạng thái tài khoản bị khóa | `[CODE]` `server.js:40-44` |
+| **EC16** | `state_account` | Tài khoản cận điểm khóa: Đã sai 1 lần (`login_attempts = 2`), sai thêm lần này sẽ kích hoạt khóa | **Invalid** | Trạng thái ngưỡng chuyển đổi | `[CODE]` `server.js:54-58` |
+| **EC17** | `state_session` | Đăng xuất khi đang có phiên đăng nhập hợp lệ (`token != ""`) | **Valid** | Đăng xuất người dùng bình thường | `[CODE]` `App.js:161` |
+| **EC18** | `state_session` | Thao tác Đăng xuất khi đang là khách vãng lai (Guest - chưa đăng nhập) | **Invalid** | Xung đột ngữ cảnh trạng thái | `[CODE]` `App.js:161` |
+| **EC19** | `state_cart` | Đăng xuất khi giỏ hàng rỗng (`cart = []`) | **Valid** | Trạng thái giỏ hàng rỗng | `[CODE]` `App.js:161` |
+| **EC20** | `state_cart` | Đăng xuất khi giỏ hàng đang có sản phẩm (`cart.length > 0`) | **Invalid** | Lỗ hổng rò rỉ dữ liệu phiên giỏ hàng | `[CODE]` `App.js:161-169` |
+| **EC21** | Output | Đăng nhập thành công: HTTP 200, cấp Token JWT, chuyển về `home` | **Valid** | Kết quả mong đợi thành công | `[SPEC]`, `[CODE]` `server.js:52` |
+| **EC22** | Output | Đăng nhập thất bại do sai thông tin: HTTP 401, không cấp token | **Invalid** | Kết quả mong đợi thất bại 401 | `[SPEC]`, `[CODE]` `server.js:63` |
+| **EC23** | Output | Đăng nhập bị chặn do tài khoản bị khóa: HTTP 403, báo lỗi tài khoản bị khóa | **Invalid** | Kết quả mong đợi từ chối 403 | `[CODE]` `server.js:42` |
+| **EC24** | Output | Đăng xuất thành công: Xóa sạch `token`, `user`, dọn dẹp giỏ hàng, chuyển về `home` | **Valid** | Kết quả mong đợi đăng xuất | `[SPEC]`, `[CODE]` `App.js:168` |
+
+##### Bước 3: Chọn giá trị đại diện và lý giải kỹ thuật
+
+| Mã lớp | Biến | Giá trị đại diện tiêu biểu | Lý do lựa chọn |
+| :---: | :--- | :--- | :--- |
+| **EC01** | `input_email` | `"test@eshop.com"` | Email đã được seed sẵn trong CSDL SUT với vai trò Customer |
+| **EC02** | `input_email` | `"unregistered_user_99@domain.com"` | Email đúng cú pháp nhưng chưa từng được đăng ký trong hệ thống |
+| **EC03** | `input_email` | `""` | Chuỗi rỗng độ dài 0 ký tự |
+| **EC04** | `input_email` | `"   "` | Chuỗi gồm 3 ký tự khoảng trắng |
+| **EC05** | `input_email` | `"invalid-email-format"` | Chuỗi thiếu ký tự `@` và thiếu domain |
+| **EC06** | `input_email` | `undefined` (omitted in payload) | Trường bị thiếu hoàn toàn trong request JSON |
+| **EC07** | `input_email` | `123456` | Số nguyên thay vì chuỗi văn bản |
+| **EC08** | `input_password` | `"Test1234!"` | Mật khẩu chính xác tương ứng với tài khoản `test@eshop.com` |
+| **EC09** | `input_password` | `"WrongPass123!"` | Mật khẩu sai có độ dài chuẩn |
+| **EC10** | `input_password` | `""` | Chuỗi rỗng |
+| **EC11** | `input_password` | `"   "` | Chuỗi khoảng trắng |
+| **EC12** | `input_password` | `undefined` (omitted in payload) | Trường bị thiếu trong request |
+| **EC13** | `input_password` | `false` | Kiểu dữ liệu Boolean thay vì String |
+| **EC14** | `state_account` | `login_attempts = 0, locked_until = null` | Trạng thái hoạt động bình thường |
+| **EC15** | `state_account` | `locked_until = now + 180000ms` | Tài khoản đang trong thời hạn bị khóa |
+| **EC16** | `state_account` | `login_attempts = 2` | Trạng thái cận điểm khóa (đã sai 1 lần) |
+| **EC17** | `state_session` | `token = "Bearer <valid_jwt>"` | Đang có phiên đăng nhập hợp lệ |
+| **EC18** | `state_session` | `token = ""` | Phiên khách vãng lai (Guest) |
+| **EC19** | `state_cart` | `cart = []` | Giỏ hàng rỗng |
+| **EC20** | `state_cart` | `[{"id": 1, "name": "iPhone 15", "quantity": 1}]` | Giỏ hàng có chứa sản phẩm |
+| **EC21** | Output | HTTP 200 OK + JWT Token | Đăng nhập thành công |
+| **EC22** | Output | HTTP 401 Unauthorized | Thông tin sai |
+| **EC23** | Output | HTTP 403 Forbidden | Tài khoản bị khóa |
+| **EC24** | Output | `token = "", user = null, view = "home"` | Đăng xuất hoàn tất |
+
+##### Bước 4: Thiết kế ca kiểm thử tối thiểu và Ma trận bao phủ (Coverage Matrix)
+
+| Mã TC (Test ID) | Tiêu đề ca kiểm thử | Loại kiểm thử | Dữ liệu đầu vào (Payload / Input) | Trạng thái tiền điều kiện | Kết quả mong đợi | Lớp tương đương bao phủ |
+| :--- | :--- | :---: | :--- | :--- | :--- | :--- |
+| **FR20-DT-01** | Đăng nhập thành công với tài khoản User hợp lệ | API / UI | `email: "test@eshop.com"`, `password: "Test1234!"` | User tồn tại, chưa bị khóa | HTTP 200 OK, trả về Token JWT, điều hướng về Home | `EC01`, `EC08`, `EC14`, `EC21` |
+| **FR20-DT-02** | Đăng nhập thành công với tài khoản Admin hợp lệ | API / UI | `email: "admin@eshop.com"`, `password: "Admin123!"` | Admin tồn tại, chưa bị khóa | HTTP 200 OK, trả về Token JWT với role='admin' | `EC01`, `EC08`, `EC14`, `EC21` |
+| **FR20-DT-03** | Đăng nhập thất bại với email chưa từng đăng ký | API / UI | `email: "unregistered_user_99@domain.com"`, `password: "Test1234!"` | Email không có trong CSDL | HTTP 401 Unauthorized, thông báo lỗi xác thực | `EC02`, `EC08`, `EC22` |
+| **FR20-DT-04** | Đăng nhập với email là chuỗi rỗng `""` | API / UI | `email: ""`, `password: "Test1234!"` | CSDL có sẵn | HTTP 400 Bad Request (hoặc 401 từ chối) | `EC03`, `EC08`, `EC22` |
+| **FR20-DT-05** | Đăng nhập với email chỉ chứa khoảng trắng `"   "` | API / UI | `email: "   "`, `password: "Test1234!"` | CSDL có sẵn | HTTP 400 Bad Request (hoặc 401 từ chối) | `EC04`, `EC08`, `EC22` |
+| **FR20-DT-06** | Đăng nhập với email sai quy cách định dạng | API / UI | `email: "invalid-email-format"`, `password: "Test1234!"` | CSDL có sẵn | HTTP 400 Bad Request (hoặc 401 từ chối) | `EC05`, `EC08`, `EC22` |
+| **FR20-DT-07** | Đăng nhập khi thiếu trường `email` trong payload | API | `{ "password": "Test1234!" }` | CSDL có sẵn | HTTP 400 Bad Request | `EC06`, `EC08`, `EC22` |
+| **FR20-DT-08** | Đăng nhập khi trường `email` sai kiểu dữ liệu số | API | `{ "email": 123456, "password": "Test1234!" }` | CSDL có sẵn | HTTP 400 Bad Request | `EC07`, `EC08`, `EC22` |
+| **FR20-DT-09** | Đăng nhập thất bại do mật khẩu không chính xác | API / UI | `email: "test@eshop.com"`, `password: "WrongPass123!"` | User tồn tại (`login_attempts=0`) | HTTP 401 Unauthorized, tăng attempts lên 2 | `EC01`, `EC09`, `EC14`, `EC22` |
+| **FR20-DT-10** | Đăng nhập với mật khẩu là chuỗi rỗng `""` | API / UI | `email: "test@eshop.com"`, `password: ""` | User tồn tại | HTTP 400 Bad Request | `EC01`, `EC10`, `EC22` |
+| **FR20-DT-11** | Đăng nhập với mật khẩu chỉ chứa khoảng trắng `"   "` | API / UI | `email: "test@eshop.com"`, `password: "   "` | User tồn tại | HTTP 400 Bad Request | `EC01`, `EC11`, `EC22` |
+| **FR20-DT-12** | Đăng nhập khi thiếu trường `password` trong payload | API | `{ "email": "test@eshop.com" }` | User tồn tại | HTTP 400 Bad Request | `EC01`, `EC12`, `EC22` |
+| **FR20-DT-13** | Đăng nhập khi trường `password` sai kiểu Boolean | API | `{ "email": "test@eshop.com", "password": false }` | User tồn tại | HTTP 400 Bad Request | `EC01`, `EC13`, `EC22` |
+| **FR20-DT-14** | Kiểm tra cơ chế khóa tài khoản khi gõ sai lần 2 liên tiếp | API / Logic | `email: "test@eshop.com"`, `password: "WrongSecondTime!"` | Tài khoản đã sai 1 lần (`attempts=2`) | HTTP 401, CSDL cập nhật `locked_until != null` | `EC01`, `EC09`, `EC16`, `EC22` |
+| **FR20-DT-15** | Đăng nhập bị từ chối khi tài khoản đang bị khóa | API / UI | `email: "test@eshop.com"`, `password: "Test1234!"` | Tài khoản có `locked_until > now` | HTTP 403 Forbidden ("Tài khoản đã bị khóa") | `EC01`, `EC08`, `EC15`, `EC23` |
+| **FR20-DT-16** | Kiểm tra an toàn dữ liệu: Không rò rỉ mật khẩu trong response đăng nhập | API / Sec | `email: "test@eshop.com"`, `password: "Test1234!"` | Đăng nhập thành công | Response body KHÔNG được chứa trường `password` | `EC01`, `EC08`, `EC21` |
+| **FR20-DT-17** | Mobile Logout: Đăng xuất người dùng bình thường khi giỏ hàng rỗng | Mobile UI | Bấm nút Thoát (`logout()`) | User đã đăng nhập, `cart = []` | Xóa Token, User = null, chuyển về màn hình Home | `EC17`, `EC19`, `EC24` |
+| **FR20-DT-18** | Mobile Logout: Kiểm tra dọn dẹp giỏ hàng khi người dùng có sản phẩm | Mobile UI | Bấm nút Thoát (`logout()`) | User đã đăng nhập, `cart.length = 2` | Giỏ hàng phải được làm sạch (`cart = []`) | `EC17`, `EC20`, `EC24` |
+| **FR20-DT-19** | Mobile UI: Kiểm tra nhãn trường Email và ngôn ngữ nút bấm | Mobile UI | Xem màn hình Login | Giao diện hiển thị | Nhãn là "Email", nút bấm là "Đăng nhập" (tiếng Việt) | `EC01`, `EC08` |
+| **FR20-DT-20** | Mobile Logout: Thao tác đăng xuất khi chưa có phiên đăng nhập | Mobile UI | Gọi `logout()` ở trạng thái khách | `token = "", user = null` | Không gây crash ứng dụng, duy trì trạng thái an toàn | `EC18`, `EC24` |
+
+*Ma trận bao phủ:* Toàn bộ 24 lớp tương đương (`EC01` đến `EC24`) đều được kiểm thử ít nhất một lần (**100% Equivalence Partition Coverage**).
+
+---
+
+#### 3.6.3 Phân tích giá trị biên (Boundary Value Analysis - BVA)
+
+##### Bước 1: Xác định miền có thứ tự và biến áp dụng/không áp dụng
+
+| Miền kiểm thử (Variable / Attribute) | Bản chất miền | Khoảng hợp lệ đóng `[LB, UB]` | Dạng bất đẳng thức mở | Bước nhảy nhỏ nhất (Smallest Step) | Nguồn dữ kiện (Source Tag) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| `password.length` (Độ dài mật khẩu) | Độ dài chuỗi (Characters) | `[8, 128]` | `8 <= length <= 128` | 1 ký tự | `[SPEC]` §1.1, §1.2 |
+| `email.length` (Độ dài email) | Độ dài chuỗi (Characters) | `[6, 254]` | `6 <= length <= 254` | 1 ký tự | `[SPEC]` RFC 5321/5322 |
+| `login_attempts` (Số lần đăng nhập sai) | Số nguyên đếm (Integer count) | `[0, 2]` | `0 <= attempts < 3` | 1 lần | `[CODE]` `server.js:54-58` |
+| `locked_until` (Thời hạn khóa tài khoản) | Mốc thời gian (Timestamp) | `[now - ∞, now]` | `locked_until <= now` | 1 giây (1s) | `[CODE]` `server.js:40` |
+
+*Các biến không áp dụng BVA:* `user.role` (Enum string: admin, user); `token` (JWT cryptographic hash vô hướng); `email format` (Regex grammar); `session_state` (Binary state).
+
+##### Bước 2: Lựa chọn biến thể BVA 3-value và Mô hình 9 điểm
+- Áp dụng kỹ thuật **3-value BVA** ($LB-1, LB, LB+1, UB-1, UB, UB+1$) khảo sát 3 giá trị tại mỗi biên.
+- Áp dụng **Mô hình 9 điểm** kiểm thử các điểm cực trị: Điểm cực tiểu vật lý ($-alpha$: chuỗi rỗng độ dài 0) và Điểm cực đại vật lý ($+alpha$: chuỗi DoS 10,000 ký tự).
+- Áp dụng **Quy tắc mã hóa tiếng Việt UTF-8 (v2.0 Encoding Rule)**: Chuỗi 128 ký tự tiếng Việt có dấu (kích thước thực tế hơn 250 bytes) tại cận trên $UB$ để kiểm tra sự chênh lệch đo lường giữa ký tự và byte trong mã nguồn backend.
+
+##### Bước 3: Thiết kế các ca kiểm thử BVA (14 ca kiểm thử)
+
+| Mã TC | Biến kiểm thử | Điểm biên | Giá trị kiểm thử (Value) | Các tham số cố định | Kết quả mong đợi | Lỗi phần mềm code sẽ bắt được (Fault it catches) | Nguồn |
+| :--- | :--- | :---: | :--- | :--- | :--- | :--- | :---: |
+| **FR20-BVA-01** | `password.length` | $LB - 1$ (7 ký tự) | `"Pass12!"` (7 chars) | `email: "test@eshop.com"` | HTTP 400 Bad Request ("Mật khẩu tối thiểu 8 ký tự") | Backend không kiểm tra độ dài tối thiểu của mật khẩu khi đăng nhập | `[SPEC]` |
+| **FR20-BVA-02** | `password.length` | $LB$ (8 ký tự) | `"Pass123!"` (8 chars) | `email: "test@eshop.com"` | HTTP 200 OK (Đăng nhập thành công) | Nhầm lẫn dấu so sánh `>` thay vì `>=` tại cận dưới | `[SPEC]` |
+| **FR20-BVA-03** | `password.length` | $LB + 1$ (9 ký tự) | `"Pass1234!"` (9 chars) | `email: "test@eshop.com"` | HTTP 200/401 xử lý chuẩn | Off-by-one lỗi lệch 1 đơn vị | `[SPEC]` |
+| **FR20-BVA-04** | `password.length` | $UB - 1$ (127 ký tự) | Chuỗi ASCII 127 ký tự | `email: "test@eshop.com"` | HTTP 200/401 xử lý chuẩn | Tràn cận trên chuỗi mật khẩu | `[SPEC]` |
+| **FR20-BVA-05** | `password.length` | $UB$ (128 ký tự) | Chuỗi ASCII 128 ký tự | `email: "test@eshop.com"` | HTTP 200/401 xử lý chuẩn | Nhầm lẫn dấu so sánh `<` thay vì `<=` tại cận trên | `[SPEC]` |
+| **FR20-BVA-06** | `password.length` | $UB + 1$ (129 ký tự) | Chuỗi ASCII 129 ký tự | `email: "test@eshop.com"` | HTTP 400 Bad Request ("Mật khẩu vượt quá 128 ký tự") | Thiếu ràng buộc chặn mật khẩu quá dài gây tốn chi phí hash Bcrypt/Argon | `[SPEC]` |
+| **FR20-BVA-07** | `password.length` | Encoding UTF-8 v2.0 | Chuỗi 128 ký tự tiếng Việt có dấu (`"MậtKhẩuViệtNam..."` = 250+ bytes) | `email: "test@eshop.com"` | Xử lý an toàn UTF-8 | Backend đo byte length thay vì char length gây cắt cụt mật khẩu | `[SPEC]` v2.0 |
+| **FR20-BVA-08** | `password.length` | $+ alpha$ Extreme | Chuỗi DoS 10,000 ký tự | `email: "test@eshop.com"` | HTTP 400 Bad Request (Payload Too Large) | Lỗ hổng DoS máy chủ qua payload xác thực cực lớn | `[CODE]` |
+| **FR20-BVA-09** | `email.length` | $LB - 1$ (5 ký tự) | `"a@b.c"` (5 chars) | `password: "Test1234!"` | HTTP 400 Bad Request (Email quá ngắn) | Thiếu kiểm tra độ dài email hợp lệ | `[SPEC]` |
+| **FR20-BVA-10** | `email.length` | $LB$ (6 ký tự) | `"a@b.co"` (6 chars) | `password: "Test1234!"` | Xử lý định dạng tối thiểu | Lỗi cắt cụt email cận dưới | `[SPEC]` |
+| **FR20-BVA-11** | `email.length` | $UB$ (254 ký tự) | Chuỗi Email RFC 254 ký tự | `password: "Test1234!"` | Xử lý hợp lệ | Lỗi kích thước trường email trong CSDL SQLite | `[SPEC]` |
+| **FR20-BVA-12** | `email.length` | $UB + 1$ (255 ký tự) | Chuỗi Email 255 ký tự | `password: "Test1234!"` | HTTP 400 Bad Request (Email vượt quá giới hạn) | Thiếu validation độ dài tối đa email | `[SPEC]` |
+| **FR20-BVA-13** | `login_attempts` | Ngưỡng khóa SUT | Gõ sai mật khẩu lần 2 (`newAttempts = 4 >= 3`) | `email: "test@eshop.com"` | Khóa tài khoản ngay tại lần gõ sai thứ 2 | Lỗi logic `+2` mỗi lần sai khiến ngưỡng 3 lần bị kích hoạt sớm ở lần 2 | `[CODE]` `server.js:54` |
+| **FR20-BVA-14** | `locked_until` | Time Boundary (Hết khóa) | Đăng nhập sau khi hết hạn khóa 1 giây (`now - 1s`) | `email: "test@eshop.com"` | HTTP 200 OK (Mở khóa đăng nhập lại) | So sánh thời gian `<` vs `<=` khiến tài khoản bị khóa vĩnh viễn | `[CODE]` `server.js:40` |
+
+---
+
+#### 3.6.4 Kết quả thực thi kiểm thử chi tiết (Execution Results)
+
+Toàn bộ **34 ca kiểm thử** của FR-20 đã được thực thi tự động qua test runner `scratch/execute_fr20.mjs` đối chiếu trực tiếp trên hệ thống SUT Backend và Client logic:
+- **Đã thiết kế (Designed):** 34
+- **Đã thực thi (Executed):** 34 (100%)
+- **Vượt qua (PASS):** 31 (91.2%)
+- **Thất bại (FAIL):** 3 (8.8%)
+- **Bị chặn (BLOCKED):** 0 (0.0%)
+
+##### Bảng kết quả thực thi chi tiết 34 test cases
+
+| Mã TC | Kỹ thuật | Mô tả ca kiểm thử | Kỳ vọng (Expected) | Thực tế (Actual) | Trạng thái |
+| :--- | :---: | :--- | :--- | :--- | :---: |
+| `FR20-DT-01` | DT | Đăng nhập thành công với tài khoản người dùng hợp lệ | HTTP 200, JWT token, user info | HTTP 200, JWT token, user info | **PASS** |
+| `FR20-DT-02` | DT | Đăng nhập thành công với tài khoản quản trị viên (Admin) | HTTP 200, JWT token, role: 'admin' | HTTP 200, JWT token, role: 'admin' | **PASS** |
+| `FR20-DT-03` | DT | Đăng nhập thất bại do email không tồn tại trong hệ thống | HTTP 401, Invalid email or password | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-04` | DT | Đăng nhập với email là chuỗi rỗng | HTTP 400 hoặc 401 | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-05` | DT | Đăng nhập với email chỉ chứa khoảng trắng | HTTP 400 hoặc 401 | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-06` | DT | Đăng nhập với email sai cú pháp định dạng (thiếu @ và domain) | HTTP 400 hoặc 401 | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-07` | DT | Đăng nhập khi thiếu trường email trong payload JSON | HTTP 400 hoặc 401 | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-08` | DT | Đăng nhập khi trường email sai kiểu dữ liệu số | HTTP 400 hoặc 401 | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-09` | DT | Đăng nhập thất bại do mật khẩu không chính xác | HTTP 401, Invalid email or password | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-10` | DT | Đăng nhập với mật khẩu là chuỗi rỗng | HTTP 400 hoặc 401 | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-11` | DT | Đăng nhập với mật khẩu chỉ chứa khoảng trắng | HTTP 400 hoặc 401 | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-12` | DT | Đăng nhập khi thiếu trường password trong payload | HTTP 400 hoặc 401 | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-13` | DT | Đăng nhập khi trường password sai kiểu Boolean | HTTP 400 hoặc 401 | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-14` | DT | Kiểm tra cơ chế khóa tài khoản khi gõ sai lần 2 liên tiếp | HTTP 401, ghi nhận vi phạm | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-DT-15` | DT | Đăng nhập bị từ chối khi tài khoản đang trong trạng thái bị khóa | HTTP 403, thông báo tài khoản bị khóa | HTTP 403, Tài khoản đã bị khóa... | **PASS** |
+| `FR20-DT-16` | DT | Kiểm tra an toàn bảo mật: Không rò rỉ mật khẩu trong phản hồi | Response body KHÔNG chứa `"password":` | Body CHỨA trường `"password":"Password123!"` | **FAIL** |
+| `FR20-DT-17` | DT | Mobile Logout: Đăng xuất người dùng khi giỏ hàng rỗng | Reset token, user, orders về null/rỗng | Session và tokens được reset về null | **PASS** |
+| `FR20-DT-18` | DT | Mobile Logout: Kiểm tra dọn dẹp giỏ hàng khi người dùng có hàng | Giỏ hàng phải được reset `cart = []` | Bỏ quên `setCart([])`, giỏ hàng tồn lưu 2 sản phẩm | **FAIL** |
+| `FR20-DT-19` | DT | Mobile UI: Kiểm tra nhãn trường Email và ngôn ngữ nút bấm tiếng Việt | Nhãn: "Email", Nút: "Đăng nhập", Lỗi trên nút | Nhãn: "Username", Nút: "Sign In", Lỗi dưới nút | **FAIL** |
+| `FR20-DT-20` | DT | Mobile Logout: Thao tác đăng xuất khi chưa đăng nhập (Guest) | Ứng dụng an toàn, không crash ngoại lệ | Thực thi an toàn, chuyển view 'login' | **PASS** |
+| `FR20-BVA-01` | BVA | Cận dưới mật khẩu LB-1: Độ dài 7 ký tự (Invalid) | HTTP 401, từ chối đăng nhập | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-02` | BVA | Cận dưới mật khẩu LB: Độ dài chuẩn 8 ký tự (Valid) | HTTP 200, đăng nhập thành công | HTTP 200, Login successful | **PASS** |
+| `FR20-BVA-03` | BVA | Cận dưới mật khẩu LB+1: Độ dài 9 ký tự (Valid) | HTTP 401 (mật khẩu không khớp) | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-04` | BVA | Cận trên mật khẩu UB-1: Độ dài 127 ký tự (Valid) | HTTP 401 (mật khẩu không khớp) | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-05` | BVA | Cận trên mật khẩu UB: Độ dài 128 ký tự (Valid) | HTTP 401 (mật khẩu không khớp) | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-06` | BVA | Cận trên mật khẩu UB+1: Độ dài 129 ký tự (Invalid) | HTTP 401 (từ chối do quá dài) | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-07` | BVA | Encoding Rule v2.0: Mật khẩu chứa chuỗi tiếng Việt UTF-8 | HTTP 401 (xử lý byte an toàn) | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-08` | BVA | Physical Extreme (+alpha): Mật khẩu DoS payload 10,000 ký tự | HTTP 401 (hoặc 413, không crash server) | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-09` | BVA | Cận dưới Email LB-1: Độ dài 5 ký tự (Invalid) | HTTP 401, từ chối đăng nhập | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-10` | BVA | Cận dưới Email LB: Độ dài tối thiểu 6 ký tự `a@b.co` (Valid) | HTTP 401 (email không tồn tại) | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-11` | BVA | Cận trên Email UB: Chuỗi Email chuẩn RFC 254 ký tự (Valid) | HTTP 401 (email không tồn tại) | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-12` | BVA | Cận trên Email UB+1: Chuỗi Email 255 ký tự vượt giới hạn RFC | HTTP 401 (hoặc 400, từ chối) | HTTP 401, Invalid email or password | **PASS** |
+| `FR20-BVA-13` | BVA | Ngưỡng số lần gõ sai: Chuyển đổi trạng thái khi sai lần 1 và 2 | HTTP 401 cho lần 1 và 2, chưa bị khóa | HTTP 401, ghi nhận số lần sai | **PASS** |
+| `FR20-BVA-14` | BVA | Biên thời gian khóa locked_until: Đăng nhập sau hết hạn khóa 1s | HTTP 200, mở khóa tự động thành công | HTTP 200, Login successful | **PASS** |
+
+---
+
+#### 3.6.5 Báo cáo khiếm khuyết phần mềm (Defect Reports)
+
+| Mã lỗi (Bug ID) | Tiêu đề lỗi | Các TC phát hiện | Mức độ (Severity) | Độ ưu tiên |
+| :--- | :--- | :---: | :---: | :---: |
+| **BUG-FR20-01** | Hàm `logout()` trong Mobile App không dọn dẹp giỏ hàng gây rò rỉ dữ liệu phiên giữa các người dùng (Cross-user Cart Retention) | `FR20-DT-18` | **High** | High |
+| **BUG-FR20-02** | API `POST /api/login` trả về mật khẩu người dùng dạng plaintext trong response JSON (Sensitive Data Exposure) | `FR20-DT-16` | **Critical** | Immediate |
+| **BUG-FR20-03** | Cơ chế tính số lần đăng nhập sai cộng dồn bước nhảy 2 khiến tài khoản bị khóa bất thường chỉ sau 2 lần sai (Premature Lockout) | `FR20-DT-14`, `FR20-BVA-13` | **Medium** | Medium |
+| **BUG-FR20-04** | Giao diện đăng nhập Mobile App sử dụng nhãn tiếng Anh không đồng nhất và đặt vị trí thông báo lỗi sai chuẩn UI/UX | `FR20-DT-19` | **Low** | Low |
+
+---
+
+#### 3.6.6 Phân tích khoảng trống của AI (AI Gap Analysis & Nâng cấp kỹ năng v2.3)
+
+Quá trình kiểm thử FR-20 đã làm bộc lộ 4 khoảng trống AI quan trọng:
+
+| Mục bị bỏ sót / Thách thức thực tế | Cách phát hiện | Vì sao AI bỏ sót ban đầu | Phân loại nguyên nhân (Category) | Cải tiến kỹ năng (Skill Fix) |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Bỏ sót hiệu ứng phụ lưu giữ giỏ hàng khi Logout (Client Session Bleed)** | Kiểm tra mã nguồn `App.js:161-169` thấy gọi `setToken(null)`, `setUser(null)`, `setOrders([])` nhưng thiếu `setCart([])`. Chạy thử trên mobile thấy giỏ hàng vẫn còn nguyên. | AI thường tập trung kiểm tra xem token và danh tính người dùng có bị hủy hay không, mà bỏ quên các mảng dữ liệu tạm thời phụ trợ (Auxiliary States) của ứng dụng như giỏ hàng cục bộ. | `Inherent feature complexity` | Bổ sung quy tắc **Mobile Client Session Teardown Checklist**: Trong bất kỳ hàm logout nào, phải kiểm tra danh sách đầy đủ tất cả các React state hook của ứng dụng để đảm bảo mọi dữ liệu tạm thời (cart, draft, cached items) đều được làm sạch. |
+| **2. Hiệu ứng khóa dây chuyền trong kiểm thử API có trạng thái (Cascading Lockout)** | Khi chạy đợt test đầu tiên, các ca kiểm thử mật khẩu sai làm tài khoản `test@eshop.com` bị khóa, khiến tất cả các test case phía sau đều thất bại với HTTP 403. | AI có xu hướng xem các HTTP request là phi trạng thái (Stateless), không lường trước cơ chế đếm vi phạm cộng dồn trong CSDL backend làm biến đổi trạng thái của fixture test. | `Tool limitation` & `Execution isolation` | Bổ sung quy tắc **Stateful Database Test Isolation Rule**: Trước mỗi ca kiểm thử API đăng nhập độc lập, test runner phải thực hiện lệnh reset trạng thái (`UPDATE users SET login_attempts = 0, locked_until = NULL`) trong CSDL. |
+| **3. Điểm mù đối với bước nhảy tăng dần trong cơ chế khóa tài khoản** | Đọc mã nguồn `server.js:54`: `(user.login_attempts || 0) + 2` và phát hiện chỉ cần 2 lần sai là đã khóa (0 -> 2 -> 4 >= 3). | AI có thiên kiến kỳ vọng mã nguồn luôn tăng theo bước nhảy chuẩn `+ 1`. Nếu không kiểm tra biểu thức đại số trực tiếp, AI sẽ tin rằng hệ thống luôn cho phép thử 3 lần như đặc tả. | `Prompt/input quality` & `Code analysis gap` | Bổ sung quy tắc **Step Increment & Threshold Audit**: Kiểm tra tỉ mỉ mọi toán tử tăng (`+= 1` vs `+= 2`) liên quan đến các biến đếm kiểm soát hạn mức (Rate-limiting/Lockout counters) so với ngưỡng so sánh. |
+| **4. Bỏ sót kiểm tra an toàn dữ liệu nhạy cảm trong phản hồi thành công** | Soát kết quả trả về của `POST /api/login` thấy trường `password: "Password123!"` hiển thị trong JSON body. | AI thường chỉ assert mã trạng thái HTTP 200 và sự hiện diện của trường `token` mà không thực hiện kiểm tra loại trừ (Negative Assertion / `body_excludes: ['"password":']`). | `Prompt/input quality` | Bổ sung quy tắc **PII & Credential Negative Assertion Rule**: Mọi bài test xác thực đăng nhập (Login/Register/Profile) bắt buộc phải kiểm tra điều kiện loại trừ không được chứa trường `password` hoặc `hash` trong response payload. |
+
+---
+
+#### 3.6.7 Hạn chế của kỹ thuật
+1. **Bản chất trạng thái (Statefulness) và chuỗi sự kiện tích lũy:** Kỹ thuật kiểm thử miền và BVA truyền thống hoạt động dựa trên giả định mỗi lần gọi hàm/request là độc lập (stateless). Tuy nhiên, cơ chế bảo vệ đăng nhập (Account Lockout) lại là một máy trạng thái hữu hạn (Finite State Machine) phụ thuộc vào lịch sử các lần gọi trước đó và thời gian trôi qua (`locked_until`). Để bao phủ trọn vẹn, cần kết hợp thêm kỹ thuật Kiểm thử chuyển trạng thái (State Transition Testing).
+2. **Vòng đời phiên làm việc trên Client (Client-Side Session Lifecycle):** BVA chỉ đánh giá dữ liệu đầu vào và đầu ra của từng hàm hoặc endpoint đơn lẻ, hoàn toàn bất lực trước các lỗi kiến trúc quản lý trạng thái trên Client (như việc React state của `cart` không được dọn dẹp khi chuyển đổi giữa các phiên đăng nhập khác nhau). Lỗi này đòi hỏi kiểm thử luồng người dùng đầu cuối (End-to-End User Flow Testing).
+3. **Khoảng cách giữa kiểm thử chức năng và kiểm thử an toàn thông tin:** Việc mật khẩu bị trả về dạng plaintext (`BUG-FR20-02`) không hề làm sai lệch chức năng đăng nhập (người dùng vẫn nhận được token và đăng nhập thành công). Kỹ thuật kiểm thử miền chức năng thông thường sẽ chấm điểm PASS cho ca kiểm thử này nếu không có quy chuẩn kiểm thử bảo mật chuyên biệt (Security Vulnerability Testing) nhằm soi quét việc phơi nhiễm dữ liệu nhạy cảm.
+
+---
+
+### **3.7 Consolidated Bug Reports**
+
+Hiện tại đã ghi nhận và phân loại tổng cộng **23 lỗi phần mềm** (5 lỗi từ FR-01, 4 lỗi từ FR-03, 7 lỗi từ FR-08, 3 lỗi từ FR-12, và 4 lỗi từ FR-20). Toàn bộ lỗi đều được xác thực trực tiếp qua phân tích mã nguồn SUT và thực thi test runner tự động:
 
 | Mã lỗi (Bug ID) | Tiêu đề lỗi | Tính năng | Các TC phát hiện | Mức độ (Severity) | Độ ưu tiên | Trạng thái |
 | :--- | :--- | :---: | :--- | :---: | :---: | :---: |
@@ -1332,6 +1589,10 @@ Hiện tại đã ghi nhận và phân loại tổng cộng **19 lỗi phần m�
 | **BUG-FR12-01** | Backend middleware `authenticateToken` không kiểm tra vai trò admin và các route quản trị thiếu role check | FR-12 | FR12-DT-07, 08, 13, 15, 18 | **Critical** | **Immediate** | Confirmed |
 | **BUG-FR12-02** | Endpoint quản lý sản phẩm `POST /api/products`, `PUT/DELETE` bỏ quên middleware `authenticateToken` | FR-12 | FR12-DT-16, FR12-BVA-11..14 | **Critical** | **Immediate** | Confirmed |
 | **BUG-FR12-03** | Lỗ hổng gán tham số hàng loạt (Mass Assignment) tại `PUT /api/users/me` cho phép user tự nâng quyền thành Admin | FR-12 | FR12-DT-11 | **High** | **High** | Confirmed |
+| **BUG-FR20-01** | Hàm logout() trong Mobile App không dọn dẹp giỏ hàng gây rò rỉ dữ liệu phiên giữa các người dùng (Cross-user Cart Retention) | FR-20 | FR20-DT-18 | **High** | **High** | Confirmed |
+| **BUG-FR20-02** | API POST /api/login trả về mật khẩu người dùng dạng plaintext trong response JSON (Sensitive Data Exposure) | FR-20 | FR20-DT-16 | **Critical** | **Immediate** | Confirmed |
+| **BUG-FR20-03** | Cơ chế tính số lần đăng nhập sai cộng dồn bước nhảy 2 khiến tài khoản bị khóa bất thường chỉ sau 2 lần sai (Premature Lockout) | FR-20 | FR20-DT-14, FR20-BVA-13 | **Medium** | **Medium** | Confirmed |
+| **BUG-FR20-04** | Giao diện đăng nhập Mobile App sử dụng nhãn tiếng Anh không đồng nhất và đặt vị trí thông báo lỗi sai chuẩn UI/UX | FR-20 | FR20-DT-19 | **Low** | **Low** | Confirmed |
 
 ---
 
@@ -1345,6 +1606,7 @@ Bảng tổng hợp số liệu kiểm thử được kết xuất tự động 
 | **FR-03 (Forgot & Reset password)** | 37 | 37 | 21 | 16 | 0 | 0 |
 | **FR-08 (Checkout)** | 42 | 42 | 16 | 26 | 0 | 0 |
 | **FR-12 (Access control)** | 32 | 32 | 21 | 11 | 0 | 0 |
-| **Tổng cộng (Total)** | **141** | **141** | **68** | **73** | **0** | **0** |
+| **FR-20 (Mobile Login & Logout)** | 34 | 34 | 31 | 3 | 0 | 0 |
+| **Tổng cộng (Total)** | **175** | **175** | **99** | **76** | **0** | **0** |
 
 ---

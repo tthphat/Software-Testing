@@ -1,0 +1,73 @@
+21e8dcf 2026-10-20 docs(HW2): add Mandatory Appendix A AI audit and B AI Critique report
+ef89804 2026-10-20 test(HW2): add Mobile UI test screenshots and link evidence to FR-20 bug reports
+be3c9db 2026-10-20 feat(HW2): FR-20 test execution, defect triage and AI gap analysis
+068ee22 2026-10-20 feat(HW2): FR-20 BVA 3-value test cases and report
+1c52a20 2026-10-20 feat(HW2): FR-20 Domain Testing equivalence classes and report
+c1ed89e 2026-10-20 test(HW2): add Web UI test screenshots and evidence report
+52e745e 2026-10-20 Merge pull request #3 from tthphat/FR-12
+8dba23a 2026-10-20 chore(HW2): merge main into FR-12, consolidate reports and test suites
+75aa296 2026-10-19 Merge pull request #2 from tthphat/HW2
+f28f030 2026-10-19 feat(HW2): complete FR-12 main report, test summary and readme update
+bf48bba 2026-10-19 feat(HW2): add FR-08 bug screenshots and sync execution logs
+6b91e05 2026-10-19 feat(HW2): FR-12 test execution, defect triage and AI gap analysis
+f3f9823 2026-10-19 feat(HW2): FR-08 finalize stage 6 and update main report
+4b67991 2026-10-19 feat(HW2): FR-12 BVA 3-value test cases and report
+b31b8a1 2026-10-19 feat(HW2): FR-08 bug reports and AI gap analysis stage 4-5
+f603064 2026-10-19 feat(HW2): FR-12 domain testing stage 3-5 test cases and coverage
+b633646 2026-10-19 feat(HW2): FR-08 test execution and triage stage 1-3
+4cba2f3 2026-10-19 feat(HW2): FR-08 boundary value analysis stage 3-4
+4263bcc 2026-10-19 feat(HW2): FR-12 domain testing step 2 - equivalence classes
+922d161 2026-10-19 feat(HW2): FR-08 boundary value analysis stage 1-2
+778abe9 2026-10-19 feat(HW2): FR-08 domain testing test cases and report stage 3-5
+371cc18 2026-10-19 feat(HW2): FR-08 equivalence partitioning stage 2
+5938278 2026-10-19 feat(HW2): FR-08 domain testing stage 0 and 1
+411ccb9 2026-10-19 eat(HW2): complete FR-03 test execution, main report and readme update
+667fc83 2026-10-19 feat(HW2): FR-03 bug reports and AI gap analysis stage 4-5, evidence"
+4a75231 2026-10-19 feat(HW2): add FR-03 test execution evidence log
+d4c13a1 2026-10-19 feat(HW2): FR-03 test execution and failure triage stage 3
+8e875e7 2026-10-19 feat(HW2): FR-03 BVA 3-value test cases and report
+9a2a208 2026-10-19 feat(HW2): FR-03 domain testing stage 3-5 test cases and coverage
+53009f8 2026-10-19 feat(HW2): FR-03 equivalence partitions stage 2
+3479294 2026-10-19 feat(HW2): FR-03 domain testing stage 0-1 facts and variables
+850b0bc 2026-10-19 feat(HW2): FR-01 complete FR-01 section in main report
+80ade09 2026-10-18 chore(HW2): add evidence for issues
+9baa118 2026-10-18 chore(HW2): upgrade skills to v2 with cross-platform skew, unicode encoding, and zero-trust SUT
+a2d424d 2026-10-18 feat(HW2): FR-01 test execution, bug reports and AI gap analysis
+6658268 2026-10-18 HW2-test(FR-01): BVA 3-value test cases and report
+ebbe721 2026-10-17 Merge pull request #1 from tthphat/HW1
+3b0a687 2026-10-17 feat(HW2): test(FR-01) complete domain testing with 16 test cases and coverage matrix
+d454d95 2026-10-17 feat(HW2): update stage 1 for domain testing, after upgrade skill
+926e780 2026-10-17 chore(skills): upgrade domain-testing skill v2 - add Domain column to Stage 1 (gap found in FR-01)
+310cc96 2026-10-16 chore(HW2): add gitignore
+66bc8e3 2026-10-16 chore(HW2): add gitignore
+fdcc047 2026-10-16 feat(HW2): add HW2 Stage 0-1 of domain testing
+1769119 2026-10-16 feat(HW2): add HW2 requirement and plan report
+09d8044 2026-10-16 feat(HW2): rewrite a shell script for running server on window os
+95b26a4 2026-10-11 chore: add .gitignore for eshop/backend
+6110f0e 2026-10-11 chore: remove node_modules from git tracking
+f9ddf7c 2026-10-11 HW2: add eshop repo, skill for testing, documentation for reporting
+6aefdba 2026-10-10 HW2: add requirement for HW2
+9958fc4 2026-09-29 HW1: create git log.txt, video list .txt
+8ea3953 2026-09-29 HW1: rename device picture
+0a3633e 2026-09-29 HW1: add main report markdown version
+258d34a 2026-09-29 HW1: finish main report
+e02d3cb 2026-09-29 HW1: update AI-02, add markdown version
+ff272f8 2026-09-28 HW1: [AI-03] update student information
+cffdeeb 2026-09-28 HW1: finish prompt_log
+7cec4f9 2026-09-28 HW1: add AI-03 md version
+328de29 2026-09-28 HW1: update sheet TestCases_Report: create table for sumerize result
+6b5a8aa 2026-09-28 HW1: finish [AI-05] - FIT@HCMUS - AI Privacy Checklist_Vn
+84cb79f 2026-09-27 HW1: finish [AI-03] - FIT@HCMUS - AI Disclosure Form_Vn
+a87e181 2026-09-27 HW1: finish [AI-02] - FIT@HCMUS - AI Audit Report_Vn
+af28047 2026-09-27 HW1: finish AI Critique, Mandatory Disclosure and Assessment & Self-Assessment in main report
+e9c741b 2026-09-27 HW1: create sheet for test case of physical product
+07f6f7a 2026-09-27 HW1: add AI log
+273e551 2026-09-27 HW1: add AI log for generating QA,QC mindmap
+0d6fe82 2026-09-27 HW1: update requirement 3: update actual result and verdcict column for test case table
+9f2e9dc 2026-09-27 HW1: update requirement 3: add unlisted evidence video for test case
+5d94c4e 2026-09-27 HW1: finish reuirement 3, design test case for physical product(fan)
+16ad4b0 2026-09-27 HW1: add AI log for Requirement 3: design test case
+26416ce 2026-09-26 HW1: finish requirement 2 analysis 20 Software Defects 2022-2026 and add the first AI log
+27c217e 2026-09-25 HW1: finish requirement 1: 10 job QA, Qc and screenshot for evidence
+6112690 2026-09-25 create a sample AI prompt log file
+d850dd0 2026-09-23 Initial commit
