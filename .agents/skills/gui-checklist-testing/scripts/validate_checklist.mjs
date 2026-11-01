@@ -1,15 +1,14 @@
-#!/usr/bin/env node
-
 /**
  * ========================================================================================
- * validate_checklist.mjs
- * 
- * 📌 MỤC ĐÍCH:
- *   Script tự động kiểm toán (Audit & Validate) file bảng Checklist kiểm thử giao diện (GUI),
- *   đảm bảo bài làm tuân thủ đầy đủ các tiêu chí và barem chấm điểm của đề bài HW03 (Task 1).
+ * KIỂM TOÁN TỰ ĐỘNG BẢNG CHECKLIST GUI (CSC13003 S13 METHOD)
+ * ========================================================================================
+ * Script tự động phân tích và đánh giá tính hợp lệ của tệp Markdown Checklist GUI
+ * theo đúng barem và chuẩn mực đề bài HW03 (Kiểm thử phần mềm - FIT@HCMUS).
  * 
  * 🔍 CÁC CHỨC NĂNG CHÍNH:
  *   1. Kiểm tra số lượng mục: Đảm bảo tổng số tiêu chí kiểm thử đạt từ 40 mục trở lên (>= 40 items).
+ *      - Phân tách chính xác giữa Bảng Checklist chính (có STT) và Bảng Phân tích AI Gap Analysis.
+ *      - Thống kê chi tiết phân bổ theo 3 phân hệ SUT: Admin UI, Web Khách hàng, Mobile App.
  *   2. Kiểm tra độ bao phủ 4 khía cạnh giao diện (Interface Aspects - IA):
  *      - IA-01: Chuẩn UI chung (General UI Standards)
  *      - IA-02: Form (Biểu mẫu)
@@ -31,13 +30,15 @@ import path from 'path';
 
 /**
  * Hàm phân tích cú pháp (parse) nội dung Markdown và trích xuất các hàng dữ liệu của bảng Checklist.
+ * Phân tách rõ ràng giữa Bảng Checklist chính (có cột STT là số) và Bảng AI Gap Analysis.
  * 
  * @param {string} content - Toàn bộ nội dung văn bản Markdown của file checklist.
- * @returns {Array<Array<string>>} Mảng chứa các hàng dữ liệu, mỗi hàng là một mảng các cột đã được trim khoảng trắng.
+ * @returns {{ items: Array<Array<string>>, aiGapItems: Array<Array<string>> }}
  */
 function parseChecklistRows(content) {
   const lines = content.split('\n');
   const items = [];
+  const aiGapItems = [];
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -52,14 +53,19 @@ function parseChecklistRows(content) {
         continue;
       }
 
-      // Nhận diện hàng chứa mã mục kiểm thử (bắt đầu bằng 'CHK-' hoặc chứa mã khía cạnh 'IA-0')
-      if (cols.some(c => c.includes('CHK-') || c.includes('IA-0'))) {
+      // Hàng của Bảng Checklist chính bắt buộc có cột STT là số nguyên (1, 2, 3...) và chứa mã 'CHK-' hoặc 'IA-0'
+      const isChecklistRow = /^\d+$/.test(cols[0]) && cols.some(c => c.includes('CHK-') || c.includes('IA-0'));
+
+      if (isChecklistRow) {
         items.push(cols);
+      } else if (cols.some(c => c.includes('CHK-')) && cols.length >= 4) {
+        // Hàng của Bảng Phân tích Khoảng trống AI (AI Gap Analysis - không có cột STT số)
+        aiGapItems.push(cols);
       }
     }
   }
 
-  return items;
+  return { items, aiGapItems };
 }
 
 /**
@@ -75,20 +81,49 @@ function validateChecklist(filePath) {
   }
 
   const content = fs.readFileSync(filePath, 'utf8');
-  const items = parseChecklistRows(content);
+  const { items, aiGapItems } = parseChecklistRows(content);
 
   console.log('====================================================================');
   console.log(`📋 BÁO CÁO KIỂM TOÁN CHECKLIST GUI: ${path.basename(filePath)}`);
   console.log('====================================================================');
 
   const total = items.length;
-  console.log(`\n1️⃣ TỔNG SỐ MỤC CHECKLIST: ${total}`);
+  console.log(`\n1️⃣ TỔNG SỐ MỤC CHECKLIST CHÍNH: ${total} mục`);
+
+  // Thống kê phân bổ theo 3 phân hệ giao diện SUT
+  const screenCounts = {
+    'Admin UI': 0,
+    'Web Khách hàng': 0,
+    'Mobile App (Expo Go)': 0,
+    'Khác / Chung': 0
+  };
+
+  for (const row of items) {
+    const rowStr = row.join(' ');
+    if (rowStr.includes('CHK-ADM') || rowStr.includes('Admin')) {
+      screenCounts['Admin UI']++;
+    } else if (rowStr.includes('CHK-WEB') || rowStr.includes('Web')) {
+      screenCounts['Web Khách hàng']++;
+    } else if (rowStr.includes('CHK-MOB') || rowStr.includes('Mobile')) {
+      screenCounts['Mobile App (Expo Go)']++;
+    } else {
+      screenCounts['Khác / Chung']++;
+    }
+  }
 
   // 2. Kiểm tra chỉ tiêu số lượng (đề bài yêu cầu > 40 mục)
   if (total < 40) {
     console.warn(`⚠️ CẢNH BÁO: Số lượng mục (${total}) CHƯA ĐẠT yêu cầu tối thiểu (> 40 mục của đề bài)!`);
   } else {
-    console.log(`✅ Đạt yêu cầu số lượng: ${total} mục (>= 40 mục).`);
+    console.log(`✅ Đạt yêu cầu số lượng: ${total} mục (>= 40 mục của đề bài).`);
+    console.log(`   • Phân hệ Admin UI: ${screenCounts['Admin UI']} mục`);
+    console.log(`   • Phân hệ Web Khách hàng: ${screenCounts['Web Khách hàng']} mục`);
+    console.log(`   • Phân hệ Mobile App: ${screenCounts['Mobile App (Expo Go)']} mục`);
+  }
+
+  if (aiGapItems.length > 0) {
+    console.log(`\n💡 BẢNG PHÂN TÍCH KHOẢNG TRỐNG AI (AI GAP ANALYSIS):`);
+    console.log(`   ✅ Ghi nhận ${aiGapItems.length} ca phản biện chuyên sâu do con người bổ sung.`);
   }
 
   // 3. Khởi tạo bộ đếm phân bổ theo 4 Khía cạnh giao diện (Interface Aspects)
@@ -151,7 +186,7 @@ function validateChecklist(filePath) {
   console.log('\n3️⃣ KẾT QUẢ THỰC THI (EXECUTION SUMMARY):');
   console.log(`  • Số mục ĐẠT (Passed): ${passedCount} (${((passedCount / total) * 100 || 0).toFixed(1)}%)`);
   console.log(`  • Số mục LỖI (Failed): ${failedCount} (${((failedCount / total) * 100 || 0).toFixed(1)}%)`);
-  console.log(`  • Chưa thực thi / Khác: ${total - passedCount - failedCount}`);
+  console.log(`  • Chưa thực thi / Khác: ${total - passedCount - failedCount} mục`);
 
   // 7. Cảnh báo lỗi thiếu giải trình cột Notes cho các mục FAILED
   if (missingNotesForFailed.length > 0) {
