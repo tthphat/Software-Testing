@@ -13,7 +13,18 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
-const API_URL = typeof window !== "undefined" ? "http://localhost:3000/api" : "http://192.168.10.13:3000/api";
+const RAW_BACKEND = (
+  process.env.EXPO_PUBLIC_BACKEND_URL ||
+  "http://localhost:3000"
+).trim();
+const RAW_API = (
+  process.env.EXPO_PUBLIC_API_URL || `${RAW_BACKEND}/api`
+).trim();
+const API_URL = RAW_API.endsWith("/api")
+  ? RAW_API.replace(/\/+$/, "")
+  : `${RAW_BACKEND.replace(/\/+$/, "")}/api`;
+
+console.log("--> Current Mobile API_URL:", API_URL);
 
 const formatMoney = (value) => `${Number(value).toLocaleString()} ₫`;
 
@@ -101,7 +112,8 @@ export default function App() {
         setProducts(Array.isArray(data) ? data : []);
       }
     } catch (error) {
-      setErrorHtml(String(error.message || error));
+      console.error("[fetchProducts] Failed to fetch:", `${API_URL}/products`, error);
+      setErrorHtml(`${String(error.message || error)} (URL: ${API_URL}/products)`);
     }
     setLoadingProducts(false);
   };
@@ -707,7 +719,7 @@ export default function App() {
                   style={[
                     styles.orangeButton,
                     (!couponCode.trim() || applyingCoupon) &&
-                      styles.disabledButton,
+                    styles.disabledButton,
                   ]}
                   disabled={applyingCoupon || !couponCode.trim()}
                   onPress={handleApplyCoupon}
