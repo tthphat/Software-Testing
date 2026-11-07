@@ -30,25 +30,26 @@
 | 16 | **BUG-GUI-16** | [CHK-MOB-08](checklist.md#L64) | **IA-03** | Mobile App (Expo Go) | Bấm phím Back phần cứng của Android làm thoát/đóng ứng dụng ngay lập tức | `Major` | `Open` | [BUG-GUI-16-quit-app-immediately-when-use-android-back-button-p1.jpg](../evidence/screenshots/gui/BUG-GUI-16-quit-app-immediately-when-use-android-back-button-p1.jpg) | [Xem báo cáo](issues/BUG-GUI-16.md) | [BUG-GUI-16](https://github.com/tthphat/eshop-sut/issues/91) |
 | 17 | **BUG-GUI-17** | [CHK-MOB-09](checklist.md#L65) | **IA-01** | Mobile App (Expo Go) | Thiếu vùng an toàn Safe Area trên Android khiến Header bị đè lên Status Bar | `Major` | `Open` | [BUG-GUI-17-haven't-safe-area.jpg](../evidence/screenshots/gui/BUG-GUI-17-haven't-safe-area.jpg) | [Xem báo cáo](issues/BUG-GUI-17.md) | [BUG-GUI-17](https://github.com/tthphat/eshop-sut/issues/92) |
 | 18 | **BUG-GUI-18** | [CHK-MOB-10](checklist.md#L66) | **IA-02** | Mobile App (Expo Go) | Bàn phím ảo che khuất nút bấm Thêm vào giỏ trên màn hình Chi tiết sản phẩm | `Major` | `Open` | [BUG-GUI-18-virtual-keyboard-hide-submit-button.jpg](../evidence/screenshots/gui/BUG-GUI-18-virtual-keyboard-hide-submit-button.jpg) | [Xem báo cáo](issues/BUG-GUI-18.md) | [BUG-GUI-18](https://github.com/tthphat/eshop-sut/issues/93) |
+| 19 | **BUG-GUI-19** | [CHK-WEB-05](checklist.md#L44) | **IA-01** | Customer Web (`:5173`) | Trang chủ hiển thị từ khóa tìm kiếm qua dangerouslySetInnerHTML gây lỗ hổng HTML Injection / Reflected XSS | `Critical` | `Open` | [BUG-GUI-19-xss-html-injection-search.jpg](../evidence/screenshots/gui/BUG-GUI-19-xss-html-injection-search.jpg) | [Xem báo cáo](issues/BUG-GUI-19.md) | *Đang cập nhật* |
 
 ---
 
 ## 3. Thống kê Phân bổ Lỗi (Defect Distribution)
 
 ### A. Theo Mức độ Nghiêm trọng (Severity)
-- **Critical**: 2 (BUG-GUI-07, BUG-GUI-12)
+- **Critical**: 3 (BUG-GUI-07, BUG-GUI-12, BUG-GUI-19)
 - **Major**: 13 (BUG-GUI-01, BUG-GUI-03, BUG-GUI-04, BUG-GUI-05, BUG-GUI-06, BUG-GUI-08, BUG-GUI-09, BUG-GUI-10, BUG-GUI-11, BUG-GUI-15, BUG-GUI-16, BUG-GUI-17, BUG-GUI-18)
 - **Minor**: 3 (BUG-GUI-02, BUG-GUI-13, BUG-GUI-14)
 - **Trivial**: 0
-- **Tổng cộng**: **18 lỗi**
+- **Tổng cộng**: **19 lỗi**
 
 ### B. Theo Khía cạnh Giao diện (Interface Aspects)
-- **IA-01 (Chuẩn UI chung)**: 1 (BUG-GUI-17)
+- **IA-01 (Chuẩn UI chung)**: 2 (BUG-GUI-17, BUG-GUI-19)
 - **IA-02 (Biểu mẫu - Forms)**: 11 (BUG-GUI-01, BUG-GUI-02, BUG-GUI-03, BUG-GUI-04, BUG-GUI-05, BUG-GUI-09, BUG-GUI-11, BUG-GUI-12, BUG-GUI-13, BUG-GUI-14, BUG-GUI-18)
 - **IA-03 (Điều hướng - Navigation)**: 2 (BUG-GUI-15, BUG-GUI-16)
 - **IA-04 (Phản hồi & Trạng thái)**: 4 (BUG-GUI-06, BUG-GUI-07, BUG-GUI-08, BUG-GUI-10)
 
 ### C. Theo Phân hệ Giao diện (SUT Subsystems)
 - **Admin Dashboard**: 8 lỗi
-- **Customer Web**: 4 lỗi
+- **Customer Web**: 5 lỗi (BUG-GUI-09, BUG-GUI-10, BUG-GUI-11, BUG-GUI-12, BUG-GUI-19)
 - **Mobile App (Expo Go)**: 6 lỗi
