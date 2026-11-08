@@ -1,92 +1,159 @@
 ---
 name: cross-platform-gui-testing
-description: Plan, execute and document Cross-Browser and Cross-Platform GUI Testing across at least 3 platforms (e.g. Chrome, Firefox, Safari/BrowserStack or Expo Go Mobile App on real phone) as required by HW03 Task 3. Enforces student email watermark overlay on all screenshots, cross-platform UI skew analysis, and discrepancy defect logging. Use whenever verifying UI consistency across devices, testing responsive layouts, or setting up multi-platform test evidence.
+description: Plan, execute and document HW03 Task 3 (cross-browser / cross-platform GUI testing) for the EShop SUT. Splits the GUI checklist by surface (Customer Web, Admin UI, Mobile Expo Go), runs web and admin items on Chrome, Firefox and Safari (BrowserStack/LambdaTest or real machines) and mobile items on a real phone via Expo Go, then builds the comparison tables, discrepancy bugs and watermarked evidence. Use this skill whenever the user mentions Task 3, cross-browser, cross-platform, BrowserStack, LambdaTest, Expo Go evidence, screenshot overlay with student email, platform comparison matrix, or asks which checklist items to run on which platform, even if they do not say "cross-platform" explicitly.
 ---
 
-# Cross-Platform GUI Testing (CSC13003 S13 Method)
+# Cross-Platform GUI Testing (HW03 Task 3)
 
-## 1. Goal & Requirements
-Execute GUI Checklist Testing across **at least three (3) distinct platforms** to detect cross-platform visual inconsistencies, functional discrepancies, and responsive layout breakages.
+## 1. What the assignment requires
+Re-run the Task 1 GUI checklist on **at least three (3) platforms**.
+- Web frontend: Chrome, Firefox, and Safari (or Android Chrome).
+- Expo Go on a real phone is a valid platform and may replace one of the three browser platforms (for example Safari). It is a full platform, not a bonus.
+- BrowserStack or LambdaTest trial is strongly preferred. If unavailable, another cloud tool (Sauce Labs, CrossBrowserTesting) or real devices are allowed, as long as screenshots clearly show browser / OS / device name next to the SUT's localhost URL.
+- Every screenshot carries an overlay with the student identity (see section 3).
+- Cross-platform screenshots must be genuine. Never generate, edit or invent evidence, and never record a result that the student did not observe.
 
-### Supported Platform Combinations (Pick 1 valid set of $\ge 3$):
-- **Combination A (Recommended - Highest authenticity)**:
-  1. Desktop Chrome (Windows / macOS)
-  2. Desktop Firefox (Windows / macOS)
-  3. Real Mobile Device via **Expo Go** (Android / iOS) *(Explicitly permitted by course specification to replace Safari)*
-- **Combination B (Cloud Testing)**:
-  1. Desktop Chrome (Windows)
-  2. Desktop Firefox (Windows)
-  3. Desktop Safari via BrowserStack / LambdaTest trial (macOS)
-- **Combination C (Mobile Web)**:
-  1. Desktop Chrome
-  2. Desktop Firefox
-  3. Chrome on Android / Safari on iOS (Real device)
+## 2. Platform plan (decide this first)
+The checklist has three surfaces. Browsers cannot test the native mobile app, and the mobile-only items (hardware Back, safe area, soft keyboard, touch targets) only mean something on a real device. So split the work by surface:
 
----
+| Surface | Checklist items | Platforms | Where it runs |
+|---|---|---|---|
+| Customer Web (`http://localhost:5173`) | `CHK-WEB-*` | Chrome, Firefox, Safari | Student's machine for Chrome/Firefox; BrowserStack/LambdaTest for Safari (needs macOS) |
+| Admin UI (`http://localhost:5174`) | `CHK-ADM-*` | Chrome, Firefox, Safari | Same as above |
+| Mobile app | `CHK-MOB-*` | Expo Go on Android | Student's real phone |
 
-## 2. SUT Immutability Rule (Strict Zero-Modification Policy)
-- **DO NOT modify, edit, or patch any code inside `eshop-sut/`** (including `backend/`, `frontend-web/`, `frontend-admin/`, and `frontend-mobile/`).
-- The SUT is the target under test and must be treated as a strict read-only black-box. Any cross-platform visual defect, layout breakage, or behavioral discrepancy between browsers/devices must be documented in the discrepancy matrix and logged as a bug, NEVER patched in the source code.
-- All test evidence, screenshots, and cross-platform comparison reports must be placed exclusively inside the project's designated output directory (`<OUTPUT_DIR>`, configured by the workspace `CLAUDE.md`), never inside `eshop-sut/`.
+Counting platforms: Chrome + Firefox + Safari + Expo Go = 4. The minimum valid set is Chrome + Firefox + Expo Go (Expo Go replaces Safari), but include Safari when the cloud trial is available because it is the only WebKit engine in the set.
 
----
+Rules for choosing and describing platforms:
+- Chrome, Edge, Brave and Cốc Cốc all use the Chromium engine, so they rarely differ. Treat Edge/Brave/Cốc Cốc as optional extras, not as separate required platforms. Brave Shields and Cốc Cốc built-in features may reveal real issues worth a note.
+- If the student has no iPhone, test mobile on Android only. Do not write iOS results, and do not claim "iOS would pass". If the report mentions iOS at all, label it as an untested technical remark.
+- Do not assume trial limits of BrowserStack/LambdaTest; they change over time. Tell the student to check the signup page and to prepare scripts and data before opening a session.
 
-## 3. Mandatory Evidence Rules (Anti-Fraud Constraints)
-1. **Student Username Overlay**:
-   - Every captured screenshot **MUST have an overlay/watermark** of your student email (e.g., `21127xxx@student.hcmus.edu.vn`).
-   - The overlay can be applied via image editing tool, browser extension, or system screenshot annotation.
-2. **Platform & URL Context Visibility**:
-   - Web screenshots must clearly display the browser header/tab, OS window frame, and localhost/tunnel URL.
-   - Mobile screenshots must display the device status bar (battery, Wi-Fi/carrier) and navigation frame.
-3. **Form Submissions Evidence**:
-   - When submitting forms (Register, Login, Checkout), the inputs should contain the student's name or student ID where appropriate to prove authentic manual execution.
+## 3. Evidence rules
+1. **Identity overlay on every screenshot**: student email, student ID (MSSV) and full name, for example `<email> | <MSSV> - <Full name>`. The course asks for the email as username and, in the anti-cheat section, for ID and full name. Include all three. Read them from the workspace `CLAUDE.md` or ask the student; never invent them.
+   Apply the overlay to real screenshots with `scripts/overlay_username.py` or any annotation tool.
+2. **Platform and URL visibility** for web shots: browser name and tab/URL bar with `localhost:<port>` and the OS or cloud-session frame must be visible. For BrowserStack/LambdaTest, keep the session frame showing browser, version and OS in the shot.
+3. **Mobile shots**: show the device status bar and the Expo Go / app frame. Add a terminal screenshot of the running Metro server if the TA accepts it as URL evidence.
+4. **Evidence Directory & Naming Structure (Mandatory 45 Case Folders)**:
+   All cross-platform screenshot evidence is strictly organized into **45 dedicated case folders** inside `<OUTPUT_DIR>/evidence/screenshots/cross-platform/` corresponding to the 45 checklist test cases:
+   - **For 35 Web & Admin cases** (`CHK-ADM-01` to `CHK-ADM-20` and `CHK-WEB-01` to `CHK-WEB-15`):
+     Each case folder contains 3 watermarked screenshots across Chrome, Firefox, and Safari (BrowserStack/macOS), following the exact naming template `<CASE_ID>-<platform>.png`:
+     - `<CASE_ID>/<CASE_ID>-chrome.png` (Google Chrome / Windows 11)
+     - `<CASE_ID>/<CASE_ID>-firefox.png` (Mozilla Firefox / Windows 11)
+     - `<CASE_ID>/<CASE_ID>-safari.png` (Apple Safari / macOS on BrowserStack)
+   - **For 10 Mobile App cases** (`CHK-MOB-01` to `CHK-MOB-10`):
+     Each case folder contains the watermarked Expo Go mobile screenshot on real Android device:
+     - `<CASE_ID>/<CASE_ID>-expo.png` (or `.jpg`)
 
----
+   Folder structure visualization:
+   ```text
+   HW3/evidence/screenshots/cross-platform/
+   ├── CHK-ADM-01/
+   │   ├── CHK-ADM-01-chrome.png
+   │   ├── CHK-ADM-01-firefox.png
+   │   └── CHK-ADM-01-safari.png
+   ├── ...
+   ├── CHK-ADM-20/
+   │   ├── CHK-ADM-20-chrome.png
+   │   ├── CHK-ADM-20-firefox.png
+   │   └── CHK-ADM-20-safari.png
+   ├── CHK-WEB-01/
+   │   ├── CHK-WEB-01-chrome.png
+   │   ├── CHK-WEB-01-firefox.png
+   │   └── CHK-WEB-01-safari.png
+   ├── ...
+   ├── CHK-WEB-15/
+   │   ├── CHK-WEB-15-chrome.png
+   │   ├── CHK-WEB-15-firefox.png
+   │   └── CHK-WEB-15-safari.png
+   ├── CHK-MOB-01/
+   │   └── CHK-MOB-01-expo.jpg
+   ├── ...
+   └── CHK-MOB-10/
+       └── CHK-MOB-10-expo.jpg
+   ```
+5. **Recommended, not required by the course**: when submitting forms, type the student's name or ID into the inputs to show authentic manual execution.
 
-## 4. Execution & Cross-Platform Skew Detection Protocol
+## 4. Execution protocol
 
-### Step 1: Environment Setup
-- **Web Browsers**: Launch Google Chrome (latest) and Mozilla Firefox (latest) pointing to `http://localhost:5173` (or active web port).
-- **Mobile Platform**: Launch Expo Go on real smartphone pointing to the Metro Bundler tunnel or LAN URL (`exp://...`).
-- Verify backend is running and accessible on all 3 targets.
+### Step 1: Environment
+- Backend and both frontends running on the student's machine. Web and Admin call the backend API, so the backend must stay up during every cloud session.
+- Cloud browsers cannot see `localhost` by themselves. Start the provider's tunnel first (BrowserStack Local or LambdaTest Tunnel) so the remote browser can open `localhost:5173`, `localhost:5174` and the API.
+- Phone on the same Wi-Fi as the dev machine, app calling the API through the machine's LAN IP, not `localhost`.
+- Record the environment in the report: browser and version, OS, device model, Android version, Expo Go version, tunnel tool.
 
-### Step 2: Comparative Verification Focus Areas
-Pay special attention to discrepancies between platforms:
-1. **Typography & Font Rendering**:
-   - Do font weights, line-heights, or Vietnamese diacritics render differently on Gecko (Firefox) vs Blink (Chrome) vs React Native (Mobile)?
-2. **Form Controls & Inputs**:
-   - Date pickers, select dropdowns, and button borders often render using native OS widgets on mobile vs custom CSS on web.
-   - Virtual keyboard popup behavior on mobile: Does it push up the view or occlude the input/submit button?
-3. **Responsive Breakpoints & Layout Flow**:
-   - Flexbox wrapping differences.
-   - Image scaling and aspect ratios (`placehold.co` images).
-4. **Validation Discrepancies (Client-side Skew)**:
-   - Does Web validate email format with HTML5 `type="email"` while Mobile uses regex?
-   - Does Mobile block empty submissions via Alert while Web uses inline text?
-5. **Network & Error Recovery**:
-   - How does each platform behave when backend response times out?
+### Step 2: Run the checklist per surface
+- Use the student's existing Task 1 checklist (IDs, criteria, expected results) as the single source of items. Do not rewrite items for Task 3.
+- Chrome column: copy a result from Task 1 only if Task 1 was actually executed on Chrome against the same build. Otherwise re-run it.
+- For each item the student reports Passed or Failed, and the assistant records it. Never fill in cells the student has not observed.
+- Capture a screenshot for every Failed item and for every item whose result differs from Chrome.
 
----
+### Step 3: Compare and classify
+For each item that fails or differs, classify:
+- **Common defect**: fails on every platform. Link the existing Task 1 bug (`BUG-GUI-XX`), do not open a duplicate.
+- **Platform-specific defect**: fails or looks different on some platforms only. Create a `BUG-XP-XX` entry.
+- **Environment artifact**: caused by the cloud session or test setup (tunnel latency, trial viewport). Note it, do not file it as a bug.
 
-## 5. Documentation & Reporting Matrix
-Document execution in `<OUTPUT_DIR>/report/cross-platform-report.md` using the matrix format:
+### Step 4: Focus areas where platforms really differ
+Web and Admin (Blink vs Gecko vs WebKit):
+- Font rendering, line height, Vietnamese diacritics, currency format (`150,000 ₫`).
+- Native form controls: `type="date"`, `type="number"`, select dropdowns, scrollbars, focus rings.
+- Flexbox/grid wrapping, sticky headers, image aspect ratios, responsive breakpoints.
+- Client-side validation differences (HTML5 validation messages differ per browser).
+- Download behaviour (admin CSV template) and file dialogs.
 
-| Checklist Item ID | Tiêu chí kiểm tra | Platform 1 (Chrome Web) | Platform 2 (Firefox Web) | Platform 3 (Expo Go Mobile) | Phát hiện sai lệch (Platform Skew / Bug) | Screenshot Evidence |
-|:---:|:---|:---:|:---:|:---:|:---|:---|
-| CHK-IA01-02 | Font chữ & Bố cục | PASSED | PASSED | PASSED | Hiển thị đồng nhất | [Xem ảnh](file:///...) |
-| CHK-IA02-01 | Trường bắt buộc | FAILED | FAILED | FAILED | Cả 3 nền tảng đều thiếu ký hiệu `*` | [Xem ảnh](file:///...) |
-| CHK-IA02-07 | Che khuất bởi bàn phím | N/A | N/A | FAILED | Trên Mobile, bàn phím che khuất nút Checkout | [Xem ảnh](file:///...) |
-| CHK-IA04-06 | Xử lý mất mạng | FAILED (Màn hình trắng) | FAILED (Màn hình trắng) | FAILED (Network request failed) | Lỗi lệch pha thông báo lỗi giữa Web và Mobile | [Xem ảnh](file:///...) |
+Mobile (Expo Go on Android):
+- Hardware/gesture Back (`CHK-MOB-08`), safe area and status bar (`CHK-MOB-09`), soft keyboard covering the submit button (`CHK-MOB-10`), touch targets, return key behaviour.
+- Network failure behaviour compared with the web error handling.
 
----
+## 5. Report structure
+Write `<OUTPUT_DIR>/report/cross-platform-report.md` in Vietnamese (keep IDs, identifiers and code in English). Use two main tables plus a summary. Status values are exactly `Passed` or `Failed`, matching Task 1. The rows below only illustrate the format, they are not results.
 
-## 6. Expected Output Artifacts
+### 5.1 Environment
+| Platform | Tool | OS / Device | Browser / App version | Tunnel |
+|---|---|---|---|---|
+| Chrome | Local machine | `<OS>` | `<version>` | none |
+| Firefox | `<Local or cloud>` | `<OS>` | `<version>` | `<tool or none>` |
+| Safari | `<BrowserStack or LambdaTest>` | macOS `<version>` | `<version>` | `<tool>` |
+| Expo Go | Real phone | Android `<version>`, `<model>` | Expo Go `<version>` | LAN |
 
-All artifacts generated by this skill are saved under `<OUTPUT_DIR>` (as configured in the project's `CLAUDE.md`, e.g., `HW3/` or `./`):
+### 5.2 Table 1: Web + Admin (one row per `CHK-WEB-*` and `CHK-ADM-*`)
+| Item ID | Surface | Criterion (short) | Chrome | Firefox | Safari | Differs? | Notes / Screenshot |
+|:---:|:---|:---|:---:|:---:|:---:|:---:|:---|
+| `<ID>` | Admin Login | `<criterion>` | Passed | Passed | Failed | Yes | `<what differs>`, `safari-<ID>.png` |
+| `<ID>` | Admin Category | `<criterion>` | Failed | Failed | Failed | No | Common defect, see `BUG-GUI-XX` |
 
-| Artifact Path | Format | Purpose & Contents |
-|---|---|---|
-| `<OUTPUT_DIR>/report/cross-platform-report.md` | Markdown | Comprehensive cross-platform execution matrix across $\ge 3$ platforms (Chrome, Firefox, Expo Go Mobile) detailing layout skews, validation differences, and platform-specific defects. |
-| `<OUTPUT_DIR>/evidence/screenshots/cross-platform/` | PNG / JPG | Side-by-side or comparative screenshots showing visual skews and defects on each tested platform, with student email watermark overlay. |
-| `<OUTPUT_DIR>/report/issues/BUG-XP-XX.md` | Markdown | Discrepancy defect reports for UI inconsistencies that only manifest on specific platforms or browsers. |
+### 5.3 Table 2: Mobile (one row per `CHK-MOB-*`, single Android column)
+Header lines: device model, Android version, Expo Go version.
 
+| Item ID | Screen | Criterion (short) | Android (Expo Go) | Notes / Screenshot |
+|:---:|:---|:---|:---:|:---|
+| `<ID>` | Navigation | `<criterion>` | Failed | `<observed behaviour>`, `expo-<ID>.png` |
+
+### 5.4 Table 3: Platform summary
+| Platform | Tool | Items run | Passed | Failed | Items differing from Chrome |
+|---|---|---|---:|---:|---:|
+| Chrome | | | | | n/a |
+| Firefox | | | | | |
+| Safari | | | | | |
+| Expo Go (Android) | | | | | n/a |
+
+### 5.5 Findings
+List platform-specific defects (`BUG-XP-XX`), environment artifacts, and the answers the student received from the TA for the open questions in section 2.
+
+## 6. SUT immutability rule
+Do not modify any code inside `eshop-sut/` (`backend/`, `frontend-web/`, `frontend-admin/`, `frontend-mobile/`). The SUT is a read-only black box. Visual or behavioural discrepancies are documented and logged as bugs, never patched. Write all evidence and reports under `<OUTPUT_DIR>` (from the workspace `CLAUDE.md`), never inside `eshop-sut/`.
+
+## 7. Expected artifacts
+| Path | Purpose |
+|---|---|
+| `<OUTPUT_DIR>/report/cross-platform-report.md` | Environment, Table 1, Table 2, Table 3, findings |
+| `<OUTPUT_DIR>/evidence/screenshots/cross-platform/<CASE_ID>/` | 45 case subdirectories containing watermarked screenshots (`<CASE_ID>-chrome.png`, `<CASE_ID>-firefox.png`, `<CASE_ID>-safari.png` for 35 Web/Admin cases, and `<CASE_ID>-expo.png` for 10 Mobile cases) |
+| `<OUTPUT_DIR>/report/issues/BUG-XP-XX.md` | Platform-specific discrepancy bugs, each with screenshot (also create a GitHub issue when the course expects bugs there) |
+| Git commit | One commit per step: environment setup, each platform run, comparison analysis |
+
+## 8. Honesty rules
+- Record only what the student executed and saw. Leave a cell empty instead of guessing.
+- Never create, alter or reuse a screenshot from another platform to fill a gap.
+- Never state results for hardware the student does not have (no iOS results without an iPhone).
+- Keep platform names accurate: Edge, Brave and Cốc Cốc are Chromium browsers, not independent engines.
