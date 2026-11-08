@@ -82,7 +82,7 @@ Báo cáo này tài liệu hóa kết quả thực thi kiểm thử giao diện 
 - **Thiết bị kiểm thử:** Realme C53 (Màn hình IPS LCD 6.74", độ phân giải HD+ 90Hz, thiết kế giọt nước Mini Capsule).
 - **Hệ điều hành:** Android 15 (Realme UI T Edition).
 - **Môi trường thực thi:** Expo Go SDK 54.
-- **Phương thức kết nối:** Wi-Fi Local Area Network / Metro Bundler Tunnel.
+- **Phương thức kết nối:** Wi-Fi Local Area Network
 
 | Item ID | Màn hình di động | Tiêu chí kiểm tra tóm tắt | Kết quả trên Android (Expo Go) | Ghi chú hành vi quan sát thực tế / Minh chứng ảnh |
 |:---:|:---|:---|:---:|:---|
