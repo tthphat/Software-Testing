@@ -1,41 +1,42 @@
-# [BUG-GUI-40][IA-03] Thiếu nút mũi tên quay lại (Back Arrow) trên thanh Header Mobile
+# [BUG-GUI-40][IA-03] Thiếu nút mũi tên quay lại (Back Arrow) trên màn hình Chi tiết sản phẩm Mobile
 
 | Mục | Nội dung |
 |---|---|
-| Tính năng | Điều hướng Giao diện (Navigation Bar) – Mobile App Expo Go |
+| Tính năng | Điều hướng Chi tiết Sản phẩm (Product Detail Navigation) – Mobile App Expo Go |
 | Test case liên quan | `CHK-MOB-07` (Khía cạnh `IA-03` – Điều hướng & Header Navigation) |
 | Mức độ (Severity) | Major |
 | Độ ưu tiên (Priority) | High |
 | Khả năng tái hiện | Luôn luôn (100%) |
-| Môi trường | Android 12/13/14, Ứng dụng Expo Go, SUT Mobile App |
+| Môi trường | Android 15 (Realme C53), Ứng dụng Expo Go SDK 54, SUT Mobile App |
 | Ngày phát hiện | 2026-11-01 |
-| GitHub Issue | *Đang cập nhật* |
+| GitHub Issue | [#90](https://github.com/tthphat/eshop-sut/issues/90) |
 
 ## Điều kiện tiên quyết
-- Đang ở một màn hình con bất kỳ trong ứng dụng Mobile (ví dụ: màn hình Chi tiết sản phẩm, Giỏ hàng, hoặc Đăng nhập).
+- Đang ở màn hình Chi tiết sản phẩm trên ứng dụng EShop Mobile.
 
 ## Các bước tái hiện
-1. Từ Trang chủ, bấm "Xem chi tiết" một sản phẩm hoặc bấm vào nút "Giỏ hàng".
-2. Quan sát thanh tiêu đề điều hướng trên cùng (Header / NavBar).
-3. Tìm nút quay lại trang trước (Back Arrow `←`).
+1. Từ Trang chủ ứng dụng EShop Mobile, bấm chọn xem một sản phẩm bất kỳ để chuyển sang màn hình Chi tiết sản phẩm (Product Detail).
+2. Quan sát thanh tiêu đề điều hướng trên cùng (Header / NavBar) và khu vực nội dung.
+3. Tìm nút quay lại trang trước (Back Arrow `←`).  
+   *(Lưu ý đối chiếu: Trong khi màn hình Giỏ hàng đã được thiết kế sẵn nút "Mua tiếp" để điều hướng quay về Trang chủ, thì màn hình Chi tiết sản phẩm hoàn toàn không có bất kỳ nút điều hướng quay lui nào).*
 
 ## Request / Response thực tế
-*(Thanh Header thiếu nút điều hướng quay lui)*
+*(Giao diện Chi tiết sản phẩm thiếu nút điều hướng quay lui)*
 
 ## Kết quả mong đợi
-Thanh Header của các màn hình con bắt buộc phải có nút quay lại (Back arrow icon `←`) ở góc trên cùng bên trái. Khi người dùng bấm vào, ứng dụng phải đưa người dùng quay trở lại màn hình trước đó một cách mượt mà và trực quan. — nguồn: [SPEC] / [ASSUMED] (Nguyên lý điều hướng chuẩn Mobile Material / iOS Guidelines)
+Thanh Header của màn hình Chi tiết sản phẩm bắt buộc phải có nút quay lại (Back arrow icon `←`) ở góc trên cùng bên trái. Khi người dùng bấm vào, ứng dụng phải đưa người dùng quay trở lại Trang chủ một cách mượt mà và trực quan. — nguồn: [SPEC] / [ASSUMED] (Nguyên lý điều hướng chuẩn Mobile Material / iOS Guidelines)
 
 ## Kết quả thực tế
-Thanh Header ở tất cả các màn hình con đều giống hệt Trang chủ (chỉ gồm chữ "EShop Mobile", nút Đăng nhập và Giỏ hàng), hoàn toàn không có bất kỳ nút Back mũi tên nào. Người dùng không có cách trực quan để quay lui ngoài việc bấm vào logo chữ "EShop Mobile" để nhảy thẳng về trang chủ (mất trạng thái điều hướng phân cấp).
+Thanh Header của màn hình Chi tiết sản phẩm chỉ gồm tiêu đề thương hiệu "EShop Mobile" và cụm nút góc phải (Đăng nhập, Giỏ hàng), hoàn toàn thiếu nút mũi tên Back. Do màn hình Chi tiết sản phẩm không có nút "Mua tiếp" như trang Giỏ hàng, người dùng không có cách trực quan nào để quay lui về danh sách sản phẩm ngoài việc phải bấm vào logo thương hiệu "EShop Mobile".
 
 ## Bằng chứng
-- `evidence/screenshots/gui/BUG-GUI-15-haven't-back-arrow.jpg` (Ảnh chụp màn hình thực tế có watermark sinh viên `23120319@student.hcmus.edu.vn`)
+- `evidence/screenshots/gui/BUG-GUI-15-haven't-back-arrow.jpg` (Ảnh chụp màn hình thực tế trên Realme C53 có watermark sinh viên `23120319@student.hcmus.edu.vn`)
 
 ![Minh chứng BUG-GUI-15](../../evidence/screenshots/gui/BUG-GUI-15-haven't-back-arrow.jpg)
 
-## Phân tích nguyên nhân (giả thuyết, nếu thấy trong code)
-`frontend-mobile/App.js:L434-452` (đã xác nhận trực tiếp từ mã nguồn SUT):
-- Hàm `renderHeader` cố định cứng cho mọi màn hình mà không kiểm tra màn hình hiện tại có phải là màn hình con hay không để render nút Back:
+## Phân tích nguyên nhân (xác nhận từ mã nguồn SUT)
+`frontend-mobile/App.js:L434-452`:
+- Hàm `renderHeader` hiển thị cố định cấu trúc thanh điều hướng chung cho toàn bộ app mà không bổ sung nút Back khi đang ở view `product-detail`:
   ```jsx
   const renderHeader = () => (
     <View style={styles.navBar}>
@@ -43,11 +44,12 @@ Thanh Header ở tất cả các màn hình con đều giống hệt Trang chủ
         <Text style={styles.brand}>EShop Mobile</Text>
       </TouchableOpacity>
       <View style={styles.navLinks}>
-        {/* Chỉ có Đăng nhập và Giỏ hàng, thiếu nút Back */}
+        {/* Chỉ có Đăng nhập và Giỏ hàng, thiếu nút Back cho Chi tiết sản phẩm */}
       </View>
     </View>
   );
   ```
+- Trong khi đó, tại màn hình Giỏ hàng (`renderCart`), lập trình viên có gắn nút quay về (`onPress={goHome}` với nhãn "Mua tiếp"), nhưng màn hình Chi tiết sản phẩm (`renderProductDetail`) lại bị bỏ quên.
 
 ## Phát hiện bởi
-Test case do AI thiết kế kết hợp thực thi kiểm thử thủ công bởi sinh viên Trương Thành Phát ([CHK-MOB-07](../checklist.md#L63)).
+Thực thi kiểm thử thủ công và phát hiện bởi sinh viên Trương Thành Phát ([CHK-MOB-07](../checklist.md#L61)).
