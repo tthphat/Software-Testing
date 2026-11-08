@@ -28,10 +28,10 @@ FONTS = [
 EXTS = (".png", ".jpg", ".jpeg", ".webp")
 
 PLATFORM_PATTERNS = [
-    ("-chrome", "Chrome 130 / Windows 11"),
-    ("-firefox", "Firefox 130 / Windows 11"),
+    ("-chrome", "Chrome 157.0.8103.39 / Windows 11"),
+    ("-firefox", "Firefox 159.0.1 / Windows 11"),
     ("-safari", "Safari 18 / macOS (BrowserStack)"),
-    ("-expo", "Expo Go SDK 52 / Android"),
+    ("-expo", "Expo Go SDK 54 / Android 15 (Realme C53)"),
 ]
 
 

@@ -1,6 +1,6 @@
 # KẾ HOẠCH THỰC HIỆN BÀI TẬP HW03: GUI & USABILITY TESTING
 **Môn học:** Kiểm thử phần mềm (CSC13003) — Học kỳ 1, Năm học 2026–2027  
-**Giảng viên phụ trách:** ThS. Trần Thị Bích Hạnh — Khoa CNTT, Trường ĐH KHTN (HCMUS)  
+**Giảng viên phụ trách:** TS. Trần Duy Hoàng, ThS. Trương Phước Lộc, ThS. Hồ Tuấn Thanh, TS. Lâm Quang Vũ — Khoa CNTT, Trường ĐH KHTN (HCMUS)  
 **Sinh viên thực hiện:** TRƯƠNG THÀNH PHÁT — **MSSV:** 23120319 — **Lớp:** CQ2023/3  
 **Email sinh viên (Watermark):** `23120319@student.hcmus.edu.vn`  
 **Hệ thống kiểm thử (SUT):** EShop Application (`https://github.com/ttbhanh/eshop-sut`)  

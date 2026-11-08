@@ -172,8 +172,11 @@ Hướng dẫn thiết lập môi trường, thực thi kiểm thử giao diện
      - Giải pháp: Thực hiện kiểm thử toàn diện cross-browser và cross-device kết hợp thiết kế đáp ứng (responsive design).
 
 ### 4.4. Các tệp thành phần đã tạo trong Skill
-- **[SKILL.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/.claude/skills/cross-platform-gui-testing/SKILL.md)**: Định nghĩa 3 tổ hợp nền tảng hợp lệ, trong đó khuyến nghị Tổ hợp A: **Desktop Chrome (Windows) + Desktop Firefox (Windows) + Expo Go Mobile trên điện thoại thật** (tận dụng tối đa server tunnel vừa cấu hình).
-- **Quy chuẩn Watermark/Overlay**: Hướng dẫn chèn watermark email sinh viên, hiển thị thanh trạng thái thiết bị và URL.
+- **[SKILL.md](file:///d:/HCMUS/semester7/software-testing/Software-Testing/.claude/skills/cross-platform-gui-testing/SKILL.md)**: Định nghĩa 3 tổ hợp nền tảng hợp lệ, trong đó khuyến nghị Tổ hợp A: **Desktop Chrome (Windows) + Desktop Firefox (Windows) + Safari (BrowserStack) / Expo Go Mobile trên điện thoại thật**.
+- **[scripts/overlay_username.py](file:///d:/HCMUS/semester7/software-testing/Software-Testing/.claude/skills/cross-platform-gui-testing/scripts/overlay_username.py)**: Script Python chuyên dụng tự động đóng dấu dải banner định danh chống gian lận (email sinh viên, MSSV, họ tên, platform và timestamp) ở mép dưới ảnh; hỗ trợ tự động nhận diện platform theo tên file và xử lý đệ quy qua các thư mục con.
+- **Cấu trúc 45 Thư mục Bằng chứng (45 Case Folders)**: Tổ chức thư mục HW3/evidence/screenshots/cross-platform/ gồm 45 thư mục con chuẩn hóa:
+  - 35 thư mục Web & Admin (CHK-ADM-01..20 & CHK-WEB-01..15): mỗi thư mục chứa 3 ảnh <CASE_ID>-chrome.png, <CASE_ID>-firefox.png, <CASE_ID>-safari.png.
+  - 10 thư mục Mobile (CHK-MOB-01..10): mỗi thư mục chứa ảnh Expo Go trên điện thoại thật <CASE_ID>-expo.png (hoặc .jpg).
 - **Bảng ma trận so sánh sai lệch nền tảng (Platform Skew Matrix)**: Đối chiếu font chữ, widget ngày tháng, bàn phím ảo che khuất form, và cách xử lý khi mất kết nối mạng giữa Web và Mobile.
 
 ### 4.5. Luồng hoạt động chi tiết qua 4 Stage (Workflow by Stages)
