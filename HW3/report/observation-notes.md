@@ -4,7 +4,8 @@
 **Sinh viên thực hiện:** TRƯƠNG THÀNH PHÁT (MSSV: 23120319)  
 **Luồng kiểm thử (End-to-End Flow):** Tìm kiếm Smartphone $\to$ Xem chi tiết SP $\to$ Thêm vào giỏ $\to$ Nhập mã giảm giá SAVE10 $\to$ Đăng nhập bắt buộc $\to$ Hoàn tất Thanh toán  
 **Môi trường thử nghiệm:** Customer Web (`http://localhost:5173`) trên Google Chrome  
-**Thời gian chuẩn đối sánh (Benchmark):** 120 giây (2 phút)
+**Thời gian chuẩn đối sánh (Benchmark):** 120 giây (2 phút)  
+**Lưu ý về quyền riêng tư (Privacy & Consent):** Trong số 7 người tham gia thử nghiệm, chỉ có **2 bạn (P01 - Trần Nhật Nguyên và P02 - Nguyễn Đức Thịnh) đồng ý/chấp nhận quay video thao tác** làm minh chứng; 5 bạn còn lại (P03 → P07) chỉ đồng ý cho ghi chép nhật ký quan sát trực tiếp và điền phiếu khảo sát.
 
 ---
 
@@ -14,6 +15,7 @@
 - **Kênh:** Google Form & Thử nghiệm trực tiếp
 - **Thiết bị:** Laptop Windows 11, Google Chrome
 - **Thông tin liên hệ (Mã hóa):** `0397****83` (Zalo/SĐT)
+- **Video minh chứng phiên test thực tế:** [https://youtu.be/fdyj0m0Ezck](https://youtu.be/fdyj0m0Ezck) *(Đã được sự đồng thuận ghi hình của người tham gia)*
 
 ### A. Nhật ký dòng thời gian & Điểm nghẽn (Friction Log)
 | Thời điểm (m:s) | Bước / Màn hình | Hành vi quan sát được | Vấn đề / Điểm vướng mắc (Friction Point) | Lời nói Think-Aloud của người dùng (User Quotes) | Can thiệp? |
@@ -39,6 +41,7 @@
 - **Kênh:** Google Form & Thử nghiệm trực tiếp
 - **Thiết bị:** Laptop Windows 11, Google Chrome
 - **Thông tin liên hệ (Mã hóa):** `0387****27` (Zalo/SĐT)
+- **Video minh chứng phiên test thực tế:** [https://youtu.be/xlSKEIs3rRw](https://youtu.be/xlSKEIs3rRw) *(Đã được sự đồng thuận ghi hình của người tham gia)*
 
 ### A. Nhật ký dòng thời gian & Điểm nghẽn (Friction Log)
 | Thời điểm (m:s) | Bước / Màn hình | Hành vi quan sát được | Vấn đề / Điểm vướng mắc (Friction Point) | Lời nói Think-Aloud của người dùng (User Quotes) | Can thiệp? |

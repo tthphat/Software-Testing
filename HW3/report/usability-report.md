@@ -205,11 +205,22 @@ Toàn bộ các lỗi UX phát hiện qua đợt thử nghiệm được ghi nh�
 | 3 | **BUG-UX-03** | **P1 (High)** | Giỏ hàng không tự động làm trống sau khi đặt hàng thành công gây hiểu lầm đơn hàng bị lỗi | **100%** (7/7 người) | *"Chưa tin lắm vì mua xong mà giỏ hàng vẫn còn nguyên đồ"* (P07) | [Xem báo cáo](issues/BUG-UX-03.md) | [Xem Video](https://youtu.be/xlSKEIs3rRw) | [#97](https://github.com/tthphat/eshop-sut/issues/97) |
 
 ### 9.1. Video Minh chứng Thử nghiệm Khả dụng Trực quan (Usability Video Evidence)
-- **Đường dẫn Video YouTube:** [https://youtu.be/xlSKEIs3rRw](https://youtu.be/xlSKEIs3rRw)
-- **Người tham gia thực hiện:** Nguyễn Đức Thịnh (P02 - Sinh viên ĐH Công nghệ Thông tin ĐHQG TP.HCM - UIT).
-- **Mô tả chi tiết nội dung video:**
-  - **Minh chứng BUG-UX-02 (Thời điểm ~00:48):** Khi đến trang Checkout (`/checkout`), người dùng phát hiện trường "Tổng tiền thanh toán (VND):" có viền ô nhập số (`<input type="number">`) cho phép click vào chỉnh sửa con số tùy ý (*"Ủa ô này có thể sửa được?"*).
-  - **Minh chứng BUG-UX-03 (Thời điểm ~01:05):** Sau khi bấm "Xác Nhận Thanh Toán" thành công và nhấn quay lại trang chủ / kiểm tra giỏ hàng, biểu tượng giỏ hàng và danh sách sản phẩm vẫn còn nguyên, không được tự động làm sạch (*"Sao lại còn sản phẩm này ở đây, vừa mới thanh toán rồi mà?"*).
+
+Hồ sơ thử nghiệm khả dụng đi kèm 2 video thực tế ghi lại quá trình thao tác độc lập của người dùng:
+
+1. **Video Minh chứng 1 (P01 - Trần Nhật Nguyên):**
+   - **Đường dẫn YouTube:** [https://youtu.be/fdyj0m0Ezck](https://youtu.be/fdyj0m0Ezck)
+   - **Người tham gia:** Trần Nhật Nguyên (P01 - Sinh viên ĐH Quốc tế ĐHQG TP.HCM - HCMIU).
+   - **Nội dung:** Ghi lại toàn bộ luồng mua sắm độc lập, thời gian hoàn thành 50 giây, hoàn thành nhiệm vụ thành công, điểm SUS 62.5 (Grade C).
+
+2. **Video Minh chứng 2 (P02 - Nguyễn Đức Thịnh):**
+   - **Đường dẫn YouTube:** [https://youtu.be/xlSKEIs3rRw](https://youtu.be/xlSKEIs3rRw)
+   - **Người tham gia:** Nguyễn Đức Thịnh (P02 - Sinh viên ĐH Công nghệ Thông tin ĐHQG TP.HCM - UIT).
+   - **Nội dung phát hiện lỗi khả dụng trọng yếu:**
+     - **Minh chứng BUG-UX-02 (Thời điểm ~00:48):** Khi đến trang Checkout (`/checkout`), người dùng phát hiện trường "Tổng tiền thanh toán (VND):" có viền ô nhập số (`<input type="number">`) cho phép click vào chỉnh sửa con số tùy ý (*"Ủa ô này có thể sửa được?"*).
+     - **Minh chứng BUG-UX-03 (Thời điểm ~01:05):** Sau khi bấm "Xác Nhận Thanh Toán" thành công và nhấn quay lại trang chủ / kiểm tra giỏ hàng, biểu tượng giỏ hàng và danh sách sản phẩm vẫn còn nguyên, không được tự động làm sạch (*"Sao lại còn sản phẩm này ở đây, vừa mới thanh toán rồi mà?"*).
+
+> **Lưu ý về sự đồng thuận và quyền riêng tư (Privacy & Consent):** Trong số 7 người tham gia thử nghiệm khả dụng, **chỉ có 2 bạn (P01 - Trần Nhật Nguyên và P02 - Nguyễn Đức Thịnh) đồng ý/chấp nhận quay video ghi lại màn hình và thao tác** để làm minh chứng học thuật. 5 bạn còn lại (P03 → P07) từ chối ghi hình và chỉ đồng ý cho người điều phối ghi chép nhật ký quan sát trực tiếp (think-aloud observation notes) và điền phiếu phản hồi thang đo SUS theo đúng chính sách bảo vệ quyền riêng tư ([AI-05]).
 
 ---
 

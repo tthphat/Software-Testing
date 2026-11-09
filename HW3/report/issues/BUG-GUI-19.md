@@ -9,7 +9,7 @@
 | Khả năng tái hiện | Luôn luôn (100%) |
 | Môi trường | Windows 11, Google Chrome Version 156 / Mozilla Firefox Version 159, Customer Web `http://localhost:5173/` |
 | Ngày phát hiện | 2026-11-07 |
-| GitHub Issue | *Đang cập nhật* |
+| GitHub Issue | [#94](https://github.com/tthphat/eshop-sut/issues/94) |
 
 ## Điều kiện tiên quyết
 - Frontend Web Khách hàng của EShop SUT đang hoạt động tại `http://localhost:5173/`.
