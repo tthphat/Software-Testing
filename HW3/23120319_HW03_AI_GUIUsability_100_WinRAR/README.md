@@ -15,7 +15,9 @@ Báo cáo kiểm thử giao diện người dùng (GUI Testing), đánh giá kh�
 | **Học kỳ** | Học kỳ 1, Năm học 2026–2027 |
 | **Khoa / Trường** | Khoa Công nghệ Thông tin — Trường ĐH Khoa học Tự nhiên, ĐHQG-HCM |
 | **Giảng viên phụ trách** | TS. Trần Duy Hoàng, ThS. Trương Phước Lộc, ThS. Hồ Tuấn Thanh, TS. Lâm Quang Vũ |
-| **Hệ thống kiểm thử (SUT)** | EShop Multi-Channel System — [GitHub Repo gốc eshop-sut](https://github.com/ttbhanh/eshop-sut) \| [GitHub Repo nhóm(chứa issues)](https://github.com/tthphat/eshop-sut) \| [Repo HW cá nhân](https://github.com/tthphat/Software-Testing) |
+| **Hệ thống kiểm thử (SUT)** | EShop Multi-Channel System ([GitHub Repo gốc eshop-sut](https://github.com/ttbhanh/eshop-sut)) |
+| **GitHub Repo cá nhân (chứa HW)** | [https://github.com/tthphat/Software-Testing](https://github.com/tthphat/Software-Testing) |
+| **GitHub Repo nhóm (chứa Issues)** | [https://github.com/tthphat/eshop-sut](https://github.com/tthphat/eshop-sut) (Toàn bộ Issues #76 → #97) |
 | **Ngày hoàn thành** | 08/11/2026 |
 
 ---
@@ -79,41 +81,53 @@ pie title Phân bổ 45 Mục Checklist theo Interface Aspects
 
 ---
 
-## 4. Cấu trúc Thư mục Hồ sơ Nộp bài (Repository Structure)
+## 4. Cấu trúc Thư mục Hồ sơ Bài nộp (`23120319_HW03_AI_GUIUsability_100`)
+
+> *Thư mục này được sinh viên đóng gói và nén thành tệp **`23120319_HW03_AI_GUIUsability_100.zip`** nộp lên hệ thống Moodle, đáp ứng 100% đầy đủ tất cả các thành phần bắt buộc theo quy định tại **Mục §14 của Đề bài**.*
 
 ```text
-HW3/
-├── README.md                                  # Báo cáo tổng kết, bảng tự chấm 100/100, số liệu kiểm thử
-├── requirements/                              # Đề bài gốc tiếng Anh và bản dịch tiếng Việt
-│   ├── 2026.HW03.GUI Usability_En.pdf
-│   └── HW03_GUI_Usability_VI.md
-├── plan/                                      # Kế hoạch chi tiết, giải thích Agent Skills & nhật ký
-│   ├── plan.md
-│   ├── skills-explanation.md
-│   └── session-history.md
-├── data/                                      # Dữ liệu khảo sát người dùng thật
-│   └── sus-responses.json                     # Dữ liệu thô 10 câu SUS của 7 người tham gia
-├── evidence/                                  # Minh chứng 82 ảnh chụp màn hình có đóng dấu Watermark
-│   └── screenshots/
-│       ├── gui/                               # 19 ảnh chụp lỗi GUI (BUG-GUI-01 -> 19)
-│       ├── usability/                         # Ảnh chụp các phiên usability P01 -> P07
-│       └── cross-platform/                    # Ảnh đối sánh giao diện Chrome, Firefox, Expo Go Android
-├── report/                                    # Báo cáo chính và các phụ lục bắt buộc
-│   ├── checklist.md                           # Bảng Checklist 45 mục chi tiết (IA-01 -> IA-04)
-│   ├── checklist.xlsx                         # File Excel bảng checklist nộp kèm
-│   ├── checklist.csv                          # Dữ liệu checklist dạng bảng phẳng
-│   ├── bugs-summary.md                        # Bảng tổng hợp 19 lỗi giao diện GUI
-│   ├── task-scenario.md                       # Kịch bản nhiệm vụ hướng mục tiêu chuẩn Slide 40 (S13)
-│   ├── sus-questionnaire.md                   # Bảng câu hỏi SUS chuẩn hóa & hướng dẫn tính điểm
-│   ├── observation-notes.md                   # Nhật ký quan sát thực nghiệm 7 phiên (Timeline, Friction, Quotes)
-│   ├── usability-report.md                    # Báo cáo đánh giá khả dụng hoàn chỉnh (SUS 66.07, 3 bug UX)
-│   ├── cross-platform-report.md               # Báo cáo kiểm thử đa nền tảng Chrome / Firefox / Expo Go
-│   ├── appendix-A-ai-audit.md                 # Phụ lục A: Báo cáo kiểm định AI 5 cột chuẩn FIT@HCMUS
-│   ├── appendix-B-ai-critique.md              # Phụ lục B: Phản biện AI (232 từ)
-│   └── issues/                                # Thư mục chứa 22 bản thảo báo cáo lỗi độc lập
-│       ├── BUG-GUI-01.md ... BUG-GUI-19.md    # 19 báo cáo lỗi GUI chi tiết
-│       └── BUG-UX-01.md ... BUG-UX-03.md      # 3 báo cáo lỗi UX chi tiết
-└── git-commit-log.txt                         # Nhật ký Git commit toàn diện từng bước
+23120319_HW03_AI_GUIUsability_100/
+├── README.md                                  # Báo cáo tổng kết, bảng tự chấm 100/100, số liệu kiểm thử & liên kết demo video
+├── 23120319_HW03_Main_Report.md               # BÁO CÁO CHÍNH TỔNG HỢP (GUI Checklist, Usability & Cross-Platform)
+├── 23120319_HW03_Main_Report.pdf              # Bản PDF Báo cáo chính hoàn chỉnh phục vụ chấm điểm
+├── 23120319_HW03_GUI_Checklist.xlsx           # File Excel Bảng kiểm thử giao diện GUI (45 mục) & Dashboard thống kê
+├── 23120319_HW03_GUI_Checklist.md             # Tệp Markdown xuất từ bảng tính checklist Excel
+├── checklist.md                               # Bảng Checklist Markdown phân tích 45 mục và phản biện AI Gap Analysis
+├── bugs-summary.md                            # Báo cáo tổng hợp 22 khiếm khuyết phát hiện (19 GUI bugs + 3 UX bugs)
+├── bugs-summary.pdf                           # Bản PDF Báo cáo tổng hợp lỗi
+├── git-commit-log.txt                         # Nhật ký Git commit toàn diện từng bước theo quy định Đề bài §12
+├── CLAUDE.md                                  # Tài liệu hướng dẫn quy chuẩn kiểm thử và cấu hình Agent
+├── .claude/                                   # Mã nguồn 3 Custom Agent Skills (Task 4)
+│   └── skills/
+│       ├── gui-checklist-testing/             # Skill kiểm thử checklist GUI & script validate_checklist.mjs
+│       ├── usability-evaluation/              # Skill đánh giá khả dụng & script calculate_sus.mjs
+│       └── cross-platform-gui-testing/        # Skill kiểm thử đa nền tảng & script overlay_username.py
+├── ai-critique-and-ai-audit-report/           # HỒ SƠ KIỂM ĐỊNH AI BẮT BUỘC (Mục §9 & §10)
+│   ├── [AI-02] - FIT@HCMUS - AI Audit Report_Vn.md    # Phụ lục A: Báo cáo kiểm định AI 5 cột (9 artifacts)
+│   ├── [AI-02] - FIT@HCMUS - AI Audit Report_Vn.pdf   # Bản PDF Phụ lục A xuất từ Word chính thức
+│   ├── [AI-03] - FIT@HCMUS - AI Disclosure Form_Vn.docx.md # Phiếu công bố sử dụng AI
+│   ├── [AI-03] - FIT@HCMUS - AI Disclosure Form_Vn.pdf     # Bản PDF Phiếu công bố sử dụng AI
+│   ├── [AI-05] - FIT@HCMUS - AI Privacy Checklist_Vn.docx.md # Checklist bảo vệ dữ liệu riêng tư AI
+│   ├── [AI-05] - FIT@HCMUS - AI Privacy Checklist_Vn.pdf     # Bản PDF Checklist bảo vệ quyền riêng tư
+│   ├── appendix-B-ai-critique.md              # Phụ lục B: Bài phê bình AI (291 từ chuẩn barem 200-300 từ)
+│   └── appendix-B-ai-critique.pdf             # Bản PDF Phụ lục B Phê bình AI
+├── usability-session/                         # HỒ SƠ THỰC NGHIỆM KHẢ DỤNG (Task 2 - 7 phiên thử nghiệm)
+│   ├── task-scenario.md & .pdf                # Kịch bản nhiệm vụ hướng mục tiêu chuẩn Slide 40 (S13)
+│   ├── tester-list.md                         # Danh sách 7 sinh viên thật ngoài lớp (che 4 số giữa SĐT)
+│   ├── observation-notes.md & .pdf            # Nhật ký quan sát thực nghiệm 7 phiên (Timeline, Friction, Quotes)
+│   ├── sus-questionnaire.md & .pdf            # Bảng câu hỏi SUS chuẩn hóa & thang đo Likert 1-5
+│   ├── sus-responses.json                     # Dữ liệu khảo sát thô 10 câu SUS của 7 người tham gia
+│   ├── usability-report.md & .pdf             # Báo cáo đánh giá khả dụng hoàn chỉnh (Mean SUS 66.07 - Grade C)
+│   └── testing-video.md                       # Danh sách liên kết YouTube video thực nghiệm khả dụng (P01, P02)
+├── issues/                                    # HỒ SƠ 22 BẢN THẢO BÁO CÁO LỖI CHI TIẾT
+│   ├── BUG-GUI-01.md ... BUG-GUI-19.md        # 19 báo cáo lỗi giao diện GUI chi tiết (Issue #76 -> #94)
+│   └── BUG-UX-01.md ... BUG-UX-03.md          # 3 báo cáo lỗi trải nghiệm người dùng UX chi tiết (Issue #95 -> #97)
+└── evidence/                                  # HỆ THỐNG MINH CHỨNG 82 ẢNH CHỤP MÀN HÌNH CÓ WATERMARK
+    └── screenshots/
+        ├── gui/                               # 19 ảnh chụp lỗi GUI (BUG-GUI-01 -> 19)
+        ├── usability/                         # Ảnh chụp các phiên thử nghiệm khả dụng P01 -> P07
+        ├── cross-platform/                    # Ảnh đối sánh 3 nền tảng: Chrome (35), Firefox (35), Android 15 (10)
+        └── github-issues/                     # 22 ảnh chụp màn hình minh chứng GitHub Issues (#76 -> #97)
 ```
 
 ---
