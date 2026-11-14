@@ -20,15 +20,16 @@ test.describe('FR-01: Account Registration - Web UI Automation', () => {
       const uniqueSuffix = Date.now() + '_' + Math.floor(Math.random() * 1000);
       const emailValue = tc.inputs.email.replace('{{uniq}}', uniqueSuffix);
 
-      // Fill form fields using resilient semantic locators (getByLabel)
+      // Fill form fields using label-scoped input locators
+      // (Handles SUT unassociated labels where <label> and <input> lack htmlFor/id linkage)
       if (tc.inputs.name) {
-        await page.getByLabel('Họ Tên').fill(tc.inputs.name);
+        await page.locator('label:has-text("Họ Tên") + input').fill(tc.inputs.name);
       }
       if (tc.inputs.email) {
-        await page.getByLabel('Email').fill(emailValue);
+        await page.locator('label:has-text("Email") + input').fill(emailValue);
       }
       if (tc.inputs.password) {
-        await page.getByLabel('Mật khẩu').fill(tc.inputs.password);
+        await page.locator('label:has-text("Mật khẩu") + input').fill(tc.inputs.password);
       }
 
       // Click submit button using accessible role
@@ -52,7 +53,7 @@ test.describe('FR-01: Account Registration - Web UI Automation', () => {
           email: 'Email',
           password: 'Mật khẩu',
         };
-        const targetInput = page.getByLabel(fieldLabelMap[tc.expected.validationField]);
+        const targetInput = page.locator(`label:has-text("${fieldLabelMap[tc.expected.validationField]}") + input`);
         
         const isInvalid = await targetInput.evaluate((el: HTMLInputElement) => !el.checkValidity());
         expect(isInvalid).toBe(true);
