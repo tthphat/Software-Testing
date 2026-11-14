@@ -110,7 +110,7 @@ test.describe('FR-12: Access Control - Admin Web Automation [Run by: 23120319]',
 
       // Step 5: Handle Admin Navigation Tabs (TC-FR12-07 .. TC-FR12-10)
       if (tc.inputs.clickTab) {
-        await page.getByText(tc.inputs.clickTab).click();
+        await page.getByText(tc.inputs.clickTab, { exact: true }).click();
         const tabTitleHeader = page.locator(`h2:has-text("${tc.expected.tabTitle}")`);
         await expect(tabTitleHeader).toBeVisible();
 
