@@ -173,6 +173,7 @@
       ]
     },
     "inputs": {
+      "couponCode": null,
       "action": "remove_first_item"
     },
     "expected": {
@@ -192,6 +193,7 @@
       ]
     },
     "inputs": {
+      "couponCode": null,
       "customTotal": 1000
     },
     "expected": {
@@ -230,6 +232,7 @@
       ]
     },
     "inputs": {
+      "couponCode": null,
       "clickBackHome": true
     },
     "expected": {
