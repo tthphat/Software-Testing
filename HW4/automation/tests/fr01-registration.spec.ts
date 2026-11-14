@@ -6,7 +6,7 @@ import path from 'path';
 const dataFilePath = path.resolve(__dirname, '../data/fr01-registration.json');
 const testCases = JSON.parse(fs.readFileSync(dataFilePath, 'utf-8'));
 
-test.describe('FR-01: Account Registration - Web UI Automation', () => {
+test.describe('FR-01: Account Registration - Web UI Automation [Run by: 23120319]', () => {
   test.beforeEach(async ({ page, context }) => {
     // Isolate browser context and clear storage before each test
     await context.clearCookies();
