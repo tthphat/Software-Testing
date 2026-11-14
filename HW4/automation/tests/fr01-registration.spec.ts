@@ -7,9 +7,11 @@ const dataFilePath = path.resolve(__dirname, '../data/fr01-registration.json');
 const testCases = JSON.parse(fs.readFileSync(dataFilePath, 'utf-8'));
 
 test.describe('FR-01: Account Registration - Web UI Automation', () => {
-  test.beforeEach(async ({ page }) => {
-    // Navigate to registration page before each test
+  test.beforeEach(async ({ page, context }) => {
+    // Isolate browser context and clear storage before each test
+    await context.clearCookies();
     await page.goto('/register');
+    await page.evaluate(() => localStorage.clear());
   });
 
   for (const tc of testCases) {
@@ -18,19 +20,19 @@ test.describe('FR-01: Account Registration - Web UI Automation', () => {
       const uniqueSuffix = Date.now() + '_' + Math.floor(Math.random() * 1000);
       const emailValue = tc.inputs.email.replace('{{uniq}}', uniqueSuffix);
 
-      // Fill form fields
+      // Fill form fields using resilient semantic locators (getByLabel)
       if (tc.inputs.name) {
-        await page.locator('input').nth(0).fill(tc.inputs.name);
+        await page.getByLabel('Họ Tên').fill(tc.inputs.name);
       }
       if (tc.inputs.email) {
-        await page.locator('input').nth(1).fill(emailValue);
+        await page.getByLabel('Email').fill(emailValue);
       }
       if (tc.inputs.password) {
-        await page.locator('input').nth(2).fill(tc.inputs.password);
+        await page.getByLabel('Mật khẩu').fill(tc.inputs.password);
       }
 
-      // Click submit button
-      await page.locator('button[type="submit"]').click();
+      // Click submit button using accessible role
+      await page.getByRole('button', { name: 'Đăng Ký' }).click();
 
       // Assertions based on expected result
       if (tc.expected.success) {
@@ -38,12 +40,19 @@ test.describe('FR-01: Account Registration - Web UI Automation', () => {
         await expect(page).toHaveURL(/\/login/);
       } else if (tc.expected.errorText) {
         // Assertion 2: Error message banner visibility and content
-        const errorAlert = page.locator('.bg-red-100');
+        const errorAlert = page.locator('div[class*="text-red-"], div[role="alert"]').first();
         await expect(errorAlert).toBeVisible();
         await expect(errorAlert).toContainText(tc.expected.errorText);
       } else if (tc.expected.validationField) {
-        // Assertion 3: Page stays on /register due to HTML5 required attribute
-        await expect(page).toHaveURL(/\/register/);
+        // Assertion 3: Native HTML5 required field validation
+        const fieldLabelMap: Record<string, string> = {
+          name: 'Họ Tên',
+          email: 'Email',
+          password: 'Mật khẩu',
+        };
+        const targetInput = page.getByLabel(fieldLabelMap[tc.expected.validationField]);
+        const isInvalid = await targetInput.evaluate((el: HTMLInputElement) => !el.checkValidity());
+        expect(isInvalid).toBe(true);
       }
     });
   }
