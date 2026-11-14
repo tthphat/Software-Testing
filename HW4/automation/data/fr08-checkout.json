@@ -1,0 +1,240 @@
+[
+  {
+    "id": "TC-FR08-01",
+    "hw02_mapping": "FR08-DT-01",
+    "description": "Thanh toán thành công đơn hàng chuẩn khi đã đăng nhập (không dùng coupon)",
+    "category": "positive",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "couponCode": null,
+      "customTotal": null
+    },
+    "expected": {
+      "success": true,
+      "expectedTotal": 6000000,
+      "successMessage": "Thanh toán thành công!"
+    }
+  },
+  {
+    "id": "TC-FR08-02",
+    "hw02_mapping": "FR08-DT-02",
+    "description": "Áp dụng thành công mã giảm giá phần trăm SAVE10 (giảm 10% cho đơn >= 300k)",
+    "category": "positive",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "couponCode": "SAVE10",
+      "customTotal": null
+    },
+    "expected": {
+      "couponSuccess": true,
+      "discountAmount": 600000,
+      "finalAmount": 5400000,
+      "couponMessage": "Áp dụng mã giảm giá thành công"
+    }
+  },
+  {
+    "id": "TC-FR08-03",
+    "hw02_mapping": "FR08-DT-02",
+    "description": "Áp dụng thành công mã giảm giá số tiền cố định BIGBUY (giảm 50.000đ)",
+    "category": "positive",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "couponCode": "BIGBUY",
+      "customTotal": null
+    },
+    "expected": {
+      "couponSuccess": true,
+      "discountAmount": 50000,
+      "finalAmount": 5950000,
+      "couponMessage": "Áp dụng mã giảm giá thành công"
+    }
+  },
+  {
+    "id": "TC-FR08-04",
+    "hw02_mapping": "FR08-DT-05",
+    "description": "Áp dụng thất bại khi nhập mã giảm giá đã hết hạn EXPIRED",
+    "category": "negative",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "couponCode": "EXPIRED",
+      "customTotal": null
+    },
+    "expected": {
+      "couponSuccess": false,
+      "errorMessage": "Mã giảm giá đã hết hạn"
+    }
+  },
+  {
+    "id": "TC-FR08-05",
+    "hw02_mapping": "FR08-DT-06",
+    "description": "Áp dụng thất bại khi nhập mã giảm giá không tồn tại INVALID99",
+    "category": "negative",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "couponCode": "INVALID99",
+      "customTotal": null
+    },
+    "expected": {
+      "couponSuccess": false,
+      "errorMessage": "Mã giảm giá không tồn tại"
+    }
+  },
+  {
+    "id": "TC-FR08-06",
+    "hw02_mapping": "FR08-DT-07",
+    "description": "Nút áp dụng mã giảm giá bị vô hiệu hóa (disabled) khi ô mã để trống",
+    "category": "boundary",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "couponCode": "",
+      "customTotal": null
+    },
+    "expected": {
+      "buttonDisabled": true
+    }
+  },
+  {
+    "id": "TC-FR08-07",
+    "hw02_mapping": "FR08-DT-03",
+    "description": "Chặn thanh toán khi giỏ hàng trống và hiển thị thông báo hướng dẫn",
+    "category": "negative",
+    "setup": {
+      "requireAuth": true,
+      "items": []
+    },
+    "inputs": {
+      "couponCode": null,
+      "customTotal": null
+    },
+    "expected": {
+      "emptyCartMessage": "Giỏ hàng của bạn đang trống",
+      "hasContinueLink": true
+    }
+  },
+  {
+    "id": "TC-FR08-08",
+    "hw02_mapping": "FR08-DT-04",
+    "description": "Chặn thanh toán khi người dùng chưa đăng nhập tài khoản (yêu cầu đăng nhập)",
+    "category": "negative",
+    "setup": {
+      "requireAuth": false,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "couponCode": null,
+      "customTotal": null
+    },
+    "expected": {
+      "alertMessage": "Bạn cần đăng nhập để thanh toán!",
+      "redirectToLogin": "/login"
+    }
+  },
+  {
+    "id": "TC-FR08-09",
+    "hw02_mapping": "FR08-DT-09",
+    "description": "Xóa sản phẩm trong giỏ hàng và kiểm tra cập nhật lại tổng tiền",
+    "category": "positive",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "action": "remove_first_item"
+    },
+    "expected": {
+      "emptyCartAfterRemoval": true,
+      "emptyCartMessage": "Giỏ hàng của bạn đang trống"
+    }
+  },
+  {
+    "id": "TC-FR08-10",
+    "hw02_mapping": "FR08-BVA-05",
+    "description": "Kiểm tra lỗ hổng bảo mật: Ô tổng tiền thanh toán không được phép chỉnh sửa tự do",
+    "category": "boundary",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "customTotal": 1000
+    },
+    "expected": {
+      "isReadOnly": true
+    }
+  },
+  {
+    "id": "TC-FR08-11",
+    "hw02_mapping": "FR08-DT-08",
+    "description": "Kiểm tra tính toàn vẹn: Giỏ hàng phải được xóa sạch sau khi thanh toán thành công",
+    "category": "positive",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "couponCode": null,
+      "customTotal": null
+    },
+    "expected": {
+      "checkoutSuccess": true,
+      "cartCleanAfterCheckout": true
+    }
+  },
+  {
+    "id": "TC-FR08-12",
+    "hw02_mapping": "FR08-DT-10",
+    "description": "Điều hướng quay lại trang chủ sau khi hoàn tất đơn hàng thành công",
+    "category": "positive",
+    "setup": {
+      "requireAuth": true,
+      "items": [
+        { "name": "Tai nghe AirPods Pro 2", "price": 6000000, "quantity": 1 }
+      ]
+    },
+    "inputs": {
+      "clickBackHome": true
+    },
+    "expected": {
+      "redirectHome": "/"
+    }
+  }
+]
+
