@@ -34,25 +34,33 @@ test.describe('FR-01: Account Registration - Web UI Automation', () => {
       // Click submit button using accessible role
       await page.getByRole('button', { name: 'Đăng Ký' }).click();
 
-      // Assertions based on expected result
+      // Multi-assertion patterns based on expected outcome
       if (tc.expected.success) {
         // Assertion 1: URL redirection to login page
         await expect(page).toHaveURL(/\/login/);
+        // Assertion 2: Verify login form is fully rendered and actionable
+        await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
       } else if (tc.expected.errorText) {
-        // Assertion 2: Error message banner visibility and content
+        // Assertion 3 & 4: Error message banner visibility and exact content match
         const errorAlert = page.locator('div[class*="text-red-"], div[role="alert"]').first();
         await expect(errorAlert).toBeVisible();
         await expect(errorAlert).toContainText(tc.expected.errorText);
       } else if (tc.expected.validationField) {
-        // Assertion 3: Native HTML5 required field validation
+        // Assertion 5, 6 & 7: Native HTML5 validation flag, non-empty message, and URL integrity
         const fieldLabelMap: Record<string, string> = {
           name: 'Họ Tên',
           email: 'Email',
           password: 'Mật khẩu',
         };
         const targetInput = page.getByLabel(fieldLabelMap[tc.expected.validationField]);
+        
         const isInvalid = await targetInput.evaluate((el: HTMLInputElement) => !el.checkValidity());
         expect(isInvalid).toBe(true);
+
+        const valMsg = await targetInput.evaluate((el: HTMLInputElement) => el.validationMessage);
+        expect(valMsg.length).toBeGreaterThan(0);
+
+        await expect(page).toHaveURL(/\/register/);
       }
     });
   }
