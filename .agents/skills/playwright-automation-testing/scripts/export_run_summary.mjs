@@ -29,9 +29,9 @@ if (!fs.existsSync(resultsFile)) {
 try {
   const data = JSON.parse(fs.readFileSync(resultsFile, 'utf-8'));
   const stats = data.stats || {};
-  const total = stats.expected || 0;
+  const passed = stats.expected || 0;
   const failed = stats.unexpected || 0;
-  const passed = total - failed;
+  const total = passed + failed;
 
   console.log('\n### 2. Báo cáo Tổng kết Kiểm thử (Test Summary Report)\n');
   console.log('| Chỉ số | Số lượng thực tế | Ghi chú kỹ thuật |');
