@@ -1,0 +1,264 @@
+commit 1d519bc8e9c102589670d5ed5cf21ff3764ff528
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 21:22:40 2026 +0700
+
+    docs(HW4): add report for HW4
+
+ HW4/23120319_HW04_Main_Report.md                   | 602 +++++++++++++++++++++
+ HW4/23120319_HW04_Main_Report.pdf                  | Bin 0 -> 1292007 bytes
+ HW4/README.md                                      | 180 ++++++
+ .../[AI-02] - FIT@HCMUS - AI Audit Report_Vn.docx  | Bin 0 -> 222055 bytes
+ ...AI-03] - FIT@HCMUS - AI Disclosure Form_Vn.docx | Bin 0 -> 202548 bytes
+ ...03] - FIT@HCMUS - AI Disclosure Form_Vn.docx.md | 115 ++++
+ ...-05] - FIT@HCMUS - AI Privacy Checklist_Vn.docx | Bin 0 -> 212326 bytes
+ ...] - FIT@HCMUS - AI Privacy Checklist_Vn.docx.md |  73 +++
+ HW4/report/appendix-A-ai-audit.md                  | 300 ++++++++++
+ HW4/report/appendix-B-ai-critique.md               |  15 +
+ HW4/report/appendix-B-ai-critique.pdf              | Bin 0 -> 82013 bytes
+ HW4/report/bugs-summary.md                         | 112 ++++
+ HW4/report/bugs-summary.pdf                        | Bin 0 -> 829 bytes
+ .../playwright-report/playwright-report-full.html  |  54 ++
+ 14 files changed, 1451 insertions(+)
+
+commit fb7ba778ea523e79838630fbf8201d6d2bee0d07
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 15:44:57 2026 +0700
+
+    docs(HW4): add html report summary for all feature
+
+ .../03193cddc0e205b7579debcd735608ef47fa9837.webm  | Bin 153754 -> 0 bytes
+ .../07fdad1831b930a5f6fc996eccf7a46781e420dc.webm  | Bin 0 -> 25268 bytes
+ .../19517f592d659d58ba59a8ca2192c829a52bd17e.png   | Bin 0 -> 23807 bytes
+ .../3a2eb17a9881eaf9622334c314af262defbaea80.webm  | Bin 0 -> 28136 bytes
+ .../3daf9c91f4736215c11780d289b52c7d9e47b093.webm  | Bin 0 -> 91392 bytes
+ .../4160793483f5c6d006058e1d201218325b922d79.png   | Bin 0 -> 19243 bytes
+ .../42731330ef72635dee69df980975be699507a7de.png   | Bin 0 -> 30526 bytes
+ .../43390cfcbd84bdf3b92aa41133e160945c816a26.webm  | Bin 89988 -> 0 bytes
+ .../43d1b43db5a3df6453365a79ea17d1c122497580.webm  | Bin 0 -> 46438 bytes
+ .../43efada324fc04ba0eadd00613ce33c62a9e8367.png   | Bin 0 -> 29077 bytes
+ .../5553cac7e6353adefe585e22faf97284d7834bab.webm  | Bin 149563 -> 0 bytes
+ .../5b1453de323435d3209677089f47c389832c0940.png   | Bin 0 -> 52344 bytes
+ .../5b4e8330b9f88703e4b3b67489936f1289c0ca3b.png   | Bin 0 -> 72478 bytes
+ .../5f8653ff55ec92386f7da5666d3d109e37ca1ff3.webm  | Bin 0 -> 188220 bytes
+ .../63b28069065238b4656a298cb211bbc77140e2b9.webm  | Bin 0 -> 253900 bytes
+ .../780d010cebe6ccd9e72a505a2684f683cf042af7.md    | 156 +++++++++++++++++
+ .../7c8260b72c4f5d9feedc9a8f26325e1363b677bd.webm  | Bin 0 -> 154103 bytes
+ .../83b88d3fa9555f5219f9c5e3c9b8eb776c2e2a60.md    | 185 +++++++++++++++++++++
+ .../9c8f999680d49ddedae0c3dc15c99c2a8b2e8252.webm  | Bin 0 -> 195429 bytes
+ .../a3f376a58a0b34a5169777b2681e5d438d0d017b.md    | 156 +++++++++++++++++
+ .../a532082922b025043e6e140b6e007cec75d20512.png   | Bin 0 -> 22271 bytes
+ .../b5766277f7beed8c02844061006787b43cc39b87.webm  | Bin 0 -> 290668 bytes
+ .../c2b7d2c4764f2d8f8e52cb8ed4d0040e77e59135.md    | 169 +++++++++++++++++++
+ .../cded211dd4efde7b444b6910b8ba18f1907beaf6.webm  | Bin 0 -> 255469 bytes
+ .../cf01fe6f8dc8e1a679b5f8f72fd678a63144dfee.webm  | Bin 0 -> 286002 bytes
+ .../cf4d178444dc43a2af1d9410dbf93995cc6e170d.md    | 156 +++++++++++++++++
+ .../d0816530db67ddc26c59a9028628e4766b32039e.png   | Bin 0 -> 61982 bytes
+ .../d7ea0470d6324942a526e9eac29a13aa9ab67d12.md    | 169 +++++++++++++++++++
+ .../d98df79bdd28936f82e839817ca45d18bf6a34e5.png   | Bin 0 -> 20357 bytes
+ .../e51b21c0da18f0b7d220956a2442f1ff124fcb3c.webm  | Bin 0 -> 147950 bytes
+ HW4/automation/playwright-report/index.html        |   4 +-
+ 31 files changed, 993 insertions(+), 2 deletions(-)
+
+commit df3ce7e45a36842fc9928da0ba0316efba49b84b
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 01:36:01 2026 +0700
+
+    docs(HW4): add playwright report for fr-12
+
+ .../playwright-report/playwright-report-fr12.html  | 54 ++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+commit 3d627a7eec4714bacfb4cf9ca8b21a29130bfa32
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 01:35:56 2026 +0700
+
+    docs(HW4-FR12): document BUG-AUTO-04 broken access control vulnerability with issue #118 evidence
+
+ .../github-issues/BUG-AUTO-04-issue-118.png        | Bin 0 -> 280096 bytes
+ .../BUG-FR12-04-broken-access-control.png          | Bin 0 -> 19255 bytes
+ .../issues/BUG-AUTO-04-broken-access-control.md    | 114 +++++++++++++++++++++
+ 3 files changed, 114 insertions(+)
+
+commit 4ba3e0207581d23d2b699c06d0928ff820b0e328
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 01:26:34 2026 +0700
+
+    fix(HW4-FR12): resolve strict mode ambiguity on orders tab navigation with exact text match
+
+ HW4/automation/tests/fr12-access-control.spec.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit c3364713dbe1f7924e98313656eb7ddcc271960c
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 01:12:23 2026 +0700
+
+    feat(HW4-FR12): create access control automation spec from HW02 test cases
+
+ HW4/automation/data/fr12-access-control.json     | 248 +++++++++++++++++++++++
+ HW4/automation/tests/fr12-access-control.spec.ts | 161 +++++++++++++++
+ 2 files changed, 409 insertions(+)
+
+commit 29c8c475a9c3bf672e80dd38bb7f7dfbecc4bd8e
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 01:03:52 2026 +0700
+
+    docs(HW4): add playwright report for fr-01, fr-08
+
+ .../playwright-report/playwright-report-fr01.html  | 54 ++++++++++++++++++++++
+ .../playwright-report/playwright-report-fr08.html  | 54 ++++++++++++++++++++++
+ 2 files changed, 108 insertions(+)
+
+commit 5a2918f6aaabf1079598dd3f2c605651172a5737
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 00:52:48 2026 +0700
+
+    docs(HW4-FR08): document BUG-AUTO-03 cart not cleared defect with issue #117 evidence
+
+ .../github-issues/BUG-AUTO-03-issue-117.png        | Bin 0 -> 276485 bytes
+ .../screenshots/BUG-FR08-03-cart-not-cleared.png   | Bin 0 -> 24984 bytes
+ HW4/report/issues/BUG-AUTO-03-cart-not-cleared.md  |  93 +++++++++++++++++++++
+ 3 files changed, 93 insertions(+)
+
+commit b70547f90f35d0c3a4907bb2704102489943abc2
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 00:52:43 2026 +0700
+
+    docs(HW4-FR08): document BUG-AUTO-02 editable total price vulnerability with issue #116 evidence
+
+ .../github-issues/BUG-AUTO-02-issue-116.png        | Bin 0 -> 277181 bytes
+ .../screenshots/BUG-FR08-02-editable-total.png     | Bin 0 -> 80120 bytes
+ .../issues/BUG-AUTO-02-editable-total-price.md     | 119 +++++++++++++++++++++
+ 3 files changed, 119 insertions(+)
+
+commit e90ddf0beac0e10e958682287e2c79339402c683
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 00:49:55 2026 +0700
+
+    fix(HW4-FR08): refine coupon input check and fix cart removal assertion order
+
+ HW4/automation/data/fr08-checkout.json     |   3 +
+ HW4/automation/tests/fr08-checkout.spec.ts | 143 ++++++++++++++++++++---------
+ 2 files changed, 103 insertions(+), 43 deletions(-)
+
+commit 293683f4905d8d174313435ae1784dacb9eda5ca
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 00:11:17 2026 +0700
+
+    fix(HW4-FR08): isolate cart state via client navigation and handle async coupon calculation
+
+ HW4/automation/data/fr08-checkout.json | 240 +++++++++++++++++++++++++++++++++
+ 1 file changed, 240 insertions(+)
+
+commit 076010d33f5650b6a06c2c6629ca49a06f42742d
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sun Nov 15 00:09:54 2026 +0700
+
+    test(HW4-FR08): create initial checkout automation spec from HW02 test cases
+
+ HW4/automation/tests/fr08-checkout.spec.ts | 120 +++++++++++++++++++++++++++++
+ 1 file changed, 120 insertions(+)
+
+commit 3390126b7b1e6b73e7bbba11e0a96d7c18de450b
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sat Nov 14 22:54:44 2026 +0700
+
+    test(HW4-FR01): add authorship banner reporter, update spec suite metadata, and record BUG-AUTO-01
+
+ HW4/automation/.gitignore                          |   1 -
+ .../03193cddc0e205b7579debcd735608ef47fa9837.webm  | Bin 0 -> 153754 bytes
+ .../0784bb86f931bf2af329c422b6dbac37642fdcfc.png   | Bin 0 -> 52401 bytes
+ .../176c99ed7a3562fe39d1d99f77ea8050d26fc681.md    | 127 +++++++++++++++++++++
+ .../43390cfcbd84bdf3b92aa41133e160945c816a26.webm  | Bin 0 -> 89988 bytes
+ .../5553cac7e6353adefe585e22faf97284d7834bab.webm  | Bin 0 -> 149563 bytes
+ .../99466027deb8e5c253da0dc1cecf42621dc1abb4.png   | Bin 0 -> 18011 bytes
+ .../e00c6c6f294922574f18de65b681d644df71d0d3.png   | Bin 0 -> 19415 bytes
+ HW4/automation/playwright-report/index.html        |  54 +++++++++
+ HW4/automation/playwright.config.ts                |   1 +
+ HW4/automation/reporters/authorship-reporter.ts    |  33 ++++++
+ HW4/automation/tests/fr01-registration.spec.ts     |   2 +-
+ .../github-issues/BUG-AUTO-01-issue-115.png        | Bin 0 -> 277723 bytes
+ .../screenshots/BUG-FR01-01-duplicate-email-p1.png | Bin 0 -> 162981 bytes
+ .../screenshots/BUG-FR01-01-duplicate-email-p2.png | Bin 0 -> 18011 bytes
+ HW4/report/issues/BUG-AUTO-01-duplicate-email.md   | 108 ++++++++++++++++++
+ 16 files changed, 324 insertions(+), 2 deletions(-)
+
+commit eb000d18ccda2631a0676f748a0988d80277ec93
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sat Nov 14 22:15:59 2026 +0700
+
+    fix(HW4-FR01): resolve unassociated label timeout using adjacent input locators
+
+ HW4/automation/tests/fr01-registration.spec.ts | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+commit b327544a5f85a63fb38456adbab78c0625bbc0e4
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sat Nov 14 21:49:23 2026 +0700
+
+    test(HW4-FR01): add multi-assertion patterns and stabilize multi-browser runs
+
+ HW4/automation/tests/fr01-registration.spec.ts | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+commit 9bc1fe52b6709d85206654d11e7d74c2af5144bd
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sat Nov 14 21:36:40 2026 +0700
+
+    fix(HW4-FR01): replace brittle selectors and handle HTML5 native validation
+
+ HW4/automation/tests/fr01-registration.spec.ts | 31 +++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
+
+commit 1bac66e6086c6685d0671d2de36932000e202d63
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sat Nov 14 20:54:24 2026 +0700
+
+    feat(HW4): generate spec for fr-01
+
+ HW4/automation/data/fr01-registration.json     | 194 +++++++++++++++++++++++++
+ HW4/automation/playwright.config.ts            |  79 ++++------
+ HW4/automation/tests/example.spec.ts           |  18 ---
+ HW4/automation/tests/fr01-registration.spec.ts |  50 +++++++
+ 4 files changed, 269 insertions(+), 72 deletions(-)
+
+commit 486f2807b8d1a143a021b9d100dee7c99b07e8d4
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sat Nov 14 16:40:51 2026 +0700
+
+    docs(HW4): add requirement
+
+ .../2026.HW04.Automation Testing_En.pdf            | Bin 0 -> 463412 bytes
+ .../2026.HW04.Automation Testing_Vi.md             | 221 +++++++++++++++++++++
+ 2 files changed, 221 insertions(+)
+
+commit 3f44684f3b83c625dc6ad99e8d22046f59be7616
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sat Nov 14 16:40:24 2026 +0700
+
+    featr(HW4): config playwright
+
+ HW4/automation/.gitignore            |  8 ++++
+ HW4/automation/package-lock.json     | 79 ++++++++++++++++++++++++++++++++++++
+ HW4/automation/package.json          | 14 +++++++
+ HW4/automation/playwright.config.ts  | 79 ++++++++++++++++++++++++++++++++++++
+ HW4/automation/tests/example.spec.ts | 18 ++++++++
+ 5 files changed, 198 insertions(+)
+
+commit 08c5298bda3fe351dc7f5ca4a95dbfad21834ba5
+Author: 23120319 <truongthanhphat1103@gmail.com>
+Date:   Sat Nov 14 16:35:46 2026 +0700
+
+    feat(HW4): create agent skill for automation testing
+
+ .../skills/playwright-automation-testing/SKILL.md  | 158 +++++++++++++++++
+ .../scripts/export_run_summary.mjs                 |  48 ++++++
+ .../scripts/validate_automation.mjs                | 189 +++++++++++++++++++++
+ .../templates/playwright.config.template.ts        |  51 ++++++
+ .../templates/spec.template.ts                     |  46 +++++
+ .../skills/playwright-automation-testing/SKILL.md  | 158 +++++++++++++++++
+ .../scripts/export_run_summary.mjs                 |  47 +++++
+ .../scripts/validate_automation.mjs                | 188 ++++++++++++++++++++
+ .../templates/playwright.config.template.ts        |  50 ++++++
+ .../templates/spec.template.ts                     |  45 +++++
+ HW4/CLAUDE.md                                      |  75 ++++++++
+ 11 files changed, 1055 insertions(+)

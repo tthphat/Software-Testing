@@ -30,7 +30,7 @@
 | **3** | **Thực thi Đa trình duyệt (Multi-Browser Execution §8)** | 15 | **15** | • Cấu hình ma trận 3 trình duyệt desktop chuẩn: **Chromium**, **Firefox**, **WebKit** trong `playwright.config.ts`.<br>• Chạy toàn bộ 36 test cases x 3 trình duyệt = **108 browser runs**.<br>• Kết quả thực tế: **96 PASS (88.9%)**, **12 FAIL (11.1%)** đồng nhất trên cả 3 trình duyệt do 4 lỗi SUT thực tế. |
 | **4** | **Phát hiện Khiếm khuyết SUT & Lập Bug Report (§10)** | 20 | **20** | • Phát hiện **4 khiếm khuyết phần mềm thực tế** (100% tái hiện trên cả 3 trình duyệt):<br>&nbsp;&nbsp;1. `BUG-AUTO-01`: Backend crash HTTP 500 khi email trùng lặp (Issue [#115](https://github.com/tthphat/eshop-sut/issues/115)).<br>&nbsp;&nbsp;2. `BUG-AUTO-02`: Lỗ hổng ô tổng tiền cho sửa trực tiếp số âm `-31 đ` (Issue [#116](https://github.com/tthphat/eshop-sut/issues/116)).<br>&nbsp;&nbsp;3. `BUG-AUTO-03`: Giỏ hàng không làm sạch sau thanh toán thành công (Issue [#117](https://github.com/tthphat/eshop-sut/issues/117)).<br>&nbsp;&nbsp;4. `BUG-AUTO-04`: Broken Access Control lộ database user tại `/api/admin/users` (Issue [#118](https://github.com/tthphat/eshop-sut/issues/118)).<br>• Lập 4 hồ sơ bug Markdown chi tiết, kèm ảnh chụp màn hình minh chứng có watermark email `23120319@student.hcmus.edu.vn`. |
 | **5** | **Custom Agent Skill & Thẩm định Tự động (§13)** | 10 | **10** | • Xây dựng hoàn chỉnh Agent Skill `playwright-automation-testing` với tài liệu `SKILL.md` và mã script tiện ích.<br>• Tự động hóa cổng kiểm soát chất lượng qua `validate_automation.mjs` (0 lỗi, 0 cảnh báo).<br>• Xuất báo cáo tổng kết chạy test tự động qua `export_run_summary.mjs`. |
-| **6** | **Chống gian lận, Git Log & Báo cáo Kiểm toán AI (§6, §9, §11, §12)** | 10 | **10** | • **Chống gian lận (§6, §11):** Báo cáo HTML và console runner hiển thị banner bắt buộc `Run by: 23120319` kèm timestamp ISO.<br>• **Git Commit Log (§12):** Đạt **10 commits** trực tiếp sửa đổi file `.spec.ts` (vượt chuẩn $\ge 8$ commits của đề bài), được xuất lưu tại `HW4/git-commit-log.txt`.<br>• **Phụ lục AI (§9):** Đầy đủ Báo cáo kiểm toán AI 5 cột chuẩn FIT@HCMUS (`appendix-A-ai-audit.md`) và bài luận phản biện 270 từ (`appendix-B-ai-critique.md`). |
+| **6** | **Chống gian lận, Git Log & Báo cáo Kiểm toán AI (§6, §9, §11, §12)** | 10 | **10** | • **Chống gian lận (§6, §11):** Báo cáo HTML và console runner hiển thị banner bắt buộc `Run by: 23120319` kèm timestamp ISO.<br>• **Git Commit Log (§12):** Đạt **10 commits** trực tiếp sửa đổi file `.spec.ts` (vượt chuẩn $\ge 8$ commits của đề bài), được xuất lưu tại `HW4/git-commit-log.txt`.<br>• **Phụ lục AI (§9):** Đầy đủ Báo cáo kiểm toán AI 5 cột chuẩn FIT@HCMUS (`[AI-02] - FIT@HCMUS - AI Audit Report_Vn.md` / `.pdf`) và bài luận phản biện 270 từ (`appendix-B-ai-critique.md` / `.pdf`). |
 | | **TỔNG ĐIỂM TỰ CHẤM** | **100** | **100 / 100** | **Hoàn thành trọn vẹn 100% tất cả các yêu cầu khắt khe của Đề bài** |
 
 ---
@@ -118,55 +118,79 @@ npx playwright show-report
 
 ---
 
-## 5. Cấu trúc Hồ sơ Bài nộp (`HW4/`)
+## 5. Cấu trúc Hồ sơ Bài nộp (`23120319_HW04_AI_Automation_100/`)
 
 ```text
-23120319_HW04_AI_Automation_100.zip/
-├── README.md                                  # Báo cáo tổng kết, bảng tự chấm 100/100, số liệu kiểm thử
-├── 23120319_HW04_Main_Report.md               # Báo cáo chính toàn diện HW04 nộp bài
-├── git-commit-log.txt                         # Nhật ký Git commit minh chứng 10 commits sửa file .spec.ts
-├── CLAUDE.md                                  # Hướng dẫn cấu hình và quy chuẩn kịch bản kiểm thử
-├── automation/                                # Mã nguồn dự án Playwright TypeScript
+23120319_HW04_AI_Automation_100/
+├── .claude/                                   # Cấu hình Custom Agent Skills theo chuẩn đề bài (§13)
+│   └── skills/
+│       ├── ai-audit-log/                      # Skill ghi nhận báo cáo kiểm toán AI
+│       │   ├── SKILL.md
+│       │   └── scripts/audit.py
+│       └── playwright-automation-testing/     # Skill Playwright TypeScript E2E & Quality Gate
+│           ├── SKILL.md
+│           ├── scripts/
+│           │   ├── export_run_summary.mjs     # Script trích xuất số liệu test tự động
+│           │   └── validate_automation.mjs    # Script thẩm định cấu trúc automation
+│           └── templates/
+│               ├── playwright.config.template.ts
+│               └── spec.template.ts
+├── automation/                                # Toàn bộ mã nguồn dự án Playwright TypeScript
+│   ├── .gitignore
 │   ├── package.json
-│   ├── playwright.config.ts                   # Ma trận 3 trình duyệt, metadata Run by: 23120319
-│   ├── reporters/
-│   │   └── authorship-reporter.ts             # Reporter in thông tin nhận diện tác giả ra console
-│   ├── data/                                  # Dữ liệu kiểm thử Data-Driven (tách biệt hoàn toàn)
+│   ├── package-lock.json
+│   ├── playwright.config.ts                   # Ma trận 3 trình duyệt, banner Run by: 23120319
+│   ├── data/                                  # Dữ liệu kiểm thử Data-Driven (tách biệt 100%)
 │   │   ├── fr01-registration.json             # 12 test cases
 │   │   ├── fr08-checkout.json                 # 12 test cases
 │   │   └── fr12-access-control.json           # 12 test cases
-│   ├── tests/                                 # Kịch bản kiểm thử tự động Playwright (>= 3 assertions)
+│   ├── tests/                                 # Kịch bản kiểm thử tự động (>= 3 assertions)
 │   │   ├── fr01-registration.spec.ts
 │   │   ├── fr08-checkout.spec.ts
 │   │   └── fr12-access-control.spec.ts
-│   └── test-results/
-│       └── results.json                       # Kết quả 108 test runs định dạng JSON
-├── report/                                    # Báo cáo phân tích và phụ lục AI
-│   ├── bugs-summary.md                        # Báo cáo tổng hợp 4 khiếm khuyết SUT
-│   ├── appendix-A-ai-audit.md                 # Báo cáo kiểm toán AI 5 cột chuẩn FIT@HCMUS
-│   ├── appendix-B-ai-critique.md              # Bài luận phản biện AI 270 từ
-│   ├── playwright-report/                     # Báo cáo Playwright HTML lưu trữ
-│   │   ├── playwright-report-fr01.html
-│   │   ├── playwright-report-fr08.html
-│   │   ├── playwright-report-fr12.html
-│   │   └── playwright-report-full.html
-│   └── issues/                                # 4 Hồ sơ khiếm khuyết phần mềm chi tiết
-│       ├── BUG-AUTO-01-duplicate-email.md
-│       ├── BUG-AUTO-02-editable-total-price.md
-│       ├── BUG-AUTO-03-cart-not-cleared.md
-│       └── BUG-AUTO-04-broken-access-control.md
-└── evidence/                                  # Ảnh chụp minh chứng có Watermark email sinh viên
-    ├── screenshots/
-    │   ├── BUG-FR01-01-duplicate-email-p1.png
-    │   ├── BUG-FR01-01-duplicate-email-p2.png
-    │   ├── BUG-FR08-02-editable-total.png
-    │   ├── BUG-FR08-03-cart-not-cleared.png
-    │   └── BUG-FR12-04-broken-access-control.png
-    └── github-issues/
-        ├── BUG-AUTO-01-issue-115.png
-        ├── BUG-AUTO-02-issue-116.png
-        ├── BUG-AUTO-03-issue-117.png
-        └── BUG-AUTO-04-issue-118.png
+│   ├── reporters/
+│   │   └── authorship-reporter.ts             # Reporter in thông tin nhận diện tác giả
+│   ├── test-results/                          # Kết quả 108 test runs, traces và video/ảnh failure
+│   │   └── results.json
+│   └── playwright-report/                     # Thư mục chứa báo cáo HTML runtime của Playwright
+├── evidence/                                  # Minh chứng kiểm thử thực tế có Watermark sinh viên
+│   ├── github-issues/                         # Ảnh chụp 4 Issues (#115 -> #118) trên GitHub repo SUT
+│   │   ├── BUG-AUTO-01-issue-115.png
+│   │   ├── BUG-AUTO-02-issue-116.png
+│   │   ├── BUG-AUTO-03-issue-117.png
+│   │   └── BUG-AUTO-04-issue-118.png
+│   └── screenshots/                           # 5 ảnh chụp lỗi SUT kèm Watermark email sinh viên
+│       ├── BUG-FR01-01-duplicate-email-p1.png
+│       ├── BUG-FR01-01-duplicate-email-p2.png
+│       ├── BUG-FR08-02-editable-total.png
+│       ├── BUG-FR08-03-cart-not-cleared.png
+│       └── BUG-FR12-04-broken-access-control.png
+├── report/                                    # Toàn bộ báo cáo và phụ lục chính thức (MD + PDF)
+│   ├── 23120319_HW04_Main_Report.md           # Báo cáo chính toàn diện HW04 (Markdown)
+│   ├── 23120319_HW04_Main_Report.pdf          # Báo cáo chính toàn diện HW04 (PDF 19 trang hoàn chỉnh)
+│   ├── [AI-02] - FIT@HCMUS - AI Audit Report_Vn.md  # Báo cáo kiểm toán AI 5 cột chuẩn FIT@HCMUS
+│   ├── [AI-02] - FIT@HCMUS - AI Audit Report_Vn.pdf # Báo cáo kiểm toán AI (PDF 10 trang)
+│   ├── [AI-03] - FIT@HCMUS - AI Disclosure Form_Vn.docx.md # Biểu mẫu công bố AI (Markdown)
+│   ├── [AI-03] - FIT@HCMUS - AI Disclosure Form_Vn.pdf     # Biểu mẫu công bố AI (PDF 4 trang)
+│   ├── [AI-05] - FIT@HCMUS - AI Privacy Checklist_Vn.docx.md # Bảng kiểm tra quyền riêng tư AI (MD)
+│   ├── [AI-05] - FIT@HCMUS - AI Privacy Checklist_Vn.pdf     # Bảng kiểm tra quyền riêng tư AI (PDF 2 trang)
+│   ├── appendix-B-ai-critique.md              # Bài luận phản biện AI 270 từ (Markdown)
+│   ├── appendix-B-ai-critique.pdf             # Bài luận phản biện AI (PDF 1 trang)
+│   ├── bugs-summary.md                        # Báo cáo tổng hợp 4 khiếm khuyết SUT (Markdown)
+│   ├── bugs-summary.pdf                       # Báo cáo tổng hợp khiếm khuyết SUT (PDF)
+│   ├── issues/                                # 4 hồ sơ khiếm khuyết phần mềm chi tiết
+│   │   ├── BUG-AUTO-01-duplicate-email.md
+│   │   ├── BUG-AUTO-02-editable-total-price.md
+│   │   ├── BUG-AUTO-03-cart-not-cleared.md
+│   │   └── BUG-AUTO-04-broken-access-control.md
+│   └── playwright-report/                     # Báo cáo Playwright HTML đa trình duyệt lưu trữ
+│       ├── playwright-report-fr01.html
+│       ├── playwright-report-fr08.html
+│       ├── playwright-report-fr12.html
+│       └── playwright-report-full.html
+├── CLAUDE.md                                  # Hướng dẫn cấu hình và quy chuẩn kịch bản kiểm thử
+├── git-commit-log.txt                         # Nhật ký Git commit minh chứng 20 commits HW04
+└── README.md                                  # Báo cáo tổng kết, bảng tự chấm 100/100, số liệu kiểm thử
 ```
 
 ---
