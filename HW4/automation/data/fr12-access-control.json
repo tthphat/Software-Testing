@@ -1,0 +1,248 @@
+[
+  {
+    "id": "TC-FR12-01",
+    "hw02_mapping": "FR12-DT-01",
+    "description": "Admin đăng nhập thành công với tài khoản quản trị viên hiển thị Dashboard và Sidebar",
+    "category": "positive",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "none"
+    },
+    "inputs": {
+      "email": "admin@eshop.com",
+      "password": "Admin123!",
+      "clickTab": null,
+      "clickLogout": false
+    },
+    "expected": {
+      "success": true,
+      "headerTitle": "EShop Admin",
+      "dashboardVisible": true,
+      "alertMessage": null
+    }
+  },
+  {
+    "id": "TC-FR12-02",
+    "hw02_mapping": "FR12-DT-07",
+    "description": "Chặn đăng nhập Admin khi người dùng sử dụng tài khoản User thường (hiển thị alert thông báo)",
+    "category": "negative",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "none"
+    },
+    "inputs": {
+      "email": "test@eshop.com",
+      "password": "Test1234!",
+      "clickTab": null,
+      "clickLogout": false
+    },
+    "expected": {
+      "success": false,
+      "alertMessage": "Bạn không phải là admin!",
+      "stayOnLogin": true
+    }
+  },
+  {
+    "id": "TC-FR12-03",
+    "hw02_mapping": "FR12-DT-02",
+    "description": "Chặn đăng nhập Admin khi nhập sai mật khẩu tài khoản quản trị (hiển thị alert thông báo)",
+    "category": "negative",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "none"
+    },
+    "inputs": {
+      "email": "admin@eshop.com",
+      "password": "WrongPassword123!",
+      "clickTab": null,
+      "clickLogout": false
+    },
+    "expected": {
+      "success": false,
+      "alertMessage": "Đăng nhập thất bại",
+      "stayOnLogin": true
+    }
+  },
+  {
+    "id": "TC-FR12-04",
+    "hw02_mapping": "FR12-DT-02",
+    "description": "Chặn đăng nhập Admin khi email không tồn tại trong hệ thống (hiển thị alert thông báo)",
+    "category": "negative",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "none"
+    },
+    "inputs": {
+      "email": "notfound_admin@eshop.com",
+      "password": "AdminPassword1!",
+      "clickTab": null,
+      "clickLogout": false
+    },
+    "expected": {
+      "success": false,
+      "alertMessage": "Đăng nhập thất bại",
+      "stayOnLogin": true
+    }
+  },
+  {
+    "id": "TC-FR12-05",
+    "hw02_mapping": "FR12-DT-02",
+    "description": "Truy cập trực tiếp trang Admin khi chưa có phiên đăng nhập bắt buộc hiển thị form Admin Login",
+    "category": "negative",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "none"
+    },
+    "inputs": {
+      "email": null,
+      "password": null,
+      "clickTab": null,
+      "clickLogout": false
+    },
+    "expected": {
+      "loginFormVisible": true,
+      "loginHeading": "Admin Login"
+    }
+  },
+  {
+    "id": "TC-FR12-06",
+    "hw02_mapping": "FR12-DT-10",
+    "description": "Đăng xuất tài khoản Admin xóa adminToken khỏi localStorage và quay lại màn hình Login",
+    "category": "positive",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "admin"
+    },
+    "inputs": {
+      "email": null,
+      "password": null,
+      "clickTab": null,
+      "clickLogout": true
+    },
+    "expected": {
+      "logoutSuccess": true,
+      "tokenRemoved": true,
+      "loginFormVisible": true
+    }
+  },
+  {
+    "id": "TC-FR12-07",
+    "hw02_mapping": "FR12-DT-12",
+    "description": "Admin chuyển đổi điều hướng sang tab Danh mục và hiển thị bảng quản lý danh mục",
+    "category": "positive",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "admin"
+    },
+    "inputs": {
+      "email": null,
+      "password": null,
+      "clickTab": "Danh mục",
+      "clickLogout": false
+    },
+    "expected": {
+      "tabTitle": "Quản lý Danh mục",
+      "hasNewCategoryInput": true
+    }
+  },
+  {
+    "id": "TC-FR12-08",
+    "hw02_mapping": "FR12-DT-01",
+    "description": "Admin chuyển đổi điều hướng sang tab Sản phẩm và hiển thị khu vực Import CSV sản phẩm",
+    "category": "positive",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "admin"
+    },
+    "inputs": {
+      "email": null,
+      "password": null,
+      "clickTab": "Sản phẩm",
+      "clickLogout": false
+    },
+    "expected": {
+      "tabTitle": "Quản lý Sản phẩm",
+      "hasCsvImportSection": true
+    }
+  },
+  {
+    "id": "TC-FR12-09",
+    "hw02_mapping": "FR12-DT-01",
+    "description": "Admin chuyển đổi điều hướng sang tab Mã Giảm Giá và hiển thị form tạo coupon",
+    "category": "positive",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "admin"
+    },
+    "inputs": {
+      "email": null,
+      "password": null,
+      "clickTab": "Mã Giảm Giá",
+      "clickLogout": false
+    },
+    "expected": {
+      "tabTitle": "Quản lý Mã Giảm Giá",
+      "hasCouponForm": true
+    }
+  },
+  {
+    "id": "TC-FR12-10",
+    "hw02_mapping": "FR12-DT-01",
+    "description": "Admin chuyển đổi điều hướng sang tab Đơn hàng và hiển thị danh sách đơn đặt hàng",
+    "category": "positive",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "admin"
+    },
+    "inputs": {
+      "email": null,
+      "password": null,
+      "clickTab": "Đơn hàng",
+      "clickLogout": false
+    },
+    "expected": {
+      "tabTitle": "Quản lý Đơn hàng",
+      "hasOrderTable": true
+    }
+  },
+  {
+    "id": "TC-FR12-11",
+    "hw02_mapping": "FR12-DT-05",
+    "description": "Kiểm tra cơ chế phòng thủ: Token Admin giả mạo hoặc sai chữ ký bị xóa sạch và đẩy về trang đăng nhập",
+    "category": "boundary",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "invalid"
+    },
+    "inputs": {
+      "email": null,
+      "password": null,
+      "clickTab": null,
+      "clickLogout": false
+    },
+    "expected": {
+      "tokenCleared": true,
+      "loginFormVisible": true
+    }
+  },
+  {
+    "id": "TC-FR12-12",
+    "hw02_mapping": "FR12-DT-07",
+    "description": "Kiểm tra lỗ hổng Broken Access Control: Backend không được phép trả dữ liệu người dùng cho vai trò user",
+    "category": "boundary",
+    "setup": {
+      "adminUrl": "http://localhost:5174",
+      "injectToken": "user"
+    },
+    "inputs": {
+      "email": null,
+      "password": null,
+      "clickTab": null,
+      "clickLogout": false
+    },
+    "expected": {
+      "expectAccessDenied": true,
+      "expectedStatus": 403
+    }
+  }
+]
